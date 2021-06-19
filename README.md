@@ -1,7 +1,7 @@
 # lookup
 
 This is a "simple" lookup library I wrote for go.. It's designed to bring some of the dynamicness you can get with lookup
-solutions like Jsonpath and Jsonata to structures inside go.
+solutions like Jsonpath and Jsonata to structures inside go. Inspired by Jackson's .Path()
 
 It works by trying to "find" the next component you have requested. It will dynamically create arrays as necessary.
 
