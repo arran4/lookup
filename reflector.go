@@ -8,23 +8,30 @@ import (
 	"unicode"
 )
 
+// Reflector is a Pathor which uses reflection for navigation of the the objects, it supports a wide range of elements
 type Reflector struct {
 	path string
 	v    reflect.Value
 }
 
+// Type extracts the reflect.Type from the stored object
 func (r Reflector) Type() reflect.Type {
 	return r.v.Type()
 }
 
+// Raw returns the contained object / reference.
 func (r Reflector) Raw() interface{} {
 	return r.v.Interface()
 }
 
+// Value returns the reflect.Value
 func (r Reflector) Value() reflect.Value {
 	return r.v
 }
 
+// Find finds the best match for the "Path" argument in the contained object and then returns a Pathor for that location
+// If nothing was found it will return an Invaldior, or if a Constant has bee provided as an argument (such as through
+// `NewDefault()` it will default to that in most cases. Find is designed to return null safe results.
 func (r *Reflector) Find(path string, opts ...PathOpt) Pathor {
 	settings := &PathSettings{}
 	for _, opt := range opts {
@@ -35,6 +42,7 @@ func (r *Reflector) Find(path string, opts ...PathOpt) Pathor {
 	return rr
 }
 
+// subPath determines type and preforms the correct action. -- If an error defautls to default
 func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.Value, settings *PathSettings) Pathor {
 	var result Pathor
 	switch v.Kind() {
@@ -106,6 +114,9 @@ func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.
 	return result
 }
 
+// ArrayOrSliceForEachPath if the array/slice path isn't found or the path isn't a valid index (ie a string) then this
+// function extracts all matches from the array and puts them into a type matched array if possible otherwise a generic
+// []interface{} map.
 func (r Reflector) ArrayOrSliceForEachPath(prefix string, path string, v reflect.Value, settings *PathSettings) Pathor {
 	typeCount := map[reflect.Type]int{}
 	type Pair struct {
@@ -200,6 +211,8 @@ func (r Reflector) ArrayOrSliceForEachPath(prefix string, path string, v reflect
 	}
 }
 
+// ArrayOrSlicePath attempts to extract the path as an index from the arrya, if this fails it will then use the index to
+// assemble an array of matching children using ArrayOrSliceForEachPath
 func (r Reflector) ArrayOrSlicePath(prefix string, path string, v reflect.Value, settings *PathSettings) Pathor {
 	p := prefix + "[" + strconv.Quote(path) + "]"
 	i, err := strconv.ParseInt(path, 10, 64)
@@ -232,6 +245,8 @@ func (r Reflector) ArrayOrSlicePath(prefix string, path string, v reflect.Value,
 	}
 }
 
+// MapPath attempts to convert the path to the appropriate from of key if it can be determined then look up the value
+// and return it.
 func (r Reflector) MapPath(prefix string, path string, v reflect.Value, settings *PathSettings) Pathor {
 	p := prefix + "." + strconv.Quote(path)
 	if prefix == "" || strings.HasSuffix(prefix, ".") {
@@ -255,6 +270,7 @@ func (r Reflector) MapPath(prefix string, path string, v reflect.Value, settings
 	}
 }
 
+// ExtractKey tries to convert the path into the key type required and return it, or return an error in a Pathor
 func (r Reflector) ExtractKey(path string, v reflect.Value, p string) (reflect.Value, Pathor) {
 	k := reflect.ValueOf(path)
 	kt := v.Type().Key().Kind()
@@ -414,6 +430,8 @@ func (r Reflector) ExtractKey(path string, v reflect.Value, p string) (reflect.V
 	return k, nil
 }
 
+// StructPath attempts to extract a field matching the name provided, if it can't do that then it attempts to look for a
+// function and run it if it matches the provided parameters.
 func (r Reflector) StructPath(prefix string, path string, v reflect.Value, pv *reflect.Value, settings *PathSettings) Pathor {
 	p := prefix + "." + path
 	if unicode.IsLower([]rune(path)[0]) {
@@ -448,6 +466,7 @@ func (r Reflector) StructPath(prefix string, path string, v reflect.Value, pv *r
 	}
 }
 
+// RunMethod runs the method that's provided, if the definition is valid and then returns the appropriate Pathor or nil.
 func (r Reflector) RunMethod(m reflect.Value, p string) Pathor {
 	if !m.IsValid() {
 		return nil
@@ -493,6 +512,8 @@ func (r Reflector) RunMethod(m reflect.Value, p string) Pathor {
 	return nil
 }
 
+// Reflect creates a Pathor that uses reflect to navigate the object. This so far is the only way to navigate arbitrary
+// go objects, so use this.
 func Reflect(i interface{}) Pathor {
 	return &Reflector{
 		v: reflect.ValueOf(i),
