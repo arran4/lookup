@@ -79,13 +79,11 @@ Feel free to log issues and PRs:
 * For any reason really
 * Opinions welcome but not obligated to
 
-# License
+# Public License
 
-Sorry guys decided to try something new. DUAL licensed. Public license is AGPL contact me about private licenses.
+This project is publicly available under the Affero GPL license.
+Tests are not considered part of the binary.
 
-I do not consider tests part of the binary.
+# Custom Licensing
 
-# Pricing
-
-Subject to negotiation if you can use the AGPL do so. As always I would like to find more time to work on these this might make
-it possible.
+If the AGPL is not suitable for your purposes, please drop me a line, and let's talk.
