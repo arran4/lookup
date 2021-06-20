@@ -26,37 +26,42 @@ func (i *Invalidor) Path() string {
 	return i.path
 }
 
+// Evaluate implements EvaluateNoArgs
+func (i *Invalidor) Evaluate() bool {
+	return false
+}
+
 // Type returns NULL
-func (r Invalidor) Type() reflect.Type {
+func (i *Invalidor) Type() reflect.Type {
 	return nil
 }
 
 // Raw returns NULL
-func (r Invalidor) Raw() interface{} {
+func (i *Invalidor) Raw() interface{} {
 	return nil
 }
 
 // Raw returns a zero/invalid reflect.Value
-func (r Invalidor) Value() reflect.Value {
+func (i *Invalidor) Value() reflect.Value {
 	return reflect.Value{}
 }
 
 // Error implements the error interface
-func (r Invalidor) Error() string {
-	return r.err.Error()
+func (i *Invalidor) Error() string {
+	return i.err.Error()
 }
 
 // Unwrap implements the Unwrap error interface
-func (r Invalidor) Unwrap() error {
-	return r.err
+func (i *Invalidor) Unwrap() error {
+	return i.err
 }
 
 // Find returns a new Invalidator with the same object but with an updated path if required. -- The path changing component
 // might be removed - or become toggleable in an option.
-func (r Invalidor) Find(path string, opts ...PathOpt) Pathor {
-	p := PathBuilder(path, r, nil)
+func (i *Invalidor) Find(path string, opts ...PathOpt) Pathor {
+	p := PathBuilder(path, i, nil)
 	return &Invalidor{
-		err:  r.err,
+		err:  i.err,
 		path: p,
 	}
 }

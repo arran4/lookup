@@ -30,6 +30,14 @@ func (r *Reflector) Value() reflect.Value {
 	return r.v
 }
 
+// Evaluate returns not IsZero from reflect.Value for the purpose of implementing EvaluateNoArgs
+func (r *Reflector) Evaluate() bool {
+	if r.v.IsValid() {
+		return !r.v.IsZero()
+	}
+	return false
+}
+
 // Find finds the best match for the "Path" argument in the contained object and then returns a Pathor for that location
 // If nothing was found it will return an Invalidor, or if a Constant has bee provided as an argument (such as through
 // `NewDefault()` it will default to that in most cases. Find is designed to return null safe results.
@@ -39,6 +47,15 @@ func (r *Reflector) Find(path string, opts ...PathOpt) Pathor {
 		opt.PathOptSet(settings)
 	}
 	rr := r.subPath(path, r.v, r.path, nil, settings)
+	p := ExtractPath(rr)
+	for _, evaluator := range settings.Evaluators {
+		if e, err := evaluator.Evaluate(rr); err != nil {
+			return NewInvalidor(p, err)
+		} else if !e {
+			return NewInvalidor(p, ErrEvalFail)
+		}
+	}
+
 	return rr
 }
 
@@ -118,6 +135,9 @@ func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.
 // Reflect creates a Pathor that uses reflect to navigate the object. This so far is the only way to navigate arbitrary
 // go objects, so use this.
 func Reflect(i interface{}) Pathor {
+	if p, ok := i.(Pathor); ok {
+		return p
+	}
 	return &Reflector{
 		v: reflect.ValueOf(i),
 	}

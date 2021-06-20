@@ -11,8 +11,6 @@ func ExtractPath(pather Pathor) string {
 		return p.Path()
 	}
 	switch pather := pather.(type) {
-	case Invalidor:
-		return pather.path
 	case *Invalidor:
 		return pather.path
 	case *Constantor:

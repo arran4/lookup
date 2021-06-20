@@ -6,7 +6,8 @@ import (
 
 // PathSettings are the settings used by the Find function.
 type PathSettings struct {
-	Default *Constantor
+	Default    *Constantor
+	Evaluators []*Evaluator
 }
 
 // InferOps reverse engineers the options provided to PathSettings
