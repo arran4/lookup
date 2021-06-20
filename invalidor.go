@@ -22,6 +22,10 @@ func NewInvalidor(path string, err error) *Invalidor {
 	}
 }
 
+func (i *Invalidor) Path() string {
+	return i.path
+}
+
 // Type returns NULL
 func (r Invalidor) Type() reflect.Type {
 	return nil
@@ -50,12 +54,7 @@ func (r Invalidor) Unwrap() error {
 // Find returns a new Invalidator with the same object but with an updated path if required. -- The path changing component
 // might be removed - or become toggleable in an option.
 func (r Invalidor) Find(path string, opts ...PathOpt) Pathor {
-	p := r.path
-	if len(r.path) > 0 {
-		p = r.path + "." + path
-	} else {
-		p = path
-	}
+	p := PathBuilder(path, r, nil)
 	return &Invalidor{
 		err:  r.err,
 		path: p,
