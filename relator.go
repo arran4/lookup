@@ -13,29 +13,22 @@ type Relator struct {
 }
 
 func (r *Relator) Exists() *Evaluator {
-	return Exists(r)
-}
-
-func (r *Relator) IsNotZero() *Evaluator {
-	return NotZero(r)
-}
-
-func (r *Relator) DoesContainNotZero() *Evaluator {
-	return ContainsNotZero(r)
+	return NewEvaluator(Exists(r))
 }
 
 type RelatorPathOpt interface {
 	Find(path string, opts ...PathOpt) *Relator
 	Copy() *Relator
 	Exists() *Evaluator
-	IsNotZero() *Evaluator
+	Run(position Pathor) Pathor
 }
 
-func FromHere() RelatorPathOpt {
-	return &Relator{
-		finds:        nil,
-		positionName: "",
-	}
+func Find(path string, opts ...PathOpt) RelatorPathOpt {
+	return (&Relator{}).Find(path, opts...)
+}
+
+func This() RelatorPathOpt {
+	return (&Relator{})
 }
 
 func NewRelator() *Relator {

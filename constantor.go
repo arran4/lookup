@@ -20,6 +20,13 @@ func NewConstantor(path string, c interface{}) *Constantor {
 	}
 }
 
+func Array(c ...interface{}) *Constantor {
+	return &Constantor{
+		path: "",
+		c:    c,
+	}
+}
+
 // Type extracts the reflect.Type from the stored object
 func (r *Constantor) Type() reflect.Type {
 	return reflect.TypeOf(r.c)
