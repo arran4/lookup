@@ -76,19 +76,6 @@ func (i *Interfaceor) Value() reflect.Value {
 	return reflect.ValueOf(i.i.Raw())
 }
 
-// Evaluate first attempts to pass on the Evaluate() function to the embedded interface if it implements the interface
-// otherwise it will return the not IsZero value from reflect.ValueOf
-func (i *Interfaceor) Evaluate() bool {
-	if ie, ok := i.i.(EvaluateNoArg); ok {
-		return ie.Evaluate()
-	}
-	v := reflect.ValueOf(i.i.Raw())
-	if v.IsValid() {
-		return !v.IsZero()
-	}
-	return false
-}
-
 func (i *Interfaceor) Raw() interface{} {
 	return i.i.Raw()
 }

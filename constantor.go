@@ -35,16 +35,6 @@ func (r *Constantor) Value() reflect.Value {
 	return reflect.ValueOf(r.c)
 }
 
-// Evaluate returns to the not IsZero value from reflect.ValueOf to provide a means of creating a constant for evaluation
-// purposes
-func (r *Constantor) Evaluate() bool {
-	v := reflect.ValueOf(r.c)
-	if v.IsValid() {
-		return !v.IsZero()
-	}
-	return false
-}
-
 // PathOptSet allows for Constantor to be used as the default / fallback value on a .Find() operation
 func (d *Constantor) PathOptSet(ctx *PathSettings) {
 	ctx.Default = d

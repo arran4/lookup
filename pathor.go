@@ -16,6 +16,9 @@ func (s *PathSettings) InferOps() []PathOpt {
 	if s.Default != nil {
 		result = append(result, s.Default)
 	}
+	for _, e := range s.Evaluators {
+		result = append(result, e)
+	}
 	return result
 }
 

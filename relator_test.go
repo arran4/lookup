@@ -40,12 +40,12 @@ func TestRelator_Evaluate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			copy := tt.relator.Copy()
-			got := tt.relator.Evaluate(tt.args.position)
-			if diff := cmp.Diff(got, tt.want); diff != "" {
+			got := tt.relator.Run(tt.args.position)
+			if diff := cmp.Diff(got.Raw(), tt.want); diff != "" {
 				t.Errorf("Evaluate() = %v", diff)
 			}
-			copygot := copy.Evaluate(tt.args.position)
-			if diff := cmp.Diff(copygot, tt.want); diff != "" {
+			copygot := copy.Run(tt.args.position)
+			if diff := cmp.Diff(copygot.Raw(), tt.want); diff != "" {
 				t.Errorf("Evaluate() = %v", diff)
 			}
 		})
@@ -64,6 +64,7 @@ func TestRelator_FromHere(t *testing.T) {
 		Field1  BoolField
 		Field1b BoolField
 		Field2  []BoolField
+		Field2b []BoolField
 		Field3  []StringField
 		Field4  interface{}
 	}{
@@ -73,6 +74,11 @@ func TestRelator_FromHere(t *testing.T) {
 		Field2: []BoolField{
 			{Value1: true},
 			{Value1: true},
+			{Value1: false},
+		},
+		Field2b: []BoolField{
+			{Value1: false},
+			{Value1: false},
 			{Value1: false},
 		},
 		Field3: []StringField{
@@ -86,19 +92,28 @@ func TestRelator_FromHere(t *testing.T) {
 		resultFunc func() Pathor
 		fail       bool
 	}{
-		{name: "No lookup does nothing", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", FromHere()).Find("Value1") }, want: "abc"},
-		{name: "Empty lookup does nothing", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", FromHere().Find("")).Find("Value1") }, want: "abc"},
-		{name: "Rel lookup path matches real query", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", FromHere().Find("Value1")).Find("Value1") }, want: "abc"},
-		{name: "Rel lookup path matches real query", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", FromHere().Find("Value1b")).Find("Value1") }, fail: true},
-		{name: "Bad path in rel path causes failure in real query", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", FromHere().Find("Value9999")).Find("Value1") }, fail: true},
-		{name: "Array look up returns only true", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2", FromHere().Find("Value1")).Find("Value1") }, want: []bool{true, true}},
+		{name: "No lookup does nothing", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", FromHere().Exists()).Find("Value1") }, want: "abc"},
+		{name: "Empty lookup does nothing", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", FromHere().Find("").Exists()).Find("Value1") }, want: "abc"},
+		{name: "Rel lookup path matches real query", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", FromHere().Find("Value1").Exists()).Find("Value1") }, want: "abc"},
+		{name: "Rel lookup path matches real query", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", FromHere().Find("Value1b").Exists()).Find("Value1") }, fail: true},
+		{name: "Bad path in rel path causes failure in real query", resultFunc: func() Pathor {
+			return Reflect(ds1).Find("Field0", FromHere().Find("Value9999").Exists()).Find("Value1")
+		}, fail: true},
+		{name: "Array look up has a true so returns all", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2", FromHere().Find("Value1").Exists()).Find("Value1") }, want: []bool{true, true, false}},
+		{name: "Array look up only returns true", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", FromHere().Exists()) }, want: []bool{true, true}},
+		{name: "Array look up doesn't have a true so fails", resultFunc: func() Pathor {
+			return Reflect(ds1).Find("Field2b", FromHere().Find("Value1").DoesContainNotZero()).Find("Value1")
+		}, fail: true},
+		{name: "Array look up a true so passes", resultFunc: func() Pathor {
+			return Reflect(ds1).Find("Field2", FromHere().Find("Value1").DoesContainNotZero()).Find("Value1")
+		}, want: []bool{true, true, false}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.resultFunc()
 			if tt.fail {
 				if _, ok := got.(error); !ok {
-					t.Errorf("Failed expected error / failure / invalid got %v", got)
+					t.Errorf("Failed expected error / failure / invalid got %v %#v", got, got.Raw())
 				}
 				return
 			}

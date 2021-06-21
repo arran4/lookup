@@ -30,14 +30,6 @@ func (r *Reflector) Value() reflect.Value {
 	return r.v
 }
 
-// Evaluate returns not IsZero from reflect.Value for the purpose of implementing EvaluateNoArgs
-func (r *Reflector) Evaluate() bool {
-	if r.v.IsValid() {
-		return !r.v.IsZero()
-	}
-	return false
-}
-
 // Find finds the best match for the "Path" argument in the contained object and then returns a Pathor for that location
 // If nothing was found it will return an Invalidor, or if a Constant has bee provided as an argument (such as through
 // `NewDefault()` it will default to that in most cases. Find is designed to return null safe results.
@@ -59,7 +51,7 @@ func (r *Reflector) Find(path string, opts ...PathOpt) Pathor {
 	return rr
 }
 
-// subPath determines type and preforms the correct action. -- If an error defautls to default
+// subPath determines type and preforms the correct action. -- If an error defaults to default
 func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.Value, settings *PathSettings) Pathor {
 	var result Pathor
 	switch v.Kind() {

@@ -12,17 +12,23 @@ type Relator struct {
 	positionName string
 }
 
-// PathOptSet allows Relator to be used as a PathOpt
-func (r *Relator) PathOptSet(settings *PathSettings) {
-	settings.Evaluators = append(settings.Evaluators, &Evaluator{
-		fi: r,
-	})
+func (r *Relator) Exists() *Evaluator {
+	return Exists(r)
+}
+
+func (r *Relator) IsNotZero() *Evaluator {
+	return NotZero(r)
+}
+
+func (r *Relator) DoesContainNotZero() *Evaluator {
+	return ContainsNotZero(r)
 }
 
 type RelatorPathOpt interface {
-	PathOpt
 	Find(path string, opts ...PathOpt) *Relator
 	Copy() *Relator
+	Exists() *Evaluator
+	IsNotZero() *Evaluator
 }
 
 func FromHere() RelatorPathOpt {
@@ -59,18 +65,10 @@ func (r *Relator) Copy() *Relator {
 	}
 }
 
-// Evaluate replays .Find() at the current location (executed internally) and then tried to determine if EvaluateNoArgs
-// is implemented if so then return the results of that, otherwise returns p.Value() not IsZero if IsValid otherwise false
-func (r *Relator) Evaluate(position Pathor) bool {
+func (r *Relator) Run(position Pathor) Pathor {
 	p := position
 	for _, f := range r.finds {
 		p = p.Find(f.path, f.pathOpts...)
 	}
-	if pena, ok := p.(EvaluateNoArg); ok {
-		return pena.Evaluate()
-	}
-	if p.Value().IsValid() {
-		return !p.Value().IsZero()
-	}
-	return false
+	return p
 }
