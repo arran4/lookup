@@ -27,8 +27,8 @@ func (i *Invalidor) Path() string {
 }
 
 // Evaluate implements EvaluateNoArgs
-func (i *Invalidor) Evaluate() bool {
-	return false
+func (i *Invalidor) Evaluate(scope *Scope, position Pathor) (Pathor, error) {
+	return nil, nil
 }
 
 // Type returns NULL

@@ -41,9 +41,14 @@ func (r *Reflector) Find(path string, opts ...PathOpt) Pathor {
 	rr := r.subPath(path, r.v, r.path, nil, settings)
 	p := ExtractPath(rr)
 	for _, evaluator := range settings.Evaluators {
-		if e, err := evaluator.Evaluate(rr); err != nil {
+		scope := &Scope{
+			Current: r,
+		}
+		if e, err := evaluator.Evaluate(scope, rr); err != nil {
 			return NewInvalidor(p, err)
-		} else if !e {
+		} else if e != nil {
+			rr = e
+		} else if e == nil {
 			return NewInvalidor(p, ErrEvalFail)
 		}
 	}
@@ -53,6 +58,9 @@ func (r *Reflector) Find(path string, opts ...PathOpt) Pathor {
 
 // subPath determines type and preforms the correct action. -- If an error defaults to default
 func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.Value, settings *PathSettings) Pathor {
+	if path == "" {
+		return r
+	}
 	var result Pathor
 	switch v.Kind() {
 	case reflect.Ptr:

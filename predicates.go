@@ -1,9 +1,14 @@
 package lookup
 
-import "reflect"
+import (
+	"fmt"
+	"reflect"
+	"regexp"
+	"strconv"
+)
 
 type Predicate interface {
-	Run(position Pathor) Pathor
+	Run(scope *Scope, position Pathor) Pathor
 }
 
 type pathExists struct {
@@ -20,9 +25,87 @@ func Exists(predicate Predicate) PathOpt {
 	}
 }
 
-func (p *pathExists) Evaluate(pathor Pathor) (bool, error) {
-	v := p.p.Run(pathor).Value()
-	return v.IsValid(), nil
+func (p *pathExists) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
+	v := p.p.Run(scope, pathor).Value()
+	if v.IsValid() {
+		return pathor, nil
+	}
+	return nil, nil
+}
+
+type index struct {
+	i interface{}
+}
+
+func (i *index) PathOptSet(settings *PathSettings) {
+	settings.Evaluators = append(settings.Evaluators, &Evaluator{fi: i})
+}
+
+func Index(i interface{}) *Evaluator {
+	return &Evaluator{
+		group: true,
+		fi: &index{
+			i: i,
+		},
+	}
+}
+
+func (i *index) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
+	switch pathor.Type().Kind() {
+	case reflect.Array, reflect.Slice:
+	default:
+		return nil, ErrIndexOfNotArray
+	}
+	return evaluateType(scope, pathor, i.i)
+}
+
+func evaluateType(scope *Scope, pathor Pathor, i interface{}) (Pathor, error) {
+	if i == nil {
+		return nil, nil
+	}
+	switch reflect.TypeOf(i).Kind() {
+	case reflect.Float32, reflect.Float64, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		ip, err := interfaceToInt(i)
+		if err != nil {
+			return nil, err
+		}
+		return evaluateInt(pathor, ip)
+	case reflect.String:
+		simpleValue, err := regexp.Compile("^\\d+$")
+		if err != nil {
+			return nil, err
+		}
+		if simpleValue.MatchString(i.(string)) {
+			ii, err := strconv.ParseInt(i.(string), 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			return evaluateInt(pathor, int(ii))
+		}
+	case reflect.Struct, reflect.Ptr:
+		switch ii := i.(type) {
+		case Predicate:
+			pathor := ii.Run(scope, pathor)
+			return evaluateType(scope, pathor, pathor.Raw())
+		case *Constantor:
+			return evaluateType(scope, pathor, ii.Raw())
+		default:
+			return nil, ErrIndexValueNotValid
+		}
+	default:
+		return nil, ErrIndexValueNotValid
+	}
+	return nil, ErrUnknownIndexMode
+}
+
+func evaluateInt(pathor Pathor, ip int) (Pathor, error) {
+	if ip < 0 {
+		ip = pathor.Value().Len() + ip
+	}
+	if ip < 0 || ip >= pathor.Value().Len() {
+		return nil, ErrIndexOutOfRange
+	}
+	return pathor.Find(fmt.Sprintf("%d", ip)), nil
 }
 
 type isZeroValue struct {
@@ -39,12 +122,12 @@ func IsZero(predicate Predicate) *Evaluator {
 	})
 }
 
-func (p *isZeroValue) Evaluate(pathor Pathor) (bool, error) {
-	v := p.p.Run(pathor).Value()
-	if v.IsValid() {
-		return !v.IsZero(), nil
+func (p *isZeroValue) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
+	v := p.p.Run(scope, pathor).Value()
+	if v.IsValid() && v.IsZero() {
+		return pathor, nil
 	}
-	return false, nil
+	return nil, nil
 }
 
 type not struct {
@@ -61,131 +144,62 @@ func Not(evaluator *Evaluator) *Evaluator {
 	})
 }
 
-func (p *not) Evaluate(pathor Pathor) (bool, error) {
-	b, err := p.p.Evaluate(pathor)
-	return !b, err
+func (p *not) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
+	b, err := p.p.Evaluate(scope, pathor)
+	if b != nil {
+		return nil, err
+	} else {
+		return pathor, err
+	}
 }
 
 type contains struct {
-	value Pathor
+	value Predicate
 }
 
 func (p *contains) PathOptSet(settings *PathSettings) {
 	settings.Evaluators = append(settings.Evaluators, &Evaluator{fi: p})
 }
 
-func Contains(value Pathor) *Evaluator {
+func Contains(value Predicate) *Evaluator {
 	return &Evaluator{
+		group: true,
 		fi: &contains{
 			value: value,
 		},
 	}
 }
 
-func (p *contains) Evaluate(pathor Pathor) (bool, error) {
+func (p *contains) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
 	in := pathor.Value()
-	v := p.value.Value()
-	return elementOf(v, in, nil), nil
+	v := p.value.Run(scope, pathor)
+	if elementOf(v.Value(), in, nil) {
+		return pathor, nil
+	}
+	return nil, nil
 }
 
 type in struct {
-	values Pathor
+	values Predicate
 }
 
 func (p *in) PathOptSet(settings *PathSettings) {
 	settings.Evaluators = append(settings.Evaluators, &Evaluator{fi: p})
 }
 
-func In(inValues Pathor) *Evaluator {
+func In(predicate Predicate) *Evaluator {
 	return &Evaluator{
 		fi: &in{
-			values: inValues,
+			values: predicate,
 		},
 	}
 }
 
-func (p *in) Evaluate(pathor Pathor) (bool, error) {
+func (p *in) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
 	v := pathor.Value()
-	in := p.values.Value()
-	return elementOf(v, in, nil), nil
-}
-
-func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
-	if !in.IsValid() {
-		return false
+	in := p.values.Run(scope, pathor)
+	if elementOf(v, in.Value(), nil) {
+		return pathor, nil
 	}
-	if !in.IsValid() {
-		return false
-	}
-	switch in.Kind() {
-	//case reflect.Bool:
-	//case reflect.Int:
-	//case reflect.Int8:
-	//case reflect.Int16:
-	//case reflect.Int32:
-	//case reflect.Int64:
-	//case reflect.Uint:
-	//case reflect.Uint8:
-	//case reflect.Uint16:
-	//case reflect.Uint32:
-	//case reflect.Uint64:
-	//case reflect.Uintptr:
-	//case reflect.Float32:
-	//case reflect.Float64:
-	//case reflect.Complex64:
-	//case reflect.Complex128:
-	case reflect.Array:
-		for i := 0; i < in.Len(); i++ {
-			f := in.Index(i)
-			if reflect.DeepEqual(v.Interface(), f.Interface()) {
-				return true
-			}
-		}
-	//case reflect.Chan:
-	case reflect.Func:
-		var r Pathor
-		r = runMethod(in, "")
-		return elementOf(r.Value(), in, nil)
-	case reflect.Map:
-		for _, k := range in.MapKeys() {
-			f := in.MapIndex(k)
-			if reflect.DeepEqual(v.Interface(), f.Interface()) {
-				return true
-			}
-		}
-	case reflect.Ptr:
-		return elementOf(v.Elem(), in.Elem(), &v)
-	case reflect.Slice:
-		for i := 0; i < in.Len(); i++ {
-			f := in.Index(i)
-			if reflect.DeepEqual(v.Interface(), f.Interface()) {
-				return true
-			}
-		}
-	//case reflect.String:
-	case reflect.Struct:
-		for i := 0; i < in.NumField(); i++ {
-			f := in.Field(i)
-			if reflect.DeepEqual(v.Interface(), f.Interface()) {
-				return true
-			}
-		}
-		for i := 0; i < in.NumMethod(); i++ {
-			var f reflect.Value
-			if pv == nil {
-				f = v.Method(i)
-			} else {
-				f = pv.Method(i)
-			}
-			fr := runMethod(f, "")
-			if elementOf(fr.Value(), in, nil) {
-				return true
-			}
-		}
-
-	//case reflect.UnsafePointer:
-	default:
-		return reflect.DeepEqual(in.Interface(), in.Interface())
-	}
-	return false
+	return nil, ErrValueNotIn
 }

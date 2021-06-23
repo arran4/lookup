@@ -20,6 +20,13 @@ func NewConstantor(path string, c interface{}) *Constantor {
 	}
 }
 
+// Constant constructs a non-navigable constant.
+func Constant(c interface{}) *Constantor {
+	return &Constantor{
+		c: c,
+	}
+}
+
 func Array(c ...interface{}) *Constantor {
 	return &Constantor{
 		path: "",
@@ -66,17 +73,26 @@ func (r *Constantor) Find(path string, opts ...PathOpt) Pathor {
 		}
 	}
 
-	nc := &Constantor{
+	var nc Pathor = &Constantor{
 		c:    c,
 		path: p,
 	}
 	for _, evaluator := range settings.Evaluators {
-		if e, err := evaluator.Evaluate(nc); err != nil {
+		scope := &Scope{
+			Current: nc,
+		}
+		if e, err := evaluator.Evaluate(scope, nc); err != nil {
 			return NewInvalidor(p, err)
-		} else if !e {
+		} else if e != nil {
+			nc = e
+		} else if e == nil {
 			return NewInvalidor(p, ErrEvalFail)
 		}
 	}
 
 	return nc
+}
+
+func (c *Constantor) Run(scope *Scope, position Pathor) Pathor {
+	return c
 }

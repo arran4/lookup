@@ -20,7 +20,7 @@ type RelatorPathOpt interface {
 	Find(path string, opts ...PathOpt) *Relator
 	Copy() *Relator
 	Exists() *Evaluator
-	Run(position Pathor) Pathor
+	Run(scope *Scope, position Pathor) Pathor
 }
 
 func Find(path string, opts ...PathOpt) RelatorPathOpt {
@@ -58,7 +58,7 @@ func (r *Relator) Copy() *Relator {
 	}
 }
 
-func (r *Relator) Run(position Pathor) Pathor {
+func (r *Relator) Run(scope *Scope, position Pathor) Pathor {
 	p := position
 	for _, f := range r.finds {
 		p = p.Find(f.path, f.pathOpts...)

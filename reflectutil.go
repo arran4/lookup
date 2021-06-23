@@ -1,6 +1,7 @@
 package lookup
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -11,7 +12,7 @@ import (
 // arrayOrSliceForEachPath if the array/slice path isn't found or the path isn't a valid index (ie a string) then this
 // function extracts all matches from the array and puts them into a type matched array if possible otherwise a generic
 // []interface{} map.
-func arrayOrSliceForEachPath(prefix string, path string, v reflect.Value, settings *PathSettings) Pathor {
+func arrayOrSliceForEachPath(prefix string, path string, v reflect.Value, settings *PathSettings, evaluators []Evaluate, scope *Scope) Pathor {
 	typeCount := map[reflect.Type]int{}
 	type Pair struct {
 		Boxed   Pathor
@@ -19,15 +20,31 @@ func arrayOrSliceForEachPath(prefix string, path string, v reflect.Value, settin
 	}
 	result := make([]*Pair, 0, v.Len())
 	for i := 0; i < v.Len(); i++ {
-		p := prefix + "[*]"
+		p := prefix + fmt.Sprintf("[%d]", i)
 		vi := v.Index(i)
 		vipath := &Pair{
 			Boxed: (&Reflector{
 				path: p,
 				v:    vi,
-			}).Find(path, settings.InferOps()...),
+			}).Find(path),
 		}
 		if _, ok := vipath.Boxed.(*Invalidor); ok {
+			continue
+		}
+		skip := false
+		for _, e := range evaluators {
+			ee, err := e.Evaluate(scope, vipath.Boxed)
+			if err != nil {
+				skip = true
+				continue
+			}
+			if ee == nil {
+				skip = true
+				continue
+			}
+			vipath.Boxed = ee
+		}
+		if skip {
 			continue
 		}
 		t := vipath.Boxed.Type()
@@ -49,9 +66,9 @@ func arrayOrSliceForEachPath(prefix string, path string, v reflect.Value, settin
 	p := prefix + "[*]." + path
 	switch len(typeCount) {
 	case 0:
-		return &Invalidor{
-			err:  fmt.Errorf("error looking up index of type %s value given was %#v and failed because nothing matched query", "int", path),
+		return &Constantor{
 			path: p,
+			c:    nil,
 		}
 	case 1:
 		for k := range typeCount {
@@ -105,13 +122,13 @@ func arrayOrSliceForEachPath(prefix string, path string, v reflect.Value, settin
 	}
 }
 
-// arrayOrSlicePath attempts to extract the path as an index from the arrya, if this fails it will then use the index to
+// arrayOrSlicePath attempts to extract the path as an index from the array, if this fails it will then use the index to
 // assemble an array of matching children using arrayOrSliceForEachPath
 func arrayOrSlicePath(prefix string, path string, v reflect.Value, settings *PathSettings) Pathor {
 	p := prefix + "[" + strconv.Quote(path) + "]"
 	i, err := strconv.ParseInt(path, 10, 64)
 	if err != nil {
-		if pather := arrayOrSliceForEachPath(prefix, path, v, settings); pather != nil && pather != Pathor(nil) {
+		if pather := arrayOrSliceForEachPath(prefix, path, v, settings, nil, nil); pather != nil && pather != Pathor(nil) {
 			return pather
 		}
 		return &Invalidor{
@@ -124,7 +141,7 @@ func arrayOrSlicePath(prefix string, path string, v reflect.Value, settings *Pat
 		i += l
 	}
 	if i < 0 || i >= l {
-		if pather := arrayOrSliceForEachPath(prefix, path, v, settings); pather != nil {
+		if pather := arrayOrSliceForEachPath(prefix, path, v, settings, nil, nil); pather != nil {
 			return pather
 		}
 		return &Invalidor{
@@ -404,4 +421,116 @@ func runMethod(m reflect.Value, p string) Pathor {
 		}
 	}
 	return nil
+}
+
+func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
+	if !v.IsValid() {
+		return false
+	}
+	if !in.IsValid() {
+		return false
+	}
+	switch in.Kind() {
+	//case reflect.Bool:
+	//case reflect.Int:
+	//case reflect.Int8:
+	//case reflect.Int16:
+	//case reflect.Int32:
+	//case reflect.Int64:
+	//case reflect.Uint:
+	//case reflect.Uint8:
+	//case reflect.Uint16:
+	//case reflect.Uint32:
+	//case reflect.Uint64:
+	//case reflect.Uintptr:
+	//case reflect.Float32:
+	//case reflect.Float64:
+	//case reflect.Complex64:
+	//case reflect.Complex128:
+	case reflect.Array:
+		for i := 0; i < in.Len(); i++ {
+			f := in.Index(i)
+			if reflect.DeepEqual(v.Interface(), f.Interface()) {
+				return true
+			}
+		}
+	//case reflect.Chan:
+	case reflect.Func:
+		var r Pathor
+		r = runMethod(in, "")
+		return elementOf(r.Value(), in, nil)
+	case reflect.Map:
+		for _, k := range in.MapKeys() {
+			f := in.MapIndex(k)
+			if reflect.DeepEqual(v.Interface(), f.Interface()) {
+				return true
+			}
+		}
+	case reflect.Ptr:
+		return elementOf(v.Elem(), in.Elem(), &v)
+	case reflect.Slice:
+		for i := 0; i < in.Len(); i++ {
+			f := in.Index(i)
+			if reflect.DeepEqual(v.Interface(), f.Interface()) {
+				return true
+			}
+		}
+	//case reflect.String:
+	case reflect.Struct:
+		for i := 0; i < in.NumField(); i++ {
+			f := in.Field(i)
+			if reflect.DeepEqual(v.Interface(), f.Interface()) {
+				return true
+			}
+		}
+		for i := 0; i < in.NumMethod(); i++ {
+			var f reflect.Value
+			if pv == nil {
+				f = v.Method(i)
+			} else {
+				f = pv.Method(i)
+			}
+			fr := runMethod(f, "")
+			if elementOf(fr.Value(), in, nil) {
+				return true
+			}
+		}
+
+	//case reflect.UnsafePointer:
+	default:
+		return reflect.DeepEqual(in.Interface(), in.Interface())
+	}
+	return false
+}
+
+func interfaceToInt(i interface{}) (int, error) {
+	switch i := i.(type) {
+	case int:
+		return i, nil
+	case int8:
+		return int(i), nil
+	case int16:
+		return int(i), nil
+	case int32:
+		return int(i), nil
+	case int64:
+		return int(i), nil
+	case uint:
+		return int(i), nil
+	case uint8:
+		return int(i), nil
+	case uint16:
+		return int(i), nil
+	case uint32:
+		return int(i), nil
+	case uint64:
+		return int(i), nil
+	case uintptr:
+		return int(i), nil
+	case float32:
+		return int(i), nil
+	case float64:
+		return int(i), nil
+	}
+	return 0, errors.New("unknown number type")
 }
