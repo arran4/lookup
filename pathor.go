@@ -6,16 +6,13 @@ import (
 
 // PathSettings are the settings used by the Find function.
 type PathSettings struct {
-	Default    *Constantor
 	Evaluators []*Evaluator
+	Scope      *Scope
 }
 
 // InferOps reverse engineers the options provided to PathSettings
 func (s *PathSettings) InferOps() []PathOpt {
 	result := []PathOpt{}
-	if s.Default != nil {
-		result = append(result, s.Default)
-	}
 	for _, e := range s.Evaluators {
 		result = append(result, e)
 	}

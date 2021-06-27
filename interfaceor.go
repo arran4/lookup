@@ -50,29 +50,17 @@ func (i *Interfaceor) Find(path string, opts ...PathOpt) Pathor {
 				path: p,
 			}
 		}
-		pass := true
 		finalError = NewInvalidor(p, ErrEvalFail)
 		for _, evaluator := range settings.Evaluators {
 			scope := &Scope{
 				Current: np,
 			}
-			if e, err := evaluator.Evaluate(scope, np); err != nil {
-				pass = false
-				finalError = NewInvalidor(p, err)
-				break
-			} else if e != nil {
-				np = e
-			} else if e == nil {
-				pass = false
-				break
+			np = evaluator.Evaluate(scope, np)
+			if np == nil {
+				np = NewInvalidor(p, ErrEvalFail)
 			}
 		}
-		if pass {
-			return np
-		}
-	}
-	if settings.Default != nil {
-		return settings.Default
+		return np
 	}
 	return finalError
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type Predicate interface {
-	Run(scope *Scope, position Pathor) Pathor
+	Finder
 }
 
 type pathExists struct {
@@ -25,8 +25,9 @@ func Exists(predicate Predicate) PathOpt {
 	}
 }
 
-func (p *pathExists) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
-	v := p.p.Run(scope, pathor).Value()
+func (p *pathExists) Evaluate(parentScope *Scope, pathor Pathor) (Pathor, error) {
+	scope := parentScope.Nest(pathor)
+	v := p.p.Find("", scope).Value()
 	if v.IsValid() {
 		return pathor, nil
 	}
@@ -37,20 +38,23 @@ type index struct {
 	i interface{}
 }
 
+func (i *index) Find(path string, opts ...PathOpt) Pathor {
+	panic("implement me")
+}
+
 func (i *index) PathOptSet(settings *PathSettings) {
 	settings.Evaluators = append(settings.Evaluators, &Evaluator{fi: i})
 }
 
 func Index(i interface{}) *Evaluator {
 	return &Evaluator{
-		aggregate: true,
 		fi: &index{
 			i: i,
 		},
 	}
 }
 
-func (i *index) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
+func (i *index) Finds(scope *Scope, pathor Pathor) Pathor {
 	switch pathor.Type().Kind() {
 	case reflect.Array, reflect.Slice:
 	default:
@@ -241,4 +245,12 @@ func (p *in) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
 		return pathor, nil
 	}
 	return nil, nil
+}
+
+type defaultV struct {
+	values Pathor
+}
+
+func Default(defaultPathor Pathor) *Evaluator {
+	return NewEvaluator(&defaultV{values: defaultPathor})
 }

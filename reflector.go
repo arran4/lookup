@@ -43,16 +43,13 @@ func (r *Reflector) Find(path string, opts ...PathOpt) Pathor {
 	for _, evaluator := range settings.Evaluators {
 		scope := &Scope{
 			Current: r,
+			Parent:  settings.Scope,
 		}
-		if e, err := evaluator.Evaluate(scope, rr); err != nil {
-			return NewInvalidor(p, err)
-		} else if e != nil {
-			rr = e
-		} else if e == nil {
-			return NewInvalidor(p, ErrEvalFail)
+		rr = evaluator.Evaluate(scope, rr)
+		if rr == nil {
+			rr = NewInvalidor(p, ErrEvalFail)
 		}
 	}
-
 	return rr
 }
 
@@ -122,11 +119,6 @@ func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.
 		result = &Invalidor{
 			err:  fmt.Errorf("invalid element at simple path %s element was %s expected array,slice,map,struct,func", p, v.Kind()),
 			path: p,
-		}
-	}
-	if settings.Default != nil {
-		if _, ok := result.(*Invalidor); ok {
-			result = settings.Default
 		}
 	}
 	return result

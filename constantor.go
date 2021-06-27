@@ -49,11 +49,6 @@ func (r *Constantor) Value() reflect.Value {
 	return reflect.ValueOf(r.c)
 }
 
-// PathOptSet allows for Constantor to be used as the default / fallback value on a .Find() operation
-func (d *Constantor) PathOptSet(ctx *PathSettings) {
-	ctx.Default = d
-}
-
 // Find returns a new Constinator with the same object but with an updated path if required.
 func (r *Constantor) Find(path string, opts ...PathOpt) Pathor {
 	p := r.path
@@ -65,12 +60,7 @@ func (r *Constantor) Find(path string, opts ...PathOpt) Pathor {
 	c := r.c
 	settings := &PathSettings{}
 	for _, opt := range opts {
-		switch opt := opt.(type) {
-		case *Constantor:
-			c = opt.c
-		default:
-			opt.PathOptSet(settings)
-		}
+		opt.PathOptSet(settings)
 	}
 
 	var nc Pathor = &Constantor{
@@ -80,13 +70,11 @@ func (r *Constantor) Find(path string, opts ...PathOpt) Pathor {
 	for _, evaluator := range settings.Evaluators {
 		scope := &Scope{
 			Current: nc,
+			Parent:  settings.Scope,
 		}
-		if e, err := evaluator.Evaluate(scope, nc); err != nil {
-			return NewInvalidor(p, err)
-		} else if e != nil {
-			nc = e
-		} else if e == nil {
-			return NewInvalidor(p, ErrEvalFail)
+		nc = evaluator.Evaluate(scope, nc)
+		if nc == nil {
+			nc = NewInvalidor(p, ErrEvalFail)
 		}
 	}
 
