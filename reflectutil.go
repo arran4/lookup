@@ -504,7 +504,7 @@ func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
 
 	//case reflect.UnsafePointer:
 	default:
-		return reflect.DeepEqual(in.Interface(), in.Interface())
+		return reflect.DeepEqual(v.Interface(), in.Interface())
 	}
 	return false
 }

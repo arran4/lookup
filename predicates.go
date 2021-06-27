@@ -189,7 +189,7 @@ func (p *filter) PathOptSet(settings *PathSettings) {
 
 func Filter(value Predicate) *Evaluator {
 	return &Evaluator{
-		group: true,
+		group: false,
 		fi: &filter{
 			value: value,
 		},
