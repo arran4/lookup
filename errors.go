@@ -11,4 +11,5 @@ var (
 	ErrUnknownIndexMode          = errors.New("unknown index mode")
 	ErrIndexOutOfRange           = errors.New("index out of range")
 	ErrValueNotIn                = errors.New("value not in set")
+	ErrNoMatchesForQuery         = errors.New("nothing matched query")
 )

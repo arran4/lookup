@@ -72,9 +72,9 @@ func arrayOrSliceForEachPath(prefix string, paths []string, v reflect.Value, set
 	}
 	switch len(typeCount) {
 	case 0:
-		return &Constantor{
+		return &Invalidor{
+			err:  fmt.Errorf("error looking up index of type %s value given was %#v and failed because %w", "int", strings.Join(paths, "."), ErrNoMatchesForQuery),
 			path: p,
-			c:    nil,
 		}
 	case 1:
 		for k := range typeCount {

@@ -153,7 +153,7 @@ func TestReflector_Path_StructsAndTypedSlicesWithDefaults(t *testing.T) {
 	for _, each := range []*Each{
 		{Name: "Node 1 is a list of node 1", Path: []string{"Node1"}, Expecting: root.Node1},
 		{Name: "Node1[0].Name is the 1st element", Path: []string{"Node1", "0", "Name"}, Expecting: "asdf"},
-		{Name: "Node1[3].Name doesn't exist return default", Path: []string{"Node1", "3", "Name"}, Expecting: []string{"at:Node1.3.Name", "at:Node1.3.Name"}},
+		{Name: "Node1[3].Name doesn't exist return default", Path: []string{"Node1", "3", "Name"}, Expecting: "at:Node1.3.Name"},
 		{Name: "Node2 Exists", Path: []string{"Node2"}, Expecting: root.Node2},
 		{Name: "Node2.Size Exists", Path: []string{"Node2", "Size"}, Expecting: root.Node2.Size},
 		{Name: "Node2.Qty doesn't Exist", Path: []string{"Node2", "Qty"}, Expecting: "at:Node2.Qty"},
