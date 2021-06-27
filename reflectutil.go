@@ -72,8 +72,12 @@ func arrayOrSliceForEachPath(prefix string, paths []string, v reflect.Value, set
 	}
 	switch len(typeCount) {
 	case 0:
+		var err error = ErrNoMatchesForQuery
+		if len(paths) == 0 && len(evaluators) > 0 {
+			err = ErrEvalFail
+		}
 		return &Invalidor{
-			err:  fmt.Errorf("error looking up index of type %s value given was %#v and failed because %w", "int", strings.Join(paths, "."), ErrNoMatchesForQuery),
+			err:  fmt.Errorf("error looking up index of type %s value given was %#v and failed because %w", "int", strings.Join(paths, "."), err),
 			path: p,
 		}
 	case 1:

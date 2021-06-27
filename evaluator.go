@@ -10,8 +10,9 @@ type Evaluate interface {
 
 // Evaluator wraps either a interface or a function. It uses reflection to match type as much as possible
 type Evaluator struct {
-	fi    interface{}
-	group bool
+	fi          interface{}
+	aggregate   bool
+	failIsFalse bool
 }
 
 func (e *Evaluator) PathOptSet(settings *PathSettings) {
@@ -30,22 +31,36 @@ func (e *Evaluator) Evaluate(scope *Scope, position Pathor) (Pathor, error) {
 	}
 	switch position.Type().Kind() {
 	case reflect.Array, reflect.Slice:
-		if !e.group {
+		if !e.aggregate {
 			p := ExtractPath(position)
 			evaluators := []Evaluate{}
 			if e, ok := e.fi.(Evaluate); ok {
 				evaluators = append(evaluators, e)
 			}
 			v := arrayOrSliceForEachPath(p, nil, position.Value(), &PathSettings{}, evaluators, scope)
-			if !v.Value().IsValid() || v.Value().IsZero() || v.Value().Len() == 0 {
-				return nil, nil
+			if v == nil || !v.Value().IsValid() || v.Value().IsZero() || (v.Type().Kind() == reflect.Slice && v.Value().Len() == 0) || (v.Type().Kind() == reflect.Array && v.Value().Len() == 0) {
+				if e.failIsFalse {
+					v = NewConstantor(p, false)
+				} else {
+					v = nil
+				}
 			}
 			return v, nil
 		}
 		fallthrough
 	default:
-		if e, ok := e.fi.(Evaluate); ok {
-			return e.Evaluate(scope, position)
+		if ev, ok := e.fi.(Evaluate); ok {
+			er, err := ev.Evaluate(scope, position)
+			if er == nil || !er.Value().IsValid() || er.Value().IsZero() || (er.Type().Kind() == reflect.Slice && er.Value().Len() == 0) || (er.Type().Kind() == reflect.Array && er.Value().Len() == 0) {
+				if e.failIsFalse {
+					p := ExtractPath(position)
+					er = NewConstantor(p, false)
+				} else {
+					er = nil
+				}
+			}
+
+			return er, err
 		}
 	}
 	return nil, NewInvalidor(ExtractPath(position), ErrInvalidEvaluationFunction)

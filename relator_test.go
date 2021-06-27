@@ -115,7 +115,7 @@ func TestRelator_FromHere(t *testing.T) {
 			return Reflect(ds1).Find("Field0", Exists(Find("Value9999"))).Find("Value1")
 		}, fail: true},
 		{name: "Array look up has a true so returns all", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2", Exists(Find("Value1"))).Find("Value1") }, want: []bool{true, true, false}},
-		{name: "Array look up only returns [true, true]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Not(IsZero(This()))) }, want: []bool{true, true}},
+		{name: "Array look up only returns [true, true]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Filter(Not(IsZero(This())))) }, want: []bool{true, true}},
 		{name: "Array look up only returns false", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", IsZero(This())) }, want: []bool{false}},
 		{name: "Array index 0 look up only returns true", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Index(0)) }, want: true},
 		{name: "Array index 1 look up only returns true", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Index(1)) }, want: true},
@@ -123,27 +123,19 @@ func TestRelator_FromHere(t *testing.T) {
 		{name: "Array index -1 look up only returns false", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Index(-1)) }, want: false},
 		{name: "Array index -2 look up only returns true", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Index(-2)) }, want: true},
 		{name: "Array index -3 look up only returns true", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Index(-3)) }, want: true},
-		//{name: "Array look up doesn't have a true so fails", resultFunc: func() Pathor {
-		//	return Reflect(ds1).Find("Field2b", FromHere().Find("Value1").DoesContainNotZero()).Find("Value1")
-		//}, fail: true},
-		//{name: "Array look up a true so passes", resultFunc: func() Pathor {
-		//	return Reflect(ds1).Find("Field2", FromHere().Find("Value1").DoesContainNotZero()).Find("Value1")
-		//}, want: []bool{true, true, false}},
-		//{name: "Array look up a true so passes using contains() not() and zero()", resultFunc: func() Pathor {
-		//	return Reflect(ds1).Find("Field2", FromHere().Find("Value1").Contains(Not(Zero()))).Find("Value1")
-		//}, want: []bool{true, true, false}},
-		{name: "We eval because path doesn't exist using Not(Exist(Paths...))", resultFunc: func() Pathor {
-			return Reflect(ds1).Find("Field2", Exists(Find("Value1"))).Find("Value1")
-		}, want: []bool{true, true, false}},
 		{name: "In array succeeds", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", In(Array("This"))) }, want: []string{"This"}},
-		{name: "In array fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", In(Array("NotThis"))) }, fail: true},
-		//TODO {name: "In pathor succeeds", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", In(Reflect(ds1).Find("Field5"))) }, want: []string{"This"}},
-		//TODO {name: "In pathor fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", In(Reflect(ds1).Find("Field5"))) }, fail: true},
+		{name: "In array fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", In(Array("NotThis"))) }, want: false},
+		{name: "In pathor succeeds", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", In(Reflect(ds1).Find("Field5"))) }, want: []string{"This"}},
+		{name: "In pathor fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", In(Reflect(ds1).Find("Field5a"))) }, want: false},
 		{name: "Filter array succeeds", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Filter(Constant("This"))) }, want: []string{"This"}},
 		{name: "Contains array succeeds", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Contains(Constant("This"))) }, want: []string{"asdf", "This", ""}},
-		{name: "Contains array fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Contains(Constant("NotThis"))) }, fail: true},
-		//TODO {name: "Contains pathor succeeds", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Contains(Reflect(ds1).Find("Field5"))) }, want: true},
-		//TODO {name: "Contains pathor fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Contains(Reflect(ds1).Find("Field5b"))) }, want: false},
+		{name: "Contains array fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Contains(Constant("NotThis"))) }, want: false},
+		{name: "Contains pathor succeeds", resultFunc: func() Pathor {
+			return Reflect(ds1).Find("Field3").Find("Value1", Contains(Reflect(ds1).Find("Field5")))
+		}, want: []string{"asdf", "This", ""}},
+		{name: "Contains pathor fails", resultFunc: func() Pathor {
+			return Reflect(ds1).Find("Field3").Find("Value1", Contains(Reflect(ds1).Find("Field5b")))
+		}, want: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

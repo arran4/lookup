@@ -43,7 +43,7 @@ func (i *index) PathOptSet(settings *PathSettings) {
 
 func Index(i interface{}) *Evaluator {
 	return &Evaluator{
-		group: true,
+		aggregate: true,
 		fi: &index{
 			i: i,
 		},
@@ -154,16 +154,17 @@ func (p *not) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
 }
 
 type contains struct {
-	value Predicate
+	value Pathor
 }
 
 func (p *contains) PathOptSet(settings *PathSettings) {
 	settings.Evaluators = append(settings.Evaluators, &Evaluator{fi: p})
 }
 
-func Contains(value Predicate) *Evaluator {
+func Contains(value Pathor) *Evaluator {
 	return &Evaluator{
-		group: true,
+		failIsFalse: true,
+		aggregate:   true,
 		fi: &contains{
 			value: value,
 		},
@@ -172,9 +173,21 @@ func Contains(value Predicate) *Evaluator {
 
 func (p *contains) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
 	in := pathor.Value()
-	v := p.value.Run(scope, pathor)
-	if elementOf(v.Value(), in, nil) {
-		return pathor, nil
+	switch in.Kind() {
+	case reflect.Array, reflect.Slice:
+		count := 0
+		for i := 0; i < in.Len(); i++ {
+			if elementOf(p.value.Value(), in, nil) {
+				count++
+			}
+		}
+		if count > 0 {
+			return pathor, nil
+		}
+	default:
+		if elementOf(p.value.Value(), in, nil) {
+			return pathor, nil
+		}
 	}
 	return nil, nil
 }
@@ -189,7 +202,7 @@ func (p *filter) PathOptSet(settings *PathSettings) {
 
 func Filter(value Predicate) *Evaluator {
 	return &Evaluator{
-		group: false,
+		aggregate: false,
 		fi: &filter{
 			value: value,
 		},
@@ -206,26 +219,26 @@ func (p *filter) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
 }
 
 type in struct {
-	values Predicate
+	values Pathor
 }
 
 func (p *in) PathOptSet(settings *PathSettings) {
 	settings.Evaluators = append(settings.Evaluators, &Evaluator{fi: p})
 }
 
-func In(predicate Predicate) *Evaluator {
+func In(pathor Pathor) *Evaluator {
 	return &Evaluator{
+		failIsFalse: true,
 		fi: &in{
-			values: predicate,
+			values: pathor,
 		},
 	}
 }
 
 func (p *in) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
 	v := pathor.Value()
-	in := p.values.Run(scope, pathor)
-	if elementOf(v, in.Value(), nil) {
+	if elementOf(v, p.values.Value(), nil) {
 		return pathor, nil
 	}
-	return nil, ErrValueNotIn
+	return nil, nil
 }
