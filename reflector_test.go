@@ -37,11 +37,11 @@ func TestReflector_Path_StructsOnly(t *testing.T) {
 	}
 	for _, each := range []*Each{
 		{Name: "Empty string is self", Path: []string{""}, Expecting: root},
-		{Name: "Seach for 'Node1' expect root.Node1", Path: []string{"Node1"}, Expecting: root.Node1},
-		{Name: "Seach for 'Node2' expect root.Node2", Path: []string{"Node2"}, Expecting: root.Node2},
-		{Name: "Seach for 'Node1.Name' expect root.Node1.Name", Path: []string{"Node1", "Name"}, Expecting: root.Node1.Name},
-		{Name: "Seach for 'Node2.Size' expect root.Node2.Size", Path: []string{"Node2", "Size"}, Expecting: root.Node2.Size},
-		{Name: "Seach for 'asdf' expect Invalidor", Path: []string{"asdf"}, ExpectingInvalid: true},
+		{Name: "Search for 'Node1' expect root.Node1", Path: []string{"Node1"}, Expecting: root.Node1},
+		{Name: "Search for 'Node2' expect root.Node2", Path: []string{"Node2"}, Expecting: root.Node2},
+		{Name: "Search for 'Node1.Name' expect root.Node1.Name", Path: []string{"Node1", "Name"}, Expecting: root.Node1.Name},
+		{Name: "Search for 'Node2.Size' expect root.Node2.Size", Path: []string{"Node2", "Size"}, Expecting: root.Node2.Size},
+		{Name: "Search for 'asdf' expect Invalidor", Path: []string{"asdf"}, ExpectingInvalid: true},
 	} {
 		t.Run(each.Name, func(t *testing.T) {
 			r := Reflect(root)
