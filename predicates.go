@@ -179,6 +179,32 @@ func (p *contains) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
 	return nil, nil
 }
 
+type filter struct {
+	value Predicate
+}
+
+func (p *filter) PathOptSet(settings *PathSettings) {
+	settings.Evaluators = append(settings.Evaluators, &Evaluator{fi: p})
+}
+
+func Filter(value Predicate) *Evaluator {
+	return &Evaluator{
+		group: true,
+		fi: &filter{
+			value: value,
+		},
+	}
+}
+
+func (p *filter) Evaluate(scope *Scope, pathor Pathor) (Pathor, error) {
+	in := pathor.Value()
+	v := p.value.Run(scope, pathor)
+	if elementOf(v.Value(), in, nil) {
+		return pathor, nil
+	}
+	return nil, nil
+}
+
 type in struct {
 	values Predicate
 }

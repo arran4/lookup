@@ -36,7 +36,7 @@ func (e *Evaluator) Evaluate(scope *Scope, position Pathor) (Pathor, error) {
 			if e, ok := e.fi.(Evaluate); ok {
 				evaluators = append(evaluators, e)
 			}
-			v := arrayOrSliceForEachPath(p, "", position.Value(), &PathSettings{}, evaluators, scope)
+			v := arrayOrSliceForEachPath(p, nil, position.Value(), &PathSettings{}, evaluators, scope)
 			if !v.Value().IsValid() || v.Value().IsZero() || v.Value().Len() == 0 {
 				return nil, nil
 			}

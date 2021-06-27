@@ -12,7 +12,7 @@ import (
 // arrayOrSliceForEachPath if the array/slice path isn't found or the path isn't a valid index (ie a string) then this
 // function extracts all matches from the array and puts them into a type matched array if possible otherwise a generic
 // []interface{} map.
-func arrayOrSliceForEachPath(prefix string, path string, v reflect.Value, settings *PathSettings, evaluators []Evaluate, scope *Scope) Pathor {
+func arrayOrSliceForEachPath(prefix string, paths []string, v reflect.Value, settings *PathSettings, evaluators []Evaluate, scope *Scope) Pathor {
 	typeCount := map[reflect.Type]int{}
 	type Pair struct {
 		Boxed   Pathor
@@ -23,10 +23,13 @@ func arrayOrSliceForEachPath(prefix string, path string, v reflect.Value, settin
 		p := prefix + fmt.Sprintf("[%d]", i)
 		vi := v.Index(i)
 		vipath := &Pair{
-			Boxed: (&Reflector{
+			Boxed: &Reflector{
 				path: p,
 				v:    vi,
-			}).Find(path),
+			},
+		}
+		for _, path := range paths {
+			vipath.Boxed = vipath.Boxed.Find(path)
 		}
 		if _, ok := vipath.Boxed.(*Invalidor); ok {
 			continue
@@ -63,7 +66,10 @@ func arrayOrSliceForEachPath(prefix string, path string, v reflect.Value, settin
 	}
 	boxing := true
 	at := v.Type()
-	p := prefix + "[*]." + path
+	p := prefix + "[*]"
+	for _, path := range paths {
+		p = p + "." + path
+	}
 	switch len(typeCount) {
 	case 0:
 		return &Constantor{
@@ -128,7 +134,7 @@ func arrayOrSlicePath(prefix string, path string, v reflect.Value, settings *Pat
 	p := prefix + "[" + strconv.Quote(path) + "]"
 	i, err := strconv.ParseInt(path, 10, 64)
 	if err != nil {
-		if pather := arrayOrSliceForEachPath(prefix, path, v, settings, nil, nil); pather != nil && pather != Pathor(nil) {
+		if pather := arrayOrSliceForEachPath(prefix, []string{path}, v, settings, nil, nil); pather != nil && pather != Pathor(nil) {
 			return pather
 		}
 		return &Invalidor{
@@ -141,7 +147,7 @@ func arrayOrSlicePath(prefix string, path string, v reflect.Value, settings *Pat
 		i += l
 	}
 	if i < 0 || i >= l {
-		if pather := arrayOrSliceForEachPath(prefix, path, v, settings, nil, nil); pather != nil {
+		if pather := arrayOrSliceForEachPath(prefix, []string{path}, v, settings, nil, nil); pather != nil {
 			return pather
 		}
 		return &Invalidor{
