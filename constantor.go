@@ -20,6 +20,33 @@ func NewConstantor(path string, c interface{}) *Constantor {
 	}
 }
 
+func Constant(c interface{}) *Constantor {
+	return &Constantor{
+		c: c,
+	}
+}
+
+func True(path string) *Constantor {
+	return &Constantor{
+		c:    true,
+		path: path,
+	}
+}
+
+func False(path string) *Constantor {
+	return &Constantor{
+		c:    false,
+		path: path,
+	}
+}
+
+func Array(c ...interface{}) *Constantor {
+	return &Constantor{
+		path: "",
+		c:    c,
+	}
+}
+
 // Type extracts the reflect.Type from the stored object
 func (r *Constantor) Type() reflect.Type {
 	return reflect.TypeOf(r.c)
@@ -35,13 +62,8 @@ func (r *Constantor) Value() reflect.Value {
 	return reflect.ValueOf(r.c)
 }
 
-// PathOptSet allows for Constantor to be used as the default / fallback value on a .Find() operation
-func (d *Constantor) PathOptSet(ctx *PathSettings) {
-	ctx.Default = d
-}
-
 // Find returns a new Constinator with the same object but with an updated path if required.
-func (r *Constantor) Find(path string, opts ...PathOpt) Pathor {
+func (r *Constantor) Find(path string, opts ...Runner) Pathor {
 	p := r.path
 	if len(r.path) > 0 {
 		p = r.path + "." + path
@@ -49,14 +71,23 @@ func (r *Constantor) Find(path string, opts ...PathOpt) Pathor {
 		p = path
 	}
 	c := r.c
-	for _, opt := range opts {
-		switch opt := opt.(type) {
-		case *Constantor:
-			c = opt.c
-		}
-	}
-	return &Constantor{
+	var nc Pathor = &Constantor{
 		c:    c,
 		path: p,
 	}
+	for _, runner := range opts {
+		scope := &Scope{
+			Current: r,
+		}
+		nc = runner.Run(scope.Nest(nc), nc)
+		if nc == nil {
+			nc = NewInvalidor(p, ErrEvalFail)
+		}
+	}
+
+	return nc
+}
+
+func (c *Constantor) Run(scope *Scope, position Pathor) Pathor {
+	return c
 }
