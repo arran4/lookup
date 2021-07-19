@@ -2,26 +2,53 @@ package lookup
 
 import "reflect"
 
-type ifFunc struct {
+type matchFunc struct {
 	expressions []Runner
 }
 
-func If(e ...Runner) *ifFunc {
-	return &ifFunc{
+func Match(e ...Runner) *matchFunc {
+	return &matchFunc{
 		expressions: e,
 	}
 }
 
-func (ef *ifFunc) Run(scope *Scope, position Pathor) Pathor {
+func (ef *matchFunc) Run(scope *Scope, position Pathor) Pathor {
+	var outcome Pathor = nil
 	for _, e := range ef.expressions {
 		result := e.Run(scope, position)
 		if v, err := interfaceToBoolOrParse(result.Raw()); err != nil && v {
 			return position
 		}
+		switch result := result.(type) {
+		case *Invalidor:
+			{
+				outcome = result
+			}
+		}
 	}
-	path := ExtractPath(position)
-	return False(path)
+	if outcome != nil {
+		return outcome
+	}
+	return position
 }
+
+//TODO
+//type ifFunc struct {
+//	cond Runner
+//	then Runner
+//	otherwise Runner
+//}
+//
+//func If(e ...Runner) *ifFunc {
+//	return &ifFunc{
+//		cond: e,
+//		then: e,
+//		otherwise: e,
+//	}
+//}
+//
+//func (ef *ifFunc) Run(scope *Scope, position Pathor) Pathor {
+//}
 
 type equalsFunc struct {
 	expression Runner

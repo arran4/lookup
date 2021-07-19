@@ -11,6 +11,21 @@ type filterFunc struct {
 	expression Runner
 }
 
+type subFilterFunc struct {
+	expression Runner
+}
+
+func (s subFilterFunc) Run(scope *Scope, position Pathor) Pathor {
+	b, err := interfaceToBoolOrParse(position.Raw())
+	if err != nil {
+		return NewInvalidor(scope.Path(), err)
+	}
+	if b {
+		return position
+	}
+	return NewInvalidor(scope.Path(), ErrEvalFail)
+}
+
 func Filter(expression Runner) *filterFunc {
 	return &filterFunc{
 		expression: expression,
@@ -18,13 +33,26 @@ func Filter(expression Runner) *filterFunc {
 }
 
 func (ef *filterFunc) Run(scope *Scope, position Pathor) Pathor {
-	result := arrayOrSliceForEachPath(ExtractPath(position), nil, scope.Value(), []Runner{ef.expression}, scope)
-	if v, err := interfaceToBoolOrParse(result.Raw()); err != nil && v {
-		return position
-	}
+	result := arrayOrSliceForEachPath(ExtractPath(position), nil, scope.Value(), []Runner{
+		&subFilterFunc{ef.expression},
+	}, scope)
+	// TODO filter not map
+	return result
+}
 
-	path := ExtractPath(position)
-	return NewInvalidor(path, ErrEvalFail)
+type mapFunc struct {
+	expression Runner
+}
+
+func Map(expression Runner) *mapFunc {
+	return &mapFunc{
+		expression: expression,
+	}
+}
+
+func (ef *mapFunc) Run(scope *Scope, position Pathor) Pathor {
+	result := arrayOrSliceForEachPath(ExtractPath(position), nil, scope.Value(), []Runner{ef.expression}, scope)
+	return result
 }
 
 type containsFunc struct {
@@ -158,7 +186,7 @@ func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
 	return NewInvalidor(fmt.Sprintf("%s[]", ExtractPath(pathor)), ErrUnknownIndexMode)
 }
 
-// TODO In
+// TODO Map
 // TODO Union
 // TODO Intersection
 // TODO Any
