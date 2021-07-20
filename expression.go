@@ -30,26 +30,44 @@ func (ef *matchFunc) Run(scope *Scope) Pathor {
 			return NewInvalidor(ExtractPath(scope.Position), ErrMatchFail)
 		}
 	}
-	return scope.Position
+	return scope.Current
 }
 
-//TODO
-//type ifFunc struct {
-//	cond Runner
-//	then Runner
-//	otherwise Runner
-//}
-//
-//func If(e ...Runner) *ifFunc {
-//	return &ifFunc{
-//		cond: e,
-//		then: e,
-//		otherwise: e,
-//	}
-//}
-//
-//func (ef *ifFunc) Run(scope *Scope, position Pathor) Pathor {
-//}
+func ToBool(expression Runner) *toBoolFunc {
+	return &toBoolFunc{}
+}
+
+type toBoolFunc struct{}
+
+func (s *toBoolFunc) Run(scope *Scope) Pathor {
+	b, err := interfaceToBoolOrParse(scope.Position.Raw())
+	if err != nil {
+		return NewInvalidor(scope.Path(), err)
+	}
+	return NewConstantor(scope.Path(), b)
+}
+
+func Truthy(expression Runner) *truthyFunc {
+	return &truthyFunc{}
+}
+
+type truthyFunc struct{}
+
+func (s *truthyFunc) Run(scope *Scope) Pathor {
+	result := scope.Position
+	switch result := result.(type) {
+	case *Invalidor:
+		return result
+	}
+	v, err := interfaceToBoolOrParse(result.Raw())
+	if !v && err == nil {
+		return NewInvalidor(ExtractPath(scope.Position), ErrMatchFail)
+	}
+	if result.Value().IsZero() {
+		return NewInvalidor(ExtractPath(scope.Position), ErrMatchFail)
+	}
+	return NewConstantor(scope.Path(), v)
+}
 
 type equalsFunc struct {
 	expression Runner
@@ -138,3 +156,21 @@ func otherwise(e Runner) *otherwiseFunc {
 func NewDefault(i interface{}) *otherwiseFunc {
 	return otherwise(NewConstantor("", i))
 }
+
+//TODO
+//type ifFunc struct {
+//	cond Runner
+//	then Runner
+//	otherwise Runner
+//}
+//
+//func If(e ...Runner) *ifFunc {
+//	return &ifFunc{
+//		cond: e,
+//		then: e,
+//		otherwise: e,
+//	}
+//}
+//
+//func (ef *ifFunc) Run(scope *Scope, position Pathor) Pathor {
+//}

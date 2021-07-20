@@ -7,15 +7,11 @@ import (
 	"strconv"
 )
 
-type filterFunc struct {
-	expression Runner
-}
-
 type subFilterFunc struct {
 	expression Runner
 }
 
-func (s subFilterFunc) Run(scope *Scope) Pathor {
+func (s *subFilterFunc) Run(scope *Scope) Pathor {
 	b, err := interfaceToBoolOrParse(scope.Position.Raw())
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
@@ -24,6 +20,10 @@ func (s subFilterFunc) Run(scope *Scope) Pathor {
 		return scope.Position
 	}
 	return NewInvalidor(scope.Path(), ErrEvalFail)
+}
+
+type filterFunc struct {
+	expression Runner
 }
 
 func Filter(expression Runner) *filterFunc {
@@ -54,6 +54,24 @@ func (ef *mapFunc) Run(scope *Scope) Pathor {
 	return result
 }
 
+func forEach(scope *Scope, v reflect.Value, ef func(f reflect.Value) Pathor) Pathor {
+	switch v.Kind() {
+	case reflect.Array, reflect.Slice:
+		if v.IsNil() {
+			return &Invalidor{
+				err: fmt.Errorf("mil element at simple path %s element was %s expected array,slice,map,struct", scope.Path(), "nil"),
+			}
+		}
+		for i := 0; i < v.Len(); i++ {
+			f := v.Index(i)
+			if err := ef(f); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 type containsFunc struct {
 	expression Runner
 }
@@ -68,24 +86,18 @@ func (ef *containsFunc) Run(scope *Scope) Pathor {
 	result := ef.expression.Run(scope)
 	v := scope.Value()
 	found := false
-	switch v.Kind() {
-	case reflect.Array, reflect.Slice:
-		if v.IsNil() {
-			return &Invalidor{
-				err: fmt.Errorf("mil element at simple path %s element was %s expected array,slice,map,struct", scope.Path(), "nil"),
-			}
+	if err := forEach(scope, v, func(f reflect.Value) Pathor {
+		p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(Reflect(f.Interface())))
+		b, err := interfaceToBoolOrParse(p.Raw())
+		if err != nil {
+			return NewInvalidor(scope.Path(), err)
 		}
-		for i := 0; i < v.Len(); i++ {
-			f := v.Index(i)
-			p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(Reflect(f.Interface())))
-			b, err := interfaceToBoolOrParse(p.Raw())
-			if err != nil {
-				return NewInvalidor(scope.Path(), err)
-			}
-			if b {
-				found = true
-			}
+		if b {
+			found = true
 		}
+		return nil
+	}); err != nil {
+		return err
 	}
 	return NewConstantor(scope.Path(), found)
 }
@@ -105,24 +117,18 @@ func (ef *inFunc) Run(scope *Scope) Pathor {
 	v := inThis.Value()
 	result := scope.Current
 	found := false
-	switch v.Kind() {
-	case reflect.Array, reflect.Slice:
-		if v.IsNil() {
-			return &Invalidor{
-				err: fmt.Errorf("mil element at simple path %s element was %s expected array,slice,map,struct", scope.Path(), "nil"),
-			}
+	if err := forEach(scope, v, func(f reflect.Value) Pathor {
+		p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(Reflect(f.Interface())))
+		b, err := interfaceToBoolOrParse(p.Raw())
+		if err != nil {
+			return NewInvalidor(scope.Path(), err)
 		}
-		for i := 0; i < v.Len(); i++ {
-			f := v.Index(i)
-			p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(Reflect(f.Interface())))
-			b, err := interfaceToBoolOrParse(p.Raw())
-			if err != nil {
-				return NewInvalidor(scope.Path(), err)
-			}
-			if b {
-				found = true
-			}
+		if b {
+			found = true
 		}
+		return nil
+	}); err != nil {
+		return err
 	}
 	return NewConstantor(scope.Path(), found)
 }
@@ -185,9 +191,70 @@ func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
 	return NewInvalidor(fmt.Sprintf("%s[]", ExtractPath(pathor)), ErrUnknownIndexMode)
 }
 
+func Every(e Runner) *everyFunc {
+	return &everyFunc{
+		expression: e,
+	}
+}
+
+type everyFunc struct {
+	expression Runner
+}
+
+func (ef *everyFunc) Run(scope *Scope) Pathor {
+	everyThis := ef.expression.Run(scope)
+	v := everyThis.Value()
+	result := scope.Current
+	every := true
+	if err := forEach(scope, v, func(f reflect.Value) Pathor {
+		p := Truthy(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(Reflect(f.Interface())))
+		b, err := interfaceToBoolOrParse(p.Raw())
+		if err != nil {
+			return NewInvalidor(scope.Path(), err)
+		}
+		if b {
+			every = false
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+	return NewConstantor(scope.Path(), every)
+}
+
+func Any(e Runner) *anyFunc {
+	return &anyFunc{
+		expression: e,
+	}
+}
+
+type anyFunc struct {
+	expression Runner
+}
+
+func (ef *anyFunc) Run(scope *Scope) Pathor {
+	anyThis := ef.expression.Run(scope)
+	v := anyThis.Value()
+	result := scope.Current
+	found := false
+	if err := forEach(scope, v, func(f reflect.Value) Pathor {
+		p := Truthy(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(Reflect(f.Interface())))
+		b, err := interfaceToBoolOrParse(p.Raw())
+		if err != nil {
+			return NewInvalidor(scope.Path(), err)
+		}
+		if b {
+			found = true
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+	return NewConstantor(scope.Path(), found)
+}
+
 // TODO Map
 // TODO Union
 // TODO Intersection
-// TODO Any
 // TODO First - warp index
 // TODO Last - wrap index

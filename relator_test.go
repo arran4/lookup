@@ -105,20 +105,21 @@ func TestRelator_FromHere(t *testing.T) {
 		fail       bool
 	}{
 		{name: "No lookup does nothing", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0").Find("Value1") }, want: "abc"},
-		{name: "Empty lookup does nothing", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", Match(Find(""))).Find("Value1") }, want: "abc"},
+		{name: "Empty lookup does nothing", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", Find("")).Find("Value1") }, want: "abc"},
 		{name: "Rel lookup path matches real query", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", Match(Find("Field0").Find("Value1"))).Find("Value1") }, want: "abc"},
 		{name: "Rel lookup path fails if it fails", resultFunc: func() Pathor {
 			return Reflect(ds1).Find("Field0", Match(Find("Field0").Find("Value1b"))).Find("Value1")
 		}, fail: true},
 		{name: "Result lookup path matches real query", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", Match(Result("Value1"))).Find("Value1") }, want: "abc"},
 		{name: "Result lookup path fails if it fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", Match(Result("Value1b"))).Find("Value1") }, fail: true},
-		{name: "Bad path in rel path causes failure in real query", resultFunc: func() Pathor {
-			return Reflect(ds1).Find("Field0", Match(Find("Value9999"))).Find("Value1")
-		}, fail: true},
-		{name: "Array look up has a true so returns all", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2", Match(Find("Value1"))).Find("Value1") }, want: []bool{true, true, false}},
+		{name: "Bad path in rel path causes failure in real query", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", Match(Find("Value9999"))).Find("Value1") }, fail: true},
+		{name: "Array look up has a true so returns all", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2", Match(Result("Value1"))).Find("Value1") }, want: []bool{true, true, false}},
 		{name: "Array filter look up only returns [true, true]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Filter(This())) }, want: []bool{true, true}},
 		{name: "Array iszero filter look up only returns [true, true]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Filter(Not(IsZero(This())))) }, want: []bool{true, true}},
-		{name: "Array Field2 match look up only returns [true,true,false]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Match(IsZero(This()))) }, want: []bool{true, true, false}},
+		{name: "Array Field2 match look up only returns [true,true,false]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Match(Any(IsZero(Result())))) }, want: []bool{true, true, false}},
+		{name: "Array Field2 match look up only returns [true,true,false]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Match(Every(IsZero(Result())))) }, fail: true},
+		{name: "Array Field2 match look up only returns [true,true,false]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2b").Find("Value1", Match(Any(IsZero(Result())))) }, want: []bool{false, false, false}},
+		{name: "Array Field2 match look up only returns [true,true,false]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2b").Find("Value1", Match(Every(IsZero(Result())))) }, want: []bool{false, false, false}},
 		{name: "Array Field2 match look up fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Match(IsZero(This()))) }, want: []bool{true, true, false}},
 		{name: "Array Field2b match look up fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2b").Find("Value1", Match(IsZero(This()))) }, fail: true},
 		{name: "Array index 0 look up only returns true", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Index(0)) }, want: true},

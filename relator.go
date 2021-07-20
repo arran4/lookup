@@ -22,17 +22,26 @@ type Relator struct {
 }
 
 func Find(path string, opts ...Runner) *Relator {
-	return (&Relator{}).Find(path, opts...)
+	r := &Relator{}
+	return r.Find(path, opts...)
 }
 
-func This() *Relator {
-	return &Relator{}
+func This(paths ...string) *Relator {
+	r := &Relator{}
+	for _, path := range paths {
+		r = r.Find(path)
+	}
+	return r
 }
 
-func Result(path string, opts ...Runner) *Relator {
-	return (&Relator{
+func Result(paths ...string) *Relator {
+	r := &Relator{
 		relationType: relationTypePosition,
-	}).Find(path, opts...)
+	}
+	for _, path := range paths {
+		r = r.Find(path)
+	}
+	return r
 }
 
 func NewRelator() *Relator {

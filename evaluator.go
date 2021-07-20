@@ -16,10 +16,14 @@ type Scope struct {
 	Position Pathor
 }
 
-func NewScope(scope Pathor, position Pathor) *Scope {
+func NewScope(parent Pathor, position Pathor) *Scope {
+	var parentScope *Scope
+	if parent != nil {
+		parentScope = NewScope(nil, parent)
+	}
 	return &Scope{
-		Current:  scope,
-		Parent:   nil,
+		Current:  position,
+		Parent:   parentScope,
 		Position: position,
 	}
 }
