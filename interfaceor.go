@@ -48,10 +48,7 @@ func (i *Interfaceor) Find(path string, opts ...Runner) Pathor {
 		}
 		finalError = NewInvalidor(p, ErrEvalFail)
 		for _, evaluator := range opts {
-			scope := &Scope{
-				Current: i,
-			}
-			np = evaluator.Run(scope.Nest(np), np)
+			np = evaluator.Run(NewScope(i, np))
 			if np == nil {
 				np = NewInvalidor(p, ErrEvalFail)
 			}

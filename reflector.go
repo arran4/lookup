@@ -37,10 +37,7 @@ func (r *Reflector) Find(path string, opts ...Runner) Pathor {
 	rr := r.subPath(path, r.v, r.path, nil)
 	p := ExtractPath(rr)
 	for _, runner := range opts {
-		scope := &Scope{
-			Current: r,
-		}
-		rr = runner.Run(scope.Nest(rr), rr)
+		rr = runner.Run(NewScope(r, rr))
 		if rr == nil {
 			rr = NewInvalidor(p, ErrEvalFail)
 		}

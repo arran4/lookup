@@ -76,10 +76,7 @@ func (r *Constantor) Find(path string, opts ...Runner) Pathor {
 		path: p,
 	}
 	for _, runner := range opts {
-		scope := &Scope{
-			Current: r,
-		}
-		nc = runner.Run(scope.Nest(nc), nc)
+		nc = runner.Run(NewScope(r, nc))
 		if nc == nil {
 			nc = NewInvalidor(p, ErrEvalFail)
 		}
@@ -88,6 +85,6 @@ func (r *Constantor) Find(path string, opts ...Runner) Pathor {
 	return nc
 }
 
-func (c *Constantor) Run(scope *Scope, position Pathor) Pathor {
+func (c *Constantor) Run(scope *Scope) Pathor {
 	return c
 }

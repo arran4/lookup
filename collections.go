@@ -15,13 +15,13 @@ type subFilterFunc struct {
 	expression Runner
 }
 
-func (s subFilterFunc) Run(scope *Scope, position Pathor) Pathor {
-	b, err := interfaceToBoolOrParse(position.Raw())
+func (s subFilterFunc) Run(scope *Scope) Pathor {
+	b, err := interfaceToBoolOrParse(scope.Position.Raw())
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
 	}
 	if b {
-		return position
+		return scope.Position
 	}
 	return NewInvalidor(scope.Path(), ErrEvalFail)
 }
@@ -32,11 +32,10 @@ func Filter(expression Runner) *filterFunc {
 	}
 }
 
-func (ef *filterFunc) Run(scope *Scope, position Pathor) Pathor {
-	result := arrayOrSliceForEachPath(ExtractPath(position), nil, scope.Value(), []Runner{
+func (ef *filterFunc) Run(scope *Scope) Pathor {
+	result := arrayOrSliceForEachPath(ExtractPath(scope.Position), nil, scope.Position.Value(), []Runner{
 		&subFilterFunc{ef.expression},
 	}, scope)
-	// TODO filter not map
 	return result
 }
 
@@ -50,8 +49,8 @@ func Map(expression Runner) *mapFunc {
 	}
 }
 
-func (ef *mapFunc) Run(scope *Scope, position Pathor) Pathor {
-	result := arrayOrSliceForEachPath(ExtractPath(position), nil, scope.Value(), []Runner{ef.expression}, scope)
+func (ef *mapFunc) Run(scope *Scope) Pathor {
+	result := arrayOrSliceForEachPath(ExtractPath(scope.Position), nil, scope.Position.Value(), []Runner{ef.expression}, scope)
 	return result
 }
 
@@ -65,8 +64,8 @@ func Contains(runner Runner) *containsFunc {
 	}
 }
 
-func (ef *containsFunc) Run(scope *Scope, position Pathor) Pathor {
-	result := ef.expression.Run(scope, position)
+func (ef *containsFunc) Run(scope *Scope) Pathor {
+	result := ef.expression.Run(scope)
 	v := scope.Value()
 	found := false
 	switch v.Kind() {
@@ -78,7 +77,7 @@ func (ef *containsFunc) Run(scope *Scope, position Pathor) Pathor {
 		}
 		for i := 0; i < v.Len(); i++ {
 			f := v.Index(i)
-			p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope, Reflect(f.Interface()))
+			p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(Reflect(f.Interface())))
 			b, err := interfaceToBoolOrParse(p.Raw())
 			if err != nil {
 				return NewInvalidor(scope.Path(), err)
@@ -101,8 +100,8 @@ type inFunc struct {
 	expression Runner
 }
 
-func (ef *inFunc) Run(scope *Scope, position Pathor) Pathor {
-	inThis := ef.expression.Run(scope, position)
+func (ef *inFunc) Run(scope *Scope) Pathor {
+	inThis := ef.expression.Run(scope)
 	v := inThis.Value()
 	result := scope.Current
 	found := false
@@ -115,7 +114,7 @@ func (ef *inFunc) Run(scope *Scope, position Pathor) Pathor {
 		}
 		for i := 0; i < v.Len(); i++ {
 			f := v.Index(i)
-			p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope, Reflect(f.Interface()))
+			p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(Reflect(f.Interface())))
 			b, err := interfaceToBoolOrParse(p.Raw())
 			if err != nil {
 				return NewInvalidor(scope.Path(), err)
@@ -138,13 +137,13 @@ func Index(i interface{}) *indexFunc {
 	}
 }
 
-func (i *indexFunc) Run(scope *Scope, pathor Pathor) Pathor {
-	switch pathor.Type().Kind() {
+func (i *indexFunc) Run(scope *Scope) Pathor {
+	switch scope.Position.Type().Kind() {
 	case reflect.Array, reflect.Slice:
 	default:
-		return NewInvalidor(ExtractPath(pathor), ErrIndexOfNotArray)
+		return NewInvalidor(ExtractPath(scope.Position), ErrIndexOfNotArray)
 	}
-	return evaluateType(scope, pathor, i.i)
+	return evaluateType(scope, scope.Position, i.i)
 }
 
 func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
@@ -173,7 +172,7 @@ func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
 	case reflect.Struct, reflect.Ptr:
 		switch ii := i.(type) {
 		case Runner:
-			p := ii.Run(scope, pathor)
+			p := ii.Run(scope)
 			return evaluateType(scope, p, p.Raw())
 		case *Constantor:
 			return evaluateType(scope, pathor, ii.Raw())

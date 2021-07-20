@@ -6,10 +6,19 @@ type find struct {
 	runners []Runner
 }
 
+type relationType int
+
+const (
+	relationTypeCurrent relationType = iota
+	relationTypeParent
+	relationTypePosition
+)
+
 // Relator allows you to do an Evaluate from a relative location
 type Relator struct {
 	finds        []*find
 	positionName string
+	relationType relationType
 }
 
 func Find(path string, opts ...Runner) *Relator {
@@ -17,7 +26,13 @@ func Find(path string, opts ...Runner) *Relator {
 }
 
 func This() *Relator {
-	return (&Relator{})
+	return &Relator{}
+}
+
+func Result(path string, opts ...Runner) *Relator {
+	return (&Relator{
+		relationType: relationTypePosition,
+	}).Find(path, opts...)
 }
 
 func NewRelator() *Relator {
@@ -44,11 +59,24 @@ func (r *Relator) Copy() *Relator {
 	return &Relator{
 		finds:        fs,
 		positionName: r.positionName,
+		relationType: r.relationType,
 	}
 }
 
-func (r *Relator) Run(scope *Scope, position Pathor) Pathor {
-	p := position
+func (r *Relator) Run(scope *Scope) Pathor {
+	var p Pathor
+	switch r.relationType {
+	case relationTypeParent:
+		if scope.Parent != nil {
+			p = scope.Parent.Current
+			break
+		}
+		fallthrough
+	case relationTypeCurrent:
+		p = scope.Current
+	case relationTypePosition:
+		p = scope.Position
+	}
 	for _, f := range r.finds {
 		p = p.Find(f.path, f.runners...)
 	}

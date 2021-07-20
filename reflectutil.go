@@ -36,7 +36,7 @@ func arrayOrSliceForEachPath(prefix string, paths []string, v reflect.Value, run
 		}
 		skip := false
 		for _, e := range runners {
-			ee := e.Run(scope, vipath.Boxed)
+			ee := e.Run(scope.Nest(vipath.Boxed))
 			if _, ok := ee.(*Invalidor); ok {
 				skip = true
 				continue

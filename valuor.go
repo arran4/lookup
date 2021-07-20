@@ -10,6 +10,6 @@ func ValueOf(pathor Pathor) *Valuor {
 	}
 }
 
-func (v *Valuor) Run(scope *Scope, position Pathor) Pathor {
+func (v *Valuor) Run(scope *Scope) Pathor {
 	return v.Pathor
 }

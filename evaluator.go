@@ -5,32 +5,39 @@ import (
 )
 
 type Runner interface {
-	Run(scope *Scope, position Pathor) Pathor
+	Run(scope *Scope) Pathor
 }
 
 type Scope struct {
-	Current Pathor
-	Parent  *Scope
-	Args    []Pathor
-	v       reflect.Value
-	path    *string
+	Current  Pathor
+	Parent   *Scope
+	v        reflect.Value
+	path     *string
+	Position Pathor
+}
+
+func NewScope(scope Pathor, position Pathor) *Scope {
+	return &Scope{
+		Current:  scope,
+		Parent:   nil,
+		Position: position,
+	}
 }
 
 func (s *Scope) Copy() *Scope {
 	return &Scope{
 		Current: s.Current,
 		Parent:  s.Parent,
-		Args:    append([]Pathor{}, s.Args...),
 		v:       s.v,
 		path:    s.path,
 	}
 }
 
-func (s *Scope) Nest(new Pathor, args ...Pathor) *Scope {
+func (s *Scope) Nest(new Pathor) *Scope {
 	return &Scope{
-		Current: new,
-		Parent:  s,
-		Args:    args,
+		Current:  new,
+		Parent:   s,
+		Position: new,
 	}
 }
 
@@ -52,4 +59,12 @@ func (s *Scope) Path() string {
 		return s.Parent.Path()
 	}
 	return ExtractPath(s.Current)
+}
+
+func (s *Scope) Next(position Pathor) *Scope {
+	return &Scope{
+		Current:  s.Current,
+		Parent:   s,
+		Position: position,
+	}
 }

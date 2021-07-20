@@ -12,24 +12,25 @@ func Match(e ...Runner) *matchFunc {
 	}
 }
 
-func (ef *matchFunc) Run(scope *Scope, position Pathor) Pathor {
-	var outcome Pathor = nil
+func (ef *matchFunc) Run(scope *Scope) Pathor {
 	for _, e := range ef.expressions {
-		result := e.Run(scope, position)
-		if v, err := interfaceToBoolOrParse(result.Raw()); err != nil && v {
-			return position
-		}
+		result := e.Run(scope)
 		switch result := result.(type) {
 		case *Invalidor:
-			{
-				outcome = result
-			}
+			return result
+		}
+		if v, err := interfaceToBoolOrParse(result.Raw()); err != nil {
+
+		} else if v {
+			continue
+		} else {
+			return NewInvalidor(ExtractPath(scope.Position), ErrMatchFail)
+		}
+		if result.Value().IsZero() {
+			return NewInvalidor(ExtractPath(scope.Position), ErrMatchFail)
 		}
 	}
-	if outcome != nil {
-		return outcome
-	}
-	return position
+	return scope.Position
 }
 
 //TODO
@@ -54,8 +55,8 @@ type equalsFunc struct {
 	expression Runner
 }
 
-func (ef *equalsFunc) Run(scope *Scope, position Pathor) Pathor {
-	result := ef.expression.Run(scope, position)
+func (ef *equalsFunc) Run(scope *Scope) Pathor {
+	result := ef.expression.Run(scope)
 	if reflect.DeepEqual(result.Raw(), scope.Value().Interface()) {
 		return True(scope.Path())
 	} else {
@@ -73,8 +74,8 @@ type notFunc struct {
 	expression Runner
 }
 
-func (ef *notFunc) Run(scope *Scope, position Pathor) Pathor {
-	result := ef.expression.Run(scope, position)
+func (ef *notFunc) Run(scope *Scope) Pathor {
+	result := ef.expression.Run(scope)
 	v, err := interfaceToBoolOrParse(result.Raw())
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
@@ -96,8 +97,8 @@ type isZeroFunc struct {
 	expression Runner
 }
 
-func (ef *isZeroFunc) Run(scope *Scope, position Pathor) Pathor {
-	result := ef.expression.Run(scope, position)
+func (ef *isZeroFunc) Run(scope *Scope) Pathor {
+	result := ef.expression.Run(scope)
 	return NewConstantor(scope.Path(), result.Value().IsZero())
 }
 
@@ -111,8 +112,9 @@ type otherwiseFunc struct {
 	expression Runner
 }
 
-func (ef *otherwiseFunc) Run(scope *Scope, position Pathor) Pathor {
-	result := ef.expression.Run(scope, position)
+func (ef *otherwiseFunc) Run(scope *Scope) Pathor {
+	result := ef.expression.Run(scope)
+	position := scope.Position
 	switch position := position.(type) {
 	case *Constantor:
 		i, err := interfaceToBool(position.c)
