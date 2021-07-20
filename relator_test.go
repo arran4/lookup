@@ -106,9 +106,9 @@ func TestRelator_FromHere(t *testing.T) {
 	}{
 		{name: "No lookup does nothing", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0").Find("Value1") }, want: "abc"},
 		{name: "Empty lookup does nothing", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", Find("")).Find("Value1") }, want: "abc"},
-		{name: "Rel lookup path matches real query", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", Match(Find("Field0").Find("Value1"))).Find("Value1") }, want: "abc"},
+		{name: "Rel lookup path matches real query", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", Match(Find("Value1"))).Find("Value1") }, want: "abc"},
 		{name: "Rel lookup path fails if it fails", resultFunc: func() Pathor {
-			return Reflect(ds1).Find("Field0", Match(Find("Field0").Find("Value1b"))).Find("Value1")
+			return Reflect(ds1).Find("Field0", Match(Parent("Field0").Find("Value1b"))).Find("Value1")
 		}, fail: true},
 		{name: "Result lookup path matches real query", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", Match(Result("Value1"))).Find("Value1") }, want: "abc"},
 		{name: "Result lookup path fails if it fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field0", Match(Result("Value1b"))).Find("Value1") }, fail: true},
@@ -128,7 +128,7 @@ func TestRelator_FromHere(t *testing.T) {
 		{name: "Array index -1 look up only returns false", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Index(-1)) }, want: false},
 		{name: "Array index -2 look up only returns true", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Index(-2)) }, want: true},
 		{name: "Array index -3 look up only returns true", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Index(-3)) }, want: true},
-		{name: "In array succeeds", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Match(In(Array("This")))) }, want: []string{"This"}},
+		{name: "In array succeeds", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Match(In(Array("This")))) }, want: []string{"This"}}, // TODO make everything array safe
 		{name: "In array fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Match(In(Array("NotThis")))) }, want: false},
 		{name: "In pathor succeeds", resultFunc: func() Pathor {
 			return Reflect(ds1).Find("Field3").Find("Value1", Match(In(ValueOf(Reflect(ds1).Find("Field5")))))

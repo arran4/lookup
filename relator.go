@@ -26,6 +26,13 @@ func Find(path string, opts ...Runner) *Relator {
 	return r.Find(path, opts...)
 }
 
+func Parent(path string, opts ...Runner) *Relator {
+	r := &Relator{
+		relationType: relationTypeParent,
+	}
+	return r.Find(path, opts...)
+}
+
 func This(paths ...string) *Relator {
 	r := &Relator{}
 	for _, path := range paths {
