@@ -32,7 +32,7 @@ func (r *Reflector) Value() reflect.Value {
 
 // Find finds the best match for the "Path" argument in the contained object and then returns a Pathor for that location
 // Match nothing was found it will return an Invalidor, or if a Constant has bee provided as an argument (such as through
-// `NewDefault()` it will default to that in most cases. Find is designed to return null safe results.
+// `Default()` it will default to that in most cases. Find is designed to return null safe results.
 func (r *Reflector) Find(path string, opts ...Runner) Pathor {
 	rr := r.subPath(path, r.v, r.path, nil)
 	p := ExtractPath(rr)

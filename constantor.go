@@ -6,7 +6,7 @@ import (
 
 // Constantor This object represents a non-navigable constant. It can be used as an argument applied on the appropriate
 // location in a .Find() chain and it will be the fallback value if no value is found. It can be constructed with either
-// lookup.NewConstantor or lookup.NewDefault()
+// lookup.NewConstantor or lookup.Default()
 type Constantor struct {
 	path string
 	c    interface{}

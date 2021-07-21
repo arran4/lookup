@@ -163,9 +163,9 @@ func otherwise(e Runner) *otherwiseFunc {
 	}
 }
 
-// NewDefault used with .Find() as a PathOpt this will will fallback / default to the provided value regardless of future
+// Default used with .Find() as a PathOpt this will will fallback / default to the provided value regardless of future
 // nagivations, it suppresses most errors / Invalidators.
-func NewDefault(i interface{}) *otherwiseFunc {
+func Default(i interface{}) *otherwiseFunc {
 	return otherwise(NewConstantor("", i))
 }
 

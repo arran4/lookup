@@ -27,35 +27,33 @@ func (i *Interfaceor) Path() string {
 func (i *Interfaceor) Find(path string, opts ...Runner) Pathor {
 	cp, _ := i.i.(CustomPath)
 	p := PathBuilder(path, i, cp)
-	finalError := NewInvalidor(p, ErrNoSuchPath)
-	if ni, err := i.i.Get(path); err != nil {
-		return NewInvalidor(p, err)
-	} else if ni != nil {
-		var np Pathor
-		switch ni := ni.(type) {
+	var ni Pathor
+	nii, err := i.i.Get(path)
+	if err != nil {
+		ni = NewInvalidor(p, err)
+	} else {
+		switch nii := nii.(type) {
 		case Interface:
-			np = &Interfaceor{
-				i:    ni,
+			ni = &Interfaceor{
+				i:    nii,
 				path: p,
 			}
 		case Pathor:
-			np = ni
+			ni = nii
 		default:
-			return &Invalidor{
+			ni = &Invalidor{
 				err:  fmt.Errorf("invalid return type: %s", reflect.TypeOf(ni)),
 				path: p,
 			}
 		}
-		finalError = NewInvalidor(p, ErrEvalFail)
-		for _, evaluator := range opts {
-			np = evaluator.Run(NewScope(i, np))
-			if np == nil {
-				np = NewInvalidor(p, ErrEvalFail)
-			}
-		}
-		return np
 	}
-	return finalError
+	for _, evaluator := range opts {
+		ni = evaluator.Run(NewScope(i, ni))
+		if ni == nil {
+			ni = NewInvalidor(p, ErrEvalFail)
+		}
+	}
+	return ni
 }
 
 func (i *Interfaceor) Value() reflect.Value {

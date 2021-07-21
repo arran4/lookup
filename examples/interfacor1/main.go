@@ -68,5 +68,5 @@ func main() {
 	log.Printf("A->B = %v", root.Find("B").Raw())
 	log.Printf("A->B->D = %v", root.Find("B").Find("D").Raw())
 	log.Printf("A->B->ZZ = %v", root.Find("B").Find("ZZ").Raw())
-	log.Printf("A->B->ZZ = %v", root.Find("B").Find("ZZ", lookup.NewDefault("Not found")).Raw())
+	log.Printf("A->B->ZZ = %v", root.Find("B").Find("ZZ", lookup.Default("Not found")).Raw())
 }

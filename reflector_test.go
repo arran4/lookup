@@ -168,7 +168,7 @@ func TestReflector_Path_StructsAndTypedSlicesWithDefaults(t *testing.T) {
 				if len(p.path) > 0 {
 					paths = append(paths, p.path)
 				}
-				runners = append(runners, NewDefault(fmt.Sprintf("at:%s", strings.Join(paths, "."))))
+				runners = append(runners, Default(fmt.Sprintf("at:%s", strings.Join(paths, "."))))
 				r = r.Find(p.path, runners...)
 			}
 			result := r.Raw()
