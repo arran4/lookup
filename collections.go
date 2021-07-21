@@ -54,7 +54,7 @@ func (ef *mapFunc) Run(scope *Scope) Pathor {
 	return result
 }
 
-func forEach(scope *Scope, v reflect.Value, ef func(f reflect.Value) Pathor) Pathor {
+func forEach(scope *Scope, v reflect.Value, ef func(pathor Pathor) error) Pathor {
 	switch v.Kind() {
 	case reflect.Array, reflect.Slice:
 		if v.IsNil() {
@@ -64,8 +64,12 @@ func forEach(scope *Scope, v reflect.Value, ef func(f reflect.Value) Pathor) Pat
 		}
 		for i := 0; i < v.Len(); i++ {
 			f := v.Index(i)
-			if err := ef(f); err != nil {
-				return err
+			p := scope.Path() + fmt.Sprintf("[%d]", i)
+			if err := ef(&Reflector{
+				path: p,
+				v:    f,
+			}); err != nil {
+				return NewInvalidor(p, err)
 			}
 		}
 	}
@@ -84,15 +88,12 @@ func Contains(runner Runner) *containsFunc {
 
 func (ef *containsFunc) Run(scope *Scope) Pathor {
 	result := ef.expression.Run(scope)
-	v := scope.Value()
+	v := scope.Position.Value()
 	found := false
-	if err := forEach(scope, v, func(f reflect.Value) Pathor {
-		p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(Reflect(f.Interface())))
+	if err := forEach(scope, v, func(pathor Pathor) error {
+		p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(pathor))
 		b, err := interfaceToBoolOrParse(p.Raw())
-		if err != nil {
-			return NewInvalidor(scope.Path(), err)
-		}
-		if b {
+		if err == nil && b {
 			found = true
 		}
 		return nil
@@ -113,17 +114,21 @@ type inFunc struct {
 }
 
 func (ef *inFunc) Run(scope *Scope) Pathor {
+	var result Pathor
+	switch scope.Position.Value().Kind() {
+	case reflect.Slice, reflect.Array:
+		result = arrayOrSliceForEachPath(scope.Path(), nil, scope.Position.Value(), []Runner{ef}, scope)
+		return any(scope, result)
+	default:
+		result = scope.Current
+	}
 	inThis := ef.expression.Run(scope)
-	v := inThis.Value()
-	result := scope.Current
+	inV := inThis.Value()
 	found := false
-	if err := forEach(scope, v, func(f reflect.Value) Pathor {
-		p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(Reflect(f.Interface())))
+	if err := forEach(scope, inV, func(pathor Pathor) error {
+		p := Equals(NewConstantor(ExtractPath(pathor), result.Raw())).Run(scope.Next(pathor))
 		b, err := interfaceToBoolOrParse(p.Raw())
-		if err != nil {
-			return NewInvalidor(scope.Path(), err)
-		}
-		if b {
+		if err == nil && b {
 			found = true
 		}
 		return nil
@@ -144,12 +149,12 @@ func Index(i interface{}) *indexFunc {
 }
 
 func (i *indexFunc) Run(scope *Scope) Pathor {
-	switch scope.Position.Type().Kind() {
+	switch scope.Position.Value().Kind() {
 	case reflect.Array, reflect.Slice:
+		return evaluateType(scope, scope.Position, i.i)
 	default:
 		return NewInvalidor(ExtractPath(scope.Position), ErrIndexOfNotArray)
 	}
-	return evaluateType(scope, scope.Position, i.i)
 }
 
 func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
@@ -206,13 +211,10 @@ func (ef *everyFunc) Run(scope *Scope) Pathor {
 	v := everyThis.Value()
 	result := scope.Current
 	every := true
-	if err := forEach(scope, v, func(f reflect.Value) Pathor {
-		p := Truthy(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(Reflect(f.Interface())))
+	if err := forEach(scope, v, func(pathor Pathor) error {
+		p := Truthy(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(pathor))
 		b, err := interfaceToBoolOrParse(p.Raw())
-		if err != nil {
-			return NewInvalidor(scope.Path(), err)
-		}
-		if b {
+		if err == nil && b {
 			every = false
 		}
 		return nil
@@ -234,16 +236,16 @@ type anyFunc struct {
 
 func (ef *anyFunc) Run(scope *Scope) Pathor {
 	anyThis := ef.expression.Run(scope)
+	return any(scope, anyThis)
+}
+
+func any(scope *Scope, anyThis Pathor) Pathor {
 	v := anyThis.Value()
-	result := scope.Current
 	found := false
-	if err := forEach(scope, v, func(f reflect.Value) Pathor {
-		p := Truthy(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(Reflect(f.Interface())))
+	if err := forEach(scope, v, func(pathor Pathor) error {
+		p := truthy(scope, pathor)
 		b, err := interfaceToBoolOrParse(p.Raw())
-		if err != nil {
-			return NewInvalidor(scope.Path(), err)
-		}
-		if b {
+		if err == nil && b {
 			found = true
 		}
 		return nil

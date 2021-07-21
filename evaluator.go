@@ -49,10 +49,13 @@ func (s *Scope) Value() reflect.Value {
 	if s.v.IsValid() {
 		return s.v
 	}
+	if s.Current != nil {
+		return s.Current.Value()
+	}
 	if s.Parent != nil {
 		return s.Parent.Value()
 	}
-	return s.Current.Value()
+	return reflect.Value{}
 }
 
 func (s *Scope) Path() string {

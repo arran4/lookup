@@ -55,16 +55,20 @@ type truthyFunc struct{}
 
 func (s *truthyFunc) Run(scope *Scope) Pathor {
 	result := scope.Position
+	return truthy(scope, result)
+}
+
+func truthy(scope *Scope, result Pathor) Pathor {
 	switch result := result.(type) {
 	case *Invalidor:
 		return result
 	}
 	v, err := interfaceToBoolOrParse(result.Raw())
 	if !v && err == nil {
-		return NewInvalidor(ExtractPath(scope.Position), ErrMatchFail)
+		return NewInvalidor(scope.Path(), ErrFalse)
 	}
 	if result.Value().IsZero() {
-		return NewInvalidor(ExtractPath(scope.Position), ErrMatchFail)
+		return NewInvalidor(scope.Path(), ErrMatchFail)
 	}
 	return NewConstantor(scope.Path(), v)
 }
@@ -75,7 +79,7 @@ type equalsFunc struct {
 
 func (ef *equalsFunc) Run(scope *Scope) Pathor {
 	result := ef.expression.Run(scope)
-	if reflect.DeepEqual(result.Raw(), scope.Value().Interface()) {
+	if reflect.DeepEqual(result.Raw(), scope.Position.Raw()) {
 		return True(scope.Path())
 	} else {
 		return False(scope.Path())
@@ -115,15 +119,19 @@ type isZeroFunc struct {
 	expression Runner
 }
 
-func (ef *isZeroFunc) Run(scope *Scope) Pathor {
-	result := ef.expression.Run(scope)
-	return NewConstantor(scope.Path(), result.Value().IsZero())
-}
-
 func IsZero(e Runner) *isZeroFunc {
 	return &isZeroFunc{
 		expression: e,
 	}
+}
+
+func (ef *isZeroFunc) Run(scope *Scope) Pathor {
+	switch scope.Position.Value().Kind() {
+	case reflect.Slice, reflect.Array:
+		return arrayOrSliceForEachPath(scope.Path(), nil, scope.Position.Value(), []Runner{ef}, scope)
+	}
+	result := ef.expression.Run(scope)
+	return NewConstantor(scope.Path(), result.Value().IsValid() && result.Value().IsZero())
 }
 
 type otherwiseFunc struct {
