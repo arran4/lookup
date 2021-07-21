@@ -156,10 +156,10 @@ func TestRelator_FromHere(t *testing.T) {
 		}, want: []string{"This"}},
 		{name: "In pathor fails", resultFunc: func() Pathor {
 			return Reflect(ds1).Find("Field3").Find("Value1", Match(In(ValueOf(Reflect(ds1).Find("Field5a")))))
-		}, want: false},
+		}, fail: true},
 		{name: "Filter array succeeds", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Filter(Equals(Constant("This")))) }, want: []string{"This"}},
 		{name: "Contains array succeeds", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Match(Contains(Constant("This")))) }, want: []string{"asdf", "This", ""}},
-		{name: "Contains array fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Match(Contains(Constant("NotThis")))) }, want: false},
+		{name: "Contains array fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Match(Contains(Constant("NotThis")))) }, fail: true},
 		{name: "Contains pathor succeeds", resultFunc: func() Pathor {
 			return Reflect(ds1).Find("Field3").Find("Value1", Match(Contains(ValueOf(Reflect(ds1).Find("Field5")))))
 		}, want: []string{"asdf", "This", ""}},

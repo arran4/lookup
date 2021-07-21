@@ -121,7 +121,7 @@ func (ef *inFunc) Run(scope *Scope) Pathor {
 		result = arrayOrSliceForEachPath(scope.Path(), nil, scope.Position.Value(), []Runner{ef}, scope)
 		return any(scope, result)
 	default:
-		result = scope.Current
+		result = scope.Position
 	}
 	inThis := ef.expression.Run(scope)
 	inV := inThis.Value()
