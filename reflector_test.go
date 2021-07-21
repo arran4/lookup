@@ -30,20 +30,20 @@ func TestReflector_Path_StructsOnly(t *testing.T) {
 	}
 
 	type Each struct {
-		Name             string
+		name             string
 		Path             []string
 		Expecting        interface{}
 		ExpectingInvalid bool
 	}
 	for _, each := range []*Each{
-		{Name: "Empty string is self", Path: []string{""}, Expecting: root},
-		{Name: "Seach for 'Node1' expect root.Node1", Path: []string{"Node1"}, Expecting: root.Node1},
-		{Name: "Seach for 'Node2' expect root.Node2", Path: []string{"Node2"}, Expecting: root.Node2},
-		{Name: "Seach for 'Node1.Name' expect root.Node1.Name", Path: []string{"Node1", "Name"}, Expecting: root.Node1.Name},
-		{Name: "Seach for 'Node2.Size' expect root.Node2.Size", Path: []string{"Node2", "Size"}, Expecting: root.Node2.Size},
-		{Name: "Seach for 'asdf' expect Invalidor", Path: []string{"asdf"}, ExpectingInvalid: true},
+		{name: "Empty string is self", Path: []string{""}, Expecting: root},
+		{name: "Search for 'Node1' expect root.Node1", Path: []string{"Node1"}, Expecting: root.Node1},
+		{name: "Search for 'Node2' expect root.Node2", Path: []string{"Node2"}, Expecting: root.Node2},
+		{name: "Search for 'Node1.Name' expect root.Node1.Name", Path: []string{"Node1", "Name"}, Expecting: root.Node1.Name},
+		{name: "Search for 'Node2.Size' expect root.Node2.Size", Path: []string{"Node2", "Size"}, Expecting: root.Node2.Size},
+		{name: "Search for 'asdf' expect Invalidor", Path: []string{"asdf"}, ExpectingInvalid: true},
 	} {
-		t.Run(each.Name, func(t *testing.T) {
+		t.Run(each.name, func(t *testing.T) {
 			r := Reflect(root)
 			for _, p := range each.Path {
 				r = r.Find(p)
@@ -86,27 +86,27 @@ func TestReflector_Path_StructsAndTypedSlices(t *testing.T) {
 	}
 
 	type Each struct {
-		Name             string
-		Path             []string
+		name             string
+		Path             []find
 		Expecting        interface{}
 		ExpectingInvalid bool
 	}
 	for _, each := range []*Each{
-		{Name: "Node 1 is a list of node 1", Path: []string{"Node1"}, Expecting: root.Node1},
-		{Name: "Node1[0].Name is the 1st element", Path: []string{"Node1", "0", "Name"}, Expecting: "asdf"},
-		{Name: "Node1[1].Name is the 2nd element", Path: []string{"Node1", "1", "Name"}, Expecting: "123"},
-		{Name: "Node1[-1].Name is the 2nd element", Path: []string{"Node1", "-1", "Name"}, Expecting: "123"},
-		{Name: "Node1.Name is a list of name elements in node 1", Path: []string{"Node1", "Name"}, Expecting: []string{"asdf", "123"}},
-		{Name: "Node2[0].Size is the 1st element", Path: []string{"Node2", "0", "Size"}, Expecting: 324},
-		{Name: "Node2[1].Size is the 2nd element", Path: []string{"Node2", "1", "Size"}, Expecting: 213},
-		{Name: "Node2[-1].Size is the 2nd element", Path: []string{"Node2", "-1", "Size"}, Expecting: 213},
-		{Name: "Node2.Size is a list of name elements in node 2", Path: []string{"Node2", "Size"}, Expecting: []int{324, 213}},
-		{Name: "Node2.Name doesn't exist in the Node2 list", Path: []string{"Node2", "Name"}, ExpectingInvalid: true},
+		{name: "Node 1 is a list of node 1", Path: []find{{"Node1", nil}}, Expecting: root.Node1},
+		{name: "Node1[0].Name is the 1st element", Path: []find{{"Node1", nil}, {"", []Runner{Index("0")}}, {"Name", nil}}, Expecting: "asdf"},
+		{name: "Node1[1].Name is the 2nd element", Path: []find{{"Node1", nil}, {"", []Runner{Index("1")}}, {"Name", nil}}, Expecting: "123"},
+		{name: "Node1[-1].Name is the 2nd element", Path: []find{{"Node1", nil}, {"", []Runner{Index("-1")}}, {"Name", nil}}, Expecting: "123"},
+		{name: "Node1.Name is a list of name elements in node 1", Path: []find{{"Node1", nil}, {"Name", nil}}, Expecting: []string{"asdf", "123"}},
+		{name: "Node2[0].Size is the 1st element", Path: []find{{"Node2", nil}, {"", []Runner{Index("0")}}, {"Size", nil}}, Expecting: 324},
+		{name: "Node2[1].Size is the 2nd element", Path: []find{{"Node2", nil}, {"", []Runner{Index("1")}}, {"Size", nil}}, Expecting: 213},
+		{name: "Node2[-1].Size is the 2nd element", Path: []find{{"Node2", nil}, {"", []Runner{Index("-1")}}, {"Size", nil}}, Expecting: 213},
+		{name: "Node2.Size is a list of name elements in node 2", Path: []find{{"Node2", nil}, {"Size", nil}}, Expecting: []int{324, 213}},
+		{name: "Node2.Name doesn't exist in the Node2 list", Path: []find{{"Node2", nil}, {"Name", nil}}, ExpectingInvalid: true},
 	} {
-		t.Run(each.Name, func(t *testing.T) {
+		t.Run(each.name, func(t *testing.T) {
 			r := Reflect(root)
 			for _, p := range each.Path {
-				r = r.Find(p)
+				r = r.Find(p.path, p.runners...)
 			}
 			result := r.Raw()
 			if each.ExpectingInvalid {
@@ -145,25 +145,31 @@ func TestReflector_Path_StructsAndTypedSlicesWithDefaults(t *testing.T) {
 	}
 
 	type Each struct {
-		Name             string
-		Path             []string
+		name             string
+		Path             []find
 		Expecting        interface{}
 		ExpectingInvalid bool
 	}
 	for _, each := range []*Each{
-		{Name: "Node 1 is a list of node 1", Path: []string{"Node1"}, Expecting: root.Node1},
-		{Name: "Node1[0].Name is the 1st element", Path: []string{"Node1", "0", "Name"}, Expecting: "asdf"},
-		{Name: "Node1[3].Name doesn't exist return default", Path: []string{"Node1", "3", "Name"}, Expecting: []string{"at:Node1.3.Name", "at:Node1.3.Name"}},
-		{Name: "Node2 Exists", Path: []string{"Node2"}, Expecting: root.Node2},
-		{Name: "Node2.Size Exists", Path: []string{"Node2", "Size"}, Expecting: root.Node2.Size},
-		{Name: "Node2.Qty doesn't Exist", Path: []string{"Node2", "Qty"}, Expecting: "at:Node2.Qty"},
-		{Name: "Node3 doesn't exist return default", Path: []string{"Node3"}, Expecting: "at:Node3"},
-		{Name: "Node3.LKJ doesn't exist return default", Path: []string{"Node3", "LKJ"}, Expecting: "at:Node3.LKJ"},
+		{name: "Node 1 is a list of node 1", Path: []find{{"Node1", nil}}, Expecting: root.Node1},
+		{name: "Node1[0].Name is the 1st element", Path: []find{{"Node1", nil}, {"", []Runner{Index("0")}}, {"Name", nil}}, Expecting: "asdf"},
+		{name: "Node1[3].Name doesn't exist return default", Path: []find{{"Node1", nil}, {"", []Runner{Index("3")}}, {"Name", nil}}, Expecting: "at:Node1"},
+		{name: "Node2 Exists", Path: []find{{"Node2", nil}}, Expecting: root.Node2},
+		{name: "Node2.Size Exists", Path: []find{{"Node2", nil}, {"Size", nil}}, Expecting: root.Node2.Size},
+		{name: "Node2.Qty doesn't Exist", Path: []find{{"Node2", nil}, {"Qty", nil}}, Expecting: "at:Node2.Qty"},
+		{name: "Node3 doesn't exist return default", Path: []find{{"Node3", nil}}, Expecting: "at:Node3"},
+		{name: "Node3.LKJ doesn't exist return default", Path: []find{{"Node3", nil}, {"LKJ", nil}}, Expecting: "at:Node3"},
 	} {
-		t.Run(each.Name, func(t *testing.T) {
+		t.Run(each.name, func(t *testing.T) {
 			r := Reflect(root)
-			for pi, p := range each.Path {
-				r = r.Find(p, NewDefault(fmt.Sprintf("at:%s", strings.Join(each.Path[:pi+1], "."))))
+			paths := []string{}
+			for _, p := range each.Path {
+				runners := append([]Runner{}, p.runners...)
+				if len(p.path) > 0 {
+					paths = append(paths, p.path)
+				}
+				runners = append(runners, Default(fmt.Sprintf("at:%s", strings.Join(paths, "."))))
+				r = r.Find(p.path, runners...)
 			}
 			result := r.Raw()
 			if each.ExpectingInvalid {
@@ -178,6 +184,17 @@ func TestReflector_Path_StructsAndTypedSlicesWithDefaults(t *testing.T) {
 
 		})
 	}
+}
+
+func ExtractPathsFromFind(path []find) (result []string) {
+	result = []string{}
+	for _, p := range path {
+		if len(p.path) == 0 {
+			continue
+		}
+		result = append(result, p.path)
+	}
+	return result
 }
 
 func TestReflector_Path_StructsAndSlicesWithUnnamedFields(t *testing.T) {
@@ -255,25 +272,25 @@ func TestReflector_Path_StructsAndUntypedSlices(t *testing.T) {
 	}
 
 	type Each struct {
-		Name             string
-		Path             []string
+		name             string
+		Path             []find
 		Expecting        interface{}
 		ExpectingInvalid bool
 	}
 	for _, each := range []*Each{
-		{Name: "NodeN is a list of node 1", Path: []string{"NodeN"}, Expecting: root.NodeN},
-		{Name: "NodeN[0].Name is the 1st element", Path: []string{"NodeN", "0", "Name"}, Expecting: "asdf"},
-		{Name: "NodeN[1].Name is the 2nd element", Path: []string{"NodeN", "1", "Name"}, Expecting: "123"},
-		{Name: "NodeN.Name is a list of name elements in node 1", Path: []string{"NodeN", "Name"}, Expecting: []string{"asdf", "123"}},
-		{Name: "NodeN.Size is a list of name elements in node 2", Path: []string{"NodeN", "Size"}, Expecting: []int{324, 213}},
-		{Name: "NodeN.Nameeee doesn't exist in the NodeN list", Path: []string{"NodeN", "Nameeee"}, ExpectingInvalid: true},
-		{Name: "NodeN.I is a list of name elements in node 3 in an unnamed field struct inside node 3", Path: []string{"NodeN", "", "I"}, Expecting: []float32{23, 2}},
-		{Name: "NodeN.UnnamedField.I is a list of name elements in node 3 in an unnamed field struct inside node 3", Path: []string{"NodeN", "UnnamedField", "I"}, Expecting: []float32{23, 2}},
+		{name: "NodeN is a list of node 1", Path: []find{{"NodeN", nil}}, Expecting: root.NodeN},
+		{name: "NodeN[0].Name is the 1st element", Path: []find{{"NodeN", nil}, {"", []Runner{Index("0")}}, {"Name", nil}}, Expecting: "asdf"},
+		{name: "NodeN[1].Name is the 2nd element", Path: []find{{"NodeN", nil}, {"", []Runner{Index("1")}}, {"Name", nil}}, Expecting: "123"},
+		{name: "NodeN.name is a list of name elements in node 1", Path: []find{{"NodeN", nil}, {"Name", nil}}, Expecting: []string{"asdf", "123"}},
+		{name: "NodeN.Size is a list of name elements in node 2", Path: []find{{"NodeN", nil}, {"Size", nil}}, Expecting: []int{324, 213}},
+		{name: "NodeN.Nameeee doesn't exist in the NodeN list", Path: []find{{"NodeN", nil}, {"Nameeee", nil}}, ExpectingInvalid: true},
+		{name: "NodeN.I is a list of name elements in node 3 in an unnamed field struct inside node 3", Path: []find{{"NodeN", nil}, {"", nil}, {"I", nil}}, Expecting: []float32{23, 2}},
+		{name: "NodeN.UnnamedField.I is a list of name elements in node 3 in an unnamed field struct inside node 3", Path: []find{{"NodeN", nil}, {"UnnamedField", nil}, {"I", nil}}, Expecting: []float32{23, 2}},
 	} {
-		t.Run(each.Name, func(t *testing.T) {
+		t.Run(each.name, func(t *testing.T) {
 			r := Reflect(root)
 			for _, p := range each.Path {
-				r = r.Find(p)
+				r = r.Find(p.path, p.runners...)
 			}
 			result := r.Raw()
 			if each.ExpectingInvalid {
@@ -503,15 +520,15 @@ func TestReflector_Path_LambdaFunc(t *testing.T) {
 	}
 
 	type Each struct {
-		Name             string
+		name             string
 		Path             []string
 		Expecting        interface{}
 		ExpectingInvalid bool
 	}
 	for _, each := range []*Each{
-		{Name: "We should be able to get the result through the function", Path: []string{"Name"}, Expecting: "Mr Complex"},
+		{name: "We should be able to get the result through the function", Path: []string{"Name"}, Expecting: "Mr Complex"},
 	} {
-		t.Run(each.Name, func(t *testing.T) {
+		t.Run(each.name, func(t *testing.T) {
 			r := Reflect(root)
 			for _, p := range each.Path {
 				r = r.Find(p)
