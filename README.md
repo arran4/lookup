@@ -42,8 +42,8 @@ log.Printf("%#v", lookup.Reflector(root).Find("Node1").Find("Name").Raw()) // "a
 log.Printf("%#v", lookup.Reflector(root).Find("Node1").Find("DoesntExist").Raw()) // nil
 log.Printf("%#v", lookup.Reflector(root).Find("Node1").Find("DoesntExist", lookup.NewDefault("N/A")).Raw()) // "N/A"
 log.Printf("%#v", lookup.Reflector(root).Find("Node2").Find("Size").Raw()) // []int{ 1,12,35 }
-log.Printf("%#v", lookup.Reflector(root).Find("Node2").Find("1").Find("Size").Raw()) // 12
-log.Printf("%#v", lookup.Reflector(root).Find("Node2").Find("-1").Find("Size").Raw()) // 35
+log.Printf("%#v", lookup.Reflector(root).Find("Node2", Index("1")).Find("Size").Raw()) // 12
+log.Printf("%#v", lookup.Reflector(root).Find("Node2", Index("-1")).Find("Size").Raw()) // 35
 ```
 
 It will even execute functions (provided they have no arguments, and 1 primitive return, or a primitive and an error return)
