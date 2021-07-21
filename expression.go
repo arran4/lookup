@@ -79,6 +79,10 @@ type equalsFunc struct {
 
 func (ef *equalsFunc) Run(scope *Scope) Pathor {
 	result := ef.expression.Run(scope)
+	return equals(scope, result)
+}
+
+func equals(scope *Scope, result Pathor) Pathor {
 	if reflect.DeepEqual(result.Raw(), scope.Position.Raw()) {
 		return True(scope.Path())
 	} else {

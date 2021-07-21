@@ -165,7 +165,7 @@ func TestRelator_FromHere(t *testing.T) {
 		}, want: []string{"asdf", "This", ""}},
 		{name: "Contains pathor fails", resultFunc: func() Pathor {
 			return Reflect(ds1).Find("Field3").Find("Value1", Match(Contains(ValueOf(Reflect(ds1).Find("Field5b")))))
-		}, want: false}}
+		}, fail: true}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.resultFunc()

@@ -89,6 +89,13 @@ func Contains(runner Runner) *containsFunc {
 
 func (ef *containsFunc) Run(scope *Scope) Pathor {
 	result := ef.expression.Run(scope)
+	switch result.Value().Kind() {
+	case reflect.Slice, reflect.Array:
+		result = arrayOrSliceForEachPath(scope.Path(), nil, scope.Position.Value(), []Runner{
+			ValueOf(result),
+		}, scope)
+		return every(scope, equals(scope, result))
+	}
 	v := scope.Position.Value()
 	found := false
 	if err := forEach(scope, v, func(pathor Pathor) error {
@@ -209,6 +216,10 @@ type everyFunc struct {
 
 func (ef *everyFunc) Run(scope *Scope) Pathor {
 	everyThis := ef.expression.Run(scope)
+	return every(scope, everyThis)
+}
+
+func every(scope *Scope, everyThis Pathor) Pathor {
 	v := everyThis.Value()
 	result := scope.Current
 	every := true
