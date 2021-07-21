@@ -17,7 +17,7 @@ func (s *subFilterFunc) Run(scope *Scope) Pathor {
 		return NewInvalidor(scope.Path(), err)
 	}
 	if b {
-		return scope.Position
+		return scope.Current
 	}
 	return NewInvalidor(scope.Path(), ErrEvalFail)
 }
@@ -34,7 +34,8 @@ func Filter(expression Runner) *filterFunc {
 
 func (ef *filterFunc) Run(scope *Scope) Pathor {
 	result := arrayOrSliceForEachPath(ExtractPath(scope.Position), nil, scope.Position.Value(), []Runner{
-		&subFilterFunc{ef.expression},
+		ef.expression,
+		&subFilterFunc{expression: Result()},
 	}, scope)
 	return result
 }

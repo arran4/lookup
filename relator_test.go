@@ -143,12 +143,16 @@ func TestRelator_FromHere(t *testing.T) {
 		{name: "Array index -2 look up only returns true", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Index(-2)) }, want: true},
 		{name: "Array index -3 look up only returns true", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Index(-3)) }, want: true},
 		{name: "In supports arrays so will return true if matches", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Match(In(Array("This")))) }, want: []string{"asdf", "This", ""}},
+		{name: "In supports filtering arrays arrays so will return just ['This']", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Filter(In(Array("This")))) }, want: []string{"This"}},
 		{name: "In is for looking up values in an array not intersections", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Match(In(Array("NotHere")))) }, fail: true},
 		//{name: "Value intersection", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Intersection(Array("This"))) }, want: []string{"This"}},
-		{name: "Lookup of Field6 works as it is in array", resultFunc: func() Pathor { return Reflect(ds1).Find("Field6").Find("Value1", Match(In(Array("This")))) }, want: []string{"This"}},
+		{name: "Lookup of Field6 works as it's a single value", resultFunc: func() Pathor { return Reflect(ds1).Find("Field6", Match(In(Array("This")))) }, want: "This"},
 		{name: "In array fails", resultFunc: func() Pathor { return Reflect(ds1).Find("Field3").Find("Value1", Match(In(Array("NotThis")))) }, fail: true},
-		{name: "In pathor succeeds", resultFunc: func() Pathor {
+		{name: "In pathor succeeds with match returns all", resultFunc: func() Pathor {
 			return Reflect(ds1).Find("Field3").Find("Value1", Match(In(ValueOf(Reflect(ds1).Find("Field5")))))
+		}, want: []string{"asdf", "This", ""}},
+		{name: "In pathor succeeds with filter returns just match", resultFunc: func() Pathor {
+			return Reflect(ds1).Find("Field3").Find("Value1", Filter(In(ValueOf(Reflect(ds1).Find("Field5")))))
 		}, want: []string{"This"}},
 		{name: "In pathor fails", resultFunc: func() Pathor {
 			return Reflect(ds1).Find("Field3").Find("Value1", Match(In(ValueOf(Reflect(ds1).Find("Field5a")))))
