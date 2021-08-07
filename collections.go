@@ -272,3 +272,4 @@ func any(scope *Scope, anyThis Pathor) Pathor {
 // TODO Intersection
 // TODO First - warp index
 // TODO Last - wrap index
+// TODO Range

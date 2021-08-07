@@ -6,11 +6,15 @@ type find struct {
 	runners []Runner
 }
 
+// How the relator interactions with Scope
 type relationType int
 
 const (
+	// Relates to the Scope.Current position
 	relationTypeCurrent relationType = iota
+	// Relates to the Scope.Current parent
 	relationTypeParent
+	// Relates to the Scope.Position position
 	relationTypePosition
 )
 
