@@ -47,7 +47,9 @@ func TestJSONQueries(t *testing.T) {
 			Age  int    `json:"age"`
 		} `json:"users"`
 	}
-	json.Unmarshal(jsonData, &v)
+	if err := json.Unmarshal(jsonData, &v); err != nil {
+		t.Fatalf("failed to unmarshal json: %v", err)
+	}
 
 	assert.Equal(t, []int{7}, runQuery(t, v, "Users[Name='sam'].Age"))
 }
