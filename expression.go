@@ -169,20 +169,38 @@ func Default(i interface{}) *otherwiseFunc {
 	return otherwise(NewConstantor("", i))
 }
 
-//TODO
-//type ifFunc struct {
-//	cond Runner
-//	then Runner
-//	otherwise Runner
-//}
-//
-//func If(e ...Runner) *ifFunc {
-//	return &ifFunc{
-//		cond: e,
-//		then: e,
-//		otherwise: e,
-//	}
-//}
-//
-//func (ef *ifFunc) Run(scope *Scope, position Pathor) Pathor {
-//}
+type ifFunc struct {
+	cond      Runner
+	then      Runner
+	otherwise Runner
+}
+
+// If evaluates `cond` and runs `then` when true otherwise `otherwise`.
+func If(cond Runner, then Runner, otherwise Runner) *ifFunc {
+	return &ifFunc{
+		cond:      cond,
+		then:      then,
+		otherwise: otherwise,
+	}
+}
+
+func (ef *ifFunc) Run(scope *Scope) Pathor {
+	c := ef.cond.Run(scope)
+	if invalid, ok := c.(*Invalidor); ok {
+		return invalid
+	}
+	b, err := interfaceToBoolOrParse(c.Raw())
+	if err != nil {
+		return NewInvalidor(scope.Path(), err)
+	}
+	if b {
+		if ef.then != nil {
+			return ef.then.Run(scope)
+		}
+		return scope.Position
+	}
+	if ef.otherwise != nil {
+		return ef.otherwise.Run(scope)
+	}
+	return scope.Position
+}

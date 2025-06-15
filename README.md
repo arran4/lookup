@@ -63,6 +63,7 @@ Modifiers are `Runner` implementations that transform the current scope of a loo
 | `Every(r)` | True if every element in scope matches `r`. |
 | `Any(r)` | True if any element in scope matches `r`. |
 | `Match(r)` | Proceed only if `r` evaluates to true. |
+| `If(c, t, o)` | When `c` is true run `t` otherwise `o`. |
 | `Default(v)` | Use `v` whenever the lookup would result in an invalid value. |
 | `This(p)` `Parent(p)` `Result(p)` | Relative lookups executed from different points in a query. |
 
