@@ -34,13 +34,23 @@ func (ef *matchFunc) Run(scope *Scope) Pathor {
 }
 
 func ToBool(expression Runner) *toBoolFunc {
-	return &toBoolFunc{}
+	return &toBoolFunc{
+		expression: expression,
+	}
 }
 
-type toBoolFunc struct{}
+type toBoolFunc struct {
+	expression Runner
+}
 
 func (s *toBoolFunc) Run(scope *Scope) Pathor {
-	b, err := interfaceToBoolOrParse(scope.Position.Raw())
+	var result Pathor
+	if s.expression != nil {
+		result = s.expression.Run(scope)
+	} else {
+		result = scope.Position
+	}
+	b, err := interfaceToBoolOrParse(result.Raw())
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
 	}
@@ -48,13 +58,22 @@ func (s *toBoolFunc) Run(scope *Scope) Pathor {
 }
 
 func Truthy(expression Runner) *truthyFunc {
-	return &truthyFunc{}
+	return &truthyFunc{
+		expression: expression,
+	}
 }
 
-type truthyFunc struct{}
+type truthyFunc struct {
+	expression Runner
+}
 
 func (s *truthyFunc) Run(scope *Scope) Pathor {
-	result := scope.Position
+	var result Pathor
+	if s.expression != nil {
+		result = s.expression.Run(scope)
+	} else {
+		result = scope.Position
+	}
 	return truthy(scope, result)
 }
 
