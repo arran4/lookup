@@ -20,3 +20,20 @@ func TestIndexConstantorPath(t *testing.T) {
 		t.Errorf("path mismatch got %s", p)
 	}
 }
+
+func TestContainsMap(t *testing.T) {
+	m := map[string]int{"a": 1, "b": 2}
+	r := Reflect(m).Find("", Contains(Constant(2)))
+	if diff := cmp.Diff(true, r.Raw()); diff != "" {
+		t.Errorf("value mismatch: %s", diff)
+	}
+}
+
+func TestInStruct(t *testing.T) {
+	type S struct{ A, B string }
+	s := S{A: "foo", B: "bar"}
+	r := Reflect("bar").Find("", In(ValueOf(Reflect(s))))
+	if diff := cmp.Diff(true, r.Raw()); diff != "" {
+		t.Errorf("value mismatch: %s", diff)
+	}
+}
