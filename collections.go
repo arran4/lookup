@@ -96,18 +96,7 @@ func (ef *containsFunc) Run(scope *Scope) Pathor {
 		}, scope)
 		return every(scope, equals(scope, result))
 	}
-	v := scope.Position.Value()
-	found := false
-	if err := forEach(scope, v, func(pathor Pathor) error {
-		p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(pathor))
-		b, err := interfaceToBoolOrParse(p.Raw())
-		if err == nil && b {
-			found = true
-		}
-		return nil
-	}); err != nil {
-		return err
-	}
+	found := elementOf(result.Value(), scope.Position.Value(), nil)
 	return NewConstantor(scope.Path(), found)
 }
 
@@ -122,27 +111,13 @@ type inFunc struct {
 }
 
 func (ef *inFunc) Run(scope *Scope) Pathor {
-	var result Pathor
 	switch scope.Position.Value().Kind() {
 	case reflect.Slice, reflect.Array:
-		result = arrayOrSliceForEachPath(scope.Path(), nil, scope.Position.Value(), []Runner{ef}, scope)
+		result := arrayOrSliceForEachPath(scope.Path(), nil, scope.Position.Value(), []Runner{ef}, scope)
 		return any(scope, result)
-	default:
-		result = scope.Position
 	}
 	inThis := ef.expression.Run(scope)
-	inV := inThis.Value()
-	found := false
-	if err := forEach(scope, inV, func(pathor Pathor) error {
-		p := Equals(NewConstantor(ExtractPath(pathor), result.Raw())).Run(scope.Next(pathor))
-		b, err := interfaceToBoolOrParse(p.Raw())
-		if err == nil && b {
-			found = true
-		}
-		return nil
-	}); err != nil {
-		return err
-	}
+	found := elementOf(scope.Position.Value(), inThis.Value(), nil)
 	return NewConstantor(scope.Path(), found)
 }
 
@@ -190,11 +165,11 @@ func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
 		}
 	case reflect.Struct, reflect.Ptr:
 		switch ii := i.(type) {
+		case *Constantor:
+			return evaluateType(scope, pathor, ii.Raw())
 		case Runner:
 			p := ii.Run(scope)
 			return evaluateType(scope, p, p.Raw())
-		case *Constantor:
-			return evaluateType(scope, pathor, ii.Raw())
 		default:
 			return NewInvalidor(ExtractPath(pathor), ErrIndexValueNotValid)
 		}
@@ -221,10 +196,9 @@ func (ef *everyFunc) Run(scope *Scope) Pathor {
 
 func every(scope *Scope, everyThis Pathor) Pathor {
 	v := everyThis.Value()
-	result := scope.Current
 	every := true
 	if err := forEach(scope, v, func(pathor Pathor) error {
-		p := Truthy(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(pathor))
+		p := Truthy(Result()).Run(scope.Next(pathor))
 		b, err := interfaceToBoolOrParse(p.Raw())
 		if err == nil && b {
 			every = false

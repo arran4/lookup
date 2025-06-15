@@ -2,6 +2,8 @@ package lookup
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/google/go-cmp/cmp"
+	"testing"
 	"testing"
 )
 
@@ -100,4 +102,36 @@ func TestRangeModifierNegativeIndexes(t *testing.T) {
 	r := Reflect([]int{1, 2, 3, 4})
 	res := r.Find("", Range(-3, -1)).Raw()
 	assert.Equal(t, []int{2, 3}, res)
+}
+  
+func TestIndexConstantorPath(t *testing.T) {
+	type Root struct{ Arr []int }
+	root := &Root{Arr: []int{0, 1, 2}}
+
+	r := Reflect(root).Find("Arr").Find("", Index(NewConstantor("Const", 1)))
+	t.Logf("raw=%v path=%s", r.Raw(), ExtractPath(r))
+
+	if diff := cmp.Diff(1, r.Raw()); diff != "" {
+		t.Errorf("value mismatch: %s", diff)
+	}
+	if p := ExtractPath(r); !strings.HasPrefix(p, "Arr[1]") {
+		t.Errorf("path mismatch got %s", p)
+	}
+}
+
+func TestContainsMap(t *testing.T) {
+	m := map[string]int{"a": 1, "b": 2}
+	r := Reflect(m).Find("", Contains(Constant(2)))
+	if diff := cmp.Diff(true, r.Raw()); diff != "" {
+		t.Errorf("value mismatch: %s", diff)
+	}
+}
+
+func TestInStruct(t *testing.T) {
+	type S struct{ A, B string }
+	s := S{A: "foo", B: "bar"}
+	r := Reflect("bar").Find("", In(ValueOf(Reflect(s))))
+	if diff := cmp.Diff(true, r.Raw()); diff != "" {
+		t.Errorf("value mismatch: %s", diff)
+	}
 }

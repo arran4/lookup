@@ -64,7 +64,7 @@ func (r *Constantor) Value() reflect.Value {
 
 // Find returns a new Constinator with the same object but with an updated path if required.
 func (r *Constantor) Find(path string, opts ...Runner) Pathor {
-	p := r.path
+	var p string
 	if len(r.path) > 0 {
 		p = r.path + "." + path
 	} else {
