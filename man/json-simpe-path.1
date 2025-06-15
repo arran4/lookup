@@ -1,0 +1,43 @@
+.nh
+.TH JSON-SIMPE-PATH(1) go2man
+Auto-generated
+Jun 2025
+
+.SH NAME
+json-simpe-path \- query JSON files using lookup paths
+
+
+.SH SYNOPSIS
+\fBjson-simpe-path [options] PATH [PATH ...]\fR
+
+
+.SH DESCRIPTION
+Reads one or more JSON documents and extracts values with lookup's SimplePath syntax. It mirrors yaml-simpe-path but defaults to JSON input and output.
+
+
+.SH OPTIONS
+See README for details.
+
+
+.SH EXAMPLES
+.EX
+$ cat <<'EOF' > doc.json
+{"name":"foo","spec":{"replicas":3},"metadata":{"name":"prod-service"}}
+EOF
+$ json-simpe-path -f doc.json .spec.replicas
+3
+.EE
+
+.EX
+$ json-simpe-path -grep '^prod' -raw -f doc.json .metadata.name
+prod-service
+.EE
+
+.EX
+$ json-simpe-path -count -f doc.json .metadata.name
+1
+.EE
+
+
+.SH SEE ALSO
+yaml-simpe-path(1)
