@@ -14,7 +14,7 @@ type Interface interface {
 	Raw() interface{}
 }
 
-// Interfaceor the warping element for the Interface component to make it adhere to the Pathor interface
+// Interfaceor the wrapping element for the Interface component to make it adhere to the Pathor interface
 type Interfaceor struct {
 	i    Interface
 	path string
