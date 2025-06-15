@@ -74,7 +74,7 @@ func (r *Relator) Find(path string, opts ...Runner) *Relator {
 
 // Copy produces a copy of the Relator
 func (r *Relator) Copy() *Relator {
-	fs := make([]*find, len(r.finds), len(r.finds))
+	fs := make([]*find, len(r.finds))
 	copy(fs, r.finds)
 	return &Relator{
 		finds:        fs,

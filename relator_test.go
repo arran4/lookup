@@ -52,6 +52,29 @@ func TestRelator_Evaluate(t *testing.T) {
 	}
 }
 
+func TestRelator_CopyCreatesSeparateSlice(t *testing.T) {
+	r := NewRelator().Find("F1")
+	c := r.Copy()
+
+	if len(r.finds) != len(c.finds) {
+		t.Fatalf("copy length mismatch got %d want %d", len(c.finds), len(r.finds))
+	}
+
+	if len(r.finds) > 0 && &r.finds[0] == &c.finds[0] {
+		t.Errorf("copy shares slice backing array with original")
+	}
+
+	r.Find("F2")
+
+	if len(r.finds) != 2 {
+		t.Errorf("original relator expected 2 finds got %d", len(r.finds))
+	}
+
+	if len(c.finds) != 1 {
+		t.Errorf("copy relator expected 1 find got %d", len(c.finds))
+	}
+}
+
 func TestRelator_FromHere(t *testing.T) {
 	type BoolField struct {
 		Value1 bool
