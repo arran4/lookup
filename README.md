@@ -49,6 +49,24 @@ name = root
 size = 10
 ```
 
+### Query Strings
+
+For quick lookups the library understands a tiny query language that mirrors the
+`Find` API. Paths are written using dot notation with optional array/slice
+indexes in brackets. Negative indexes count from the end of the collection.
+The helper `lookup.QuerySimplePath` parses the expression and runs it against your value:
+
+```go
+// Get the value of root.A.B[0].C
+result := lookup.QuerySimplePath(root, "A.B[0].C").Raw()
+
+// Last element using a negative index
+last := lookup.QuerySimplePath(root, "A.B[-1].C").Raw()
+```
+
+If you need to reuse a query repeatedly you can compile it once using
+`lookup.ParseSimplePath` which returns a `Relator` that can be executed on any `Pathor`.
+
 ## Modifiers
 
 Modifiers are `Runner` implementations that transform the current scope of a lookup. They are passed to `Find` after the path name.
