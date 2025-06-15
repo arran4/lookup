@@ -190,11 +190,11 @@ func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
 		}
 	case reflect.Struct, reflect.Ptr:
 		switch ii := i.(type) {
+		case *Constantor:
+			return evaluateType(scope, pathor, ii.Raw())
 		case Runner:
 			p := ii.Run(scope)
 			return evaluateType(scope, p, p.Raw())
-		case *Constantor:
-			return evaluateType(scope, pathor, ii.Raw())
 		default:
 			return NewInvalidor(ExtractPath(pathor), ErrIndexValueNotValid)
 		}
