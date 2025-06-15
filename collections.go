@@ -421,14 +421,14 @@ func evalIndex(scope *Scope, val interface{}, def int) (int, error) {
 		return def, nil
 	}
 	switch v := val.(type) {
+	case *Constantor:
+		return evalIndex(scope, v.Raw(), def)
 	case Runner:
 		r := v.Run(scope)
 		if _, ok := r.(*Invalidor); ok {
 			return 0, ErrEvalFail
 		}
 		return evalIndex(scope, r.Raw(), def)
-	case *Constantor:
-		return evalIndex(scope, v.Raw(), def)
 	case Pathor:
 		return evalIndex(scope, v.Raw(), def)
 	case string:

@@ -271,7 +271,24 @@ func TestRange(t *testing.T) {
 				t.Errorf("unexpected result: %s", diff)
 			}
 		})
-  }
+	}
+}
+
+func TestRangeConstantor(t *testing.T) {
+	data := []int{0, 1, 2, 3}
+	r := Reflect(data).Find("", Range(Constant(1), Constant(3)))
+	if diff := cmp.Diff([]int{1, 2}, r.Raw()); diff != "" {
+		t.Errorf("unexpected result: %s", diff)
+	}
+}
+
+func TestRangeRunnerConstantor(t *testing.T) {
+	data := []string{"a", "b", "c", "d"}
+	var start Runner = Constant(1)
+	r := Reflect(data).Find("", Range(start, 3))
+	if diff := cmp.Diff([]string{"b", "c"}, r.Raw()); diff != "" {
+		t.Errorf("unexpected result: %s", diff)
+	}
 }
 
 func TestIndexConstantorPath(t *testing.T) {
