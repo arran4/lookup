@@ -60,7 +60,7 @@ func forEach(scope *Scope, v reflect.Value, ef func(pathor Pathor) error) Pathor
 	case reflect.Array, reflect.Slice:
 		if v.IsNil() {
 			return &Invalidor{
-				err: fmt.Errorf("mil element at simple path %s element was %s expected array,slice,map,struct", scope.Path(), "nil"),
+				err: fmt.Errorf("nil element at simple path %s element was %s expected array,slice,map,struct", scope.Path(), "nil"),
 			}
 		}
 		for i := 0; i < v.Len(); i++ {

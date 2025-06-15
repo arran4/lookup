@@ -56,7 +56,7 @@ func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.
 		if v.IsNil() {
 			p += path
 			result = &Invalidor{
-				err: fmt.Errorf("mil element at simple path %s element was %s expected array,slice,map,struct", p, "nil"),
+				err: fmt.Errorf("nil element at simple path %s element was %s expected array,slice,map,struct", p, "nil"),
 			}
 			break
 		}
@@ -65,7 +65,7 @@ func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.
 		if v.IsNil() {
 			p += path
 			result = &Invalidor{
-				err: fmt.Errorf("mil element at simple path %s element was %s expected array,slice,map,struct", p, "nil"),
+				err: fmt.Errorf("nil element at simple path %s element was %s expected array,slice,map,struct", p, "nil"),
 			}
 			break
 		}
@@ -76,7 +76,7 @@ func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.
 		if v.IsNil() {
 			p += path
 			result = &Invalidor{
-				err: fmt.Errorf("mil element at simple path %s element was %s expected array,slice,map,struct", p, "nil"),
+				err: fmt.Errorf("nil element at simple path %s element was %s expected array,slice,map,struct", p, "nil"),
 			}
 			break
 		}
@@ -85,7 +85,7 @@ func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.
 		if v.IsNil() {
 			p += path
 			result = &Invalidor{
-				err: fmt.Errorf("mil element at simple path %s element was %s expected array,slice,map,struct", p, "nil"),
+				err: fmt.Errorf("nil element at simple path %s element was %s expected array,slice,map,struct", p, "nil"),
 			}
 			break
 		}
