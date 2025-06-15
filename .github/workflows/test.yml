@@ -31,11 +31,12 @@ jobs:
       - name: Test
         run: go test ./...
       - name: Benchmarks
+        if: matrix.os == 'ubuntu-latest' && runner.arch == 'X64'
         id: bench
         run: |
           go test -run=^$ -bench . ./... -benchmem | tee bench.txt
       - name: Comment Benchmarks
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest' && runner.arch == 'X64'
         uses: actions/github-script@v7
         with:
           script: |
