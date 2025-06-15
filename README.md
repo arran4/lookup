@@ -58,6 +58,12 @@ Modifiers are `Runner` implementations that transform the current scope of a loo
 | `Index(i)` | Select an element from an array or slice. Supports negative indexes. |
 | `Filter(r)` | Keep elements for which `r` returns true. |
 | `Map(r)` | Convert each element using `r`. |
+| `Union(r)` | Combine results with `r` dropping duplicates. |
+| `Append(r)` | Concatenate results with `r` allowing duplicates. |
+| `Intersection(r)` | Return values present in both the current scope and `r`. |
+| `First(r)` | First element matching `r` or the first item when `r` is nil. |
+| `Last(r)` | Last element matching `r` or the last item when `r` is nil. |
+| `Range(start,end)` | Slice the current array from `start` to `end` indexes. |
 | `Contains(r)` | True if the current collection contains the result of `r`. |
 | `In(r)` | True if the current value is present in the collection returned by `r`. |
 | `Every(r)` | True if every element in scope matches `r`. |
@@ -90,13 +96,6 @@ See `expression.go` and `collections.go` for the full list of helpers.
 
 | Modifier | Category | Description | Input | Output |
 | --- | --- | --- | --- | --- |
-| Map(?) | Collections | Runs a modifier over a collection and converts it to another value based on content | | |
-| Union(?) | Collections | Combine two results with no duplicates | | |
-| Append(?) | Collections | Combine two results with duplicates | | |
-| Intersection(?) | Collections | Combine two results only returning common values | | |
-| First(?) | Collections | Returns the first value only that matches a predicate, using a Modifier as a predicate | | |
-| Last(?) | Collections | Returns the last value only that matches a predicate, using a Modifier as a predicate | | |
-| Range(?, ?) | Collections | Like Index but returns an array | | |
 | If(?, ?, ?) | Expression | Conditional | | |
 | Error(?) | Invalidor | Returns an invalid / failed result | | |
 ## Basic Lookup Behaviour
@@ -146,12 +145,26 @@ names := r.Find("Children",
     lookup.Filter(lookup.This("Tags").Find("", lookup.Contains(lookup.Constant("groupA"))))).
     Find("Name").Raw()
 
-// Select the largest child size
-largest := r.Find("Children", lookup.Map(lookup.This("Size")), lookup.Index("-1")).Raw()
+// Select the largest child size using Last
+largest := r.Find("Children", lookup.Map(lookup.This("Size")), lookup.Last(nil)).Raw()
 
 // Check if any child has the tag "groupB"
 hasB := r.Find("Children",
     lookup.Any(lookup.Map(lookup.This("Tags").Find("", lookup.Contains(lookup.Constant("groupB")))))).Raw()
+
+// Work with tag lists
+allTags := r.Find("Tags", lookup.Union(lookup.Array("groupB", "groupC"))).Raw()
+dups := r.Find("Tags", lookup.Append(lookup.Array("groupA"))).Raw()
+shared := r.Find("Tags", lookup.Intersection(lookup.Array("groupA", "groupB"))).Raw()
+
+// First/Last helpers and slicing
+firstA := r.Find("Children",
+    lookup.First(lookup.This("Tags").Find("", lookup.Contains(lookup.Constant("groupA"))))).
+    Find("Name").Raw()
+lastA := r.Find("Children",
+    lookup.Last(lookup.This("Tags").Find("", lookup.Contains(lookup.Constant("groupA"))))).
+    Find("Name").Raw()
+subset := r.Find("Children", lookup.Range(1, nil)).Find("Name").Raw()
 ```
 
 Run `go test ./examples/...` to execute the examples as tests.
