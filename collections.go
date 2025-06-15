@@ -221,10 +221,9 @@ func (ef *everyFunc) Run(scope *Scope) Pathor {
 
 func every(scope *Scope, everyThis Pathor) Pathor {
 	v := everyThis.Value()
-	result := scope.Current
 	every := true
 	if err := forEach(scope, v, func(pathor Pathor) error {
-		p := Truthy(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(pathor))
+		p := Truthy(Result()).Run(scope.Next(pathor))
 		b, err := interfaceToBoolOrParse(p.Raw())
 		if err == nil && b {
 			every = false
