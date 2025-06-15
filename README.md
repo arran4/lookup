@@ -223,7 +223,8 @@ Please contribute any external libraries that build upon `lookup` here:
 
 Bug reports and pull requests are welcome on GitHub. Feel free to open issues for discussion or ideas.
 
-A JSONata parser built on top of this library is planned. Once available it will be linked here.
+See [docs/jsonata.md](docs/jsonata.md) for a minimal JSONata parser built on top
+of this package.
 
 ## License
 
