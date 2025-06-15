@@ -1,145 +1,90 @@
 # lookup
 
-This is a "simple" lookup library I wrote for go.. It's designed to bring some of the dynamicness you can get with lookup
-solutions like Jsonpath and Jsonata to structures inside go. Inspired by Jackson's .Path()
+`lookup` is a small library that brings dynamic navigation similar to JSONPath or JSONata to native Go structures. It works with structs, maps, arrays, slices and even functions while remaining null safe. The API exposes a few simple primitives that can be composed into complex queries.
 
-It's minimal to my needs. I look forwards to hearing from others and working with them to expand the scope.
+This README outlines the core concepts, shows practical examples and documents the available modifiers and data structures. Many of the examples exist as runnable Go programs under `examples/`.
 
-It works by trying to "find" the next component you have requested. It will dynamically create arrays as necessary.
+## Concepts
 
-Say for instance you have this structure here:
+| Concept | Description |
+|---------|-------------|
+| **Pathor** | Interface returned from all queries. Exposes `Find`, `Raw`, `Type` and `Value`. |
+| **Reflector** | Implementation of `Pathor` based on reflection for arbitrary Go values. Use `lookup.Reflect` to create one. |
+| **Interfaceor** | Wraps a user defined `Interface` so you can implement custom lookups. |
+| **Constantor** | Holds a constant value and is often used internally by modifiers. |
+| **Invalidor** | Represents an invalid path while still implementing `Pathor`. |
+| **Relator** | Stores relative lookups used by modifiers such as `This`, `Parent` and `Result`. |
+
+## Quick Start
+
+The following short program demonstrates navigating a struct. You can run it with `go run examples/basic_example.go`.
+
 ```go
-var (
-	Err1 = errors.New("one")
+package main
+
+import (
+    "log"
+
+    "github.com/arran4/lookup"
 )
 
-type Root struct {
-    Node1 Node1
-    Node2 *Node2
+type Node struct {
+    Name string
+    Size int
 }
 
-func (r *Root) Method1 () (string, error) {
-	return "hi", nil
-}
+func main() {
+    root := &Node{Name: "root", Size: 10}
+    r := lookup.Reflect(root)
 
-func (r *Root) Method1 () (string, error) {
-	return "", Err1
-}
-
-root := &Root{
-    Node1: Node1{
-        Name: "asdf",
-    },
-    Node2: []*Node2{
-        {Size: 1,},
-        {Size: 12,},
-        {Size: 35,},
-    },
+    log.Printf("name = %s", r.Find("Name").Raw())
+    log.Printf("size = %d", r.Find("Size").Raw())
 }
 ```
 
-You could run the following code on it:
-```go
-log.Printf("%#v", lookup.Reflector(root).Find("Node1").Find("Name").Raw()) // "asdf"
-log.Printf("%#v", lookup.Reflector(root).Find("Node1").Find("DoesntExist").Raw()) // nil
-log.Printf("%#v", lookup.Reflector(root).Find("Node1").Find("DoesntExist", lookup.NewDefault("N/A")).Raw()) // "N/A"
-log.Printf("%#v", lookup.Reflector(root).Find("Node2").Find("Size").Raw()) // []int{ 1,12,35 }
-log.Printf("%#v", lookup.Reflector(root).Find("Node2", Index("1")).Find("Size").Raw()) // 12
-log.Printf("%#v", lookup.Reflector(root).Find("Node2", Index("-1")).Find("Size").Raw()) // 35
+Running the program prints:
+
+```
+name = root
+size = 10
 ```
 
-It will even execute functions (provided they have no arguments, and 1 primitive return, or a primitive and an error return)
+## Modifiers
 
-```go
-log.Printf("%#v", lookup.Reflector(root).Find("Method1").Raw()) // "hi"
-```
+Modifiers are `Runner` implementations that transform the current scope of a lookup. They are passed to `Find` after the path name.
 
-All usages of the program should be null-safe you shouldn't be able to create a panic from inside the lookup codebase.
-(If you write a crashing function it does /not/ call recover())
+| Modifier | Purpose |
+|----------|---------|
+| `Index(i)` | Select an element from an array or slice. Supports negative indexes. |
+| `Filter(r)` | Keep elements for which `r` returns true. |
+| `Map(r)` | Convert each element using `r`. |
+| `Contains(r)` | True if the current collection contains the result of `r`. |
+| `In(r)` | True if the current value is present in the collection returned by `r`. |
+| `Every(r)` | True if every element in scope matches `r`. |
+| `Any(r)` | True if any element in scope matches `r`. |
+| `Match(r)` | Proceed only if `r` evaluates to true. |
+| `Default(v)` | Use `v` whenever the lookup would result in an invalid value. |
+| `This(p)` `Parent(p)` `Result(p)` | Relative lookups executed from different points in a query. |
 
+See `expression.go` and `collections.go` for the full list of helpers.
 
-When you get to an invalid path or an error, the object being returned from `find()` is a valid error
-```go
-result := lookup.Reflector(root).Find("Node1").Find("DoesntExist")
-if err, ok := result.(error); ok {
-	panic(err)
-}
-```
+## Supported Data Structures
 
-It properly raps errors returned by functions:
-```go
-result := lookup.Reflector(root).Find("Method2")
-if errors.Is(result, Err1); ok {
-	// We expected this error
-}
-```
+| Input | Description |
+|-------|-------------|
+| **Reflector** | Uses Go reflection to navigate arbitrary structs, maps, arrays, slices and functions. Channels are not supported. |
+| **Invalidor** | Indicates that the search reached an invalid path. It implements the `error` interface. |
+| **Constantor** | Similar to `Invalidor` but wraps a constant value. Attempting to navigate it does not change the position. |
+| **Interfaceor** | Like `Reflector` but relies on a user supplied interface to obtain children. |
+| **Relator** | Stores a path which can be replayed. Mostly used by modifiers for relative lookups. |
 
-`find()` is the main implementation. It is designed to be simple and "null safe" (as in doesn't create any itself you can create them though!)
-It hasn't been fully edge tested as I wrote it for my own testing - quickly. But expect the Find() function to be relatively stable.
-
-Feel free to log issues and PRs:
-* For any reason really
-* Opinions welcome but not obligated to
-
-# How to use the library
-
-The basic idea behind the library is to act a lot like a meta language for jsonpath or some such. Such as you would write a query as such:
-```
-Root.Field.ChildField.ArrayElements.Field
-```
-
-If it encounters an array, it selects every element and every subsequent field become an implicit map operation. Each field navigation is followed by a "modifier" such as
-in the following query, the "index" is a modifier.
-```go
-lookup.Reflector(root).Find("Node2", Index("1")).Find("Size")
-```
-So `.Find("Node2"` extracts the array. Each modifier then is run over the results of "Node2", in this case the modifier "Index" takes the array and returns the single element.
-
-# Supported data structures
-
-| Input Data structure | Description |
-| --- | --- |
-| Reflector | The most developed data structure and the basis. It takes any go input and will attempt to use it. It will not support channels however. It uses reflection for navigation, that includes functions.
-| Invalidor | This is typically to indicate that the search function has reached and invalid path. It provides an `error` interface, however doesn't necessarily mean that an error has occurred, it could simply be that there was no where to go. You can use this in conjunction with the modifiers to simply mean "false"
-| Constantor | This is similar to the invalidor however it contains a constant and can mean true or false. Attempting to navigate a constant will not change your position. Use a Reflector if you need to navigation. Constantor can mean the end of a search. It's often used just for nagivation events.
-| Interfacteor | This is like Reflector but it expects the data structure passed in to adhere to a interface `Interface` it is a naive implementation and is likely to change.
-| Relator | This stores a path, which can be replayed. It's used mostly in modifiers for the purpose of providing relative queries (Via `This()` `Parent()` or `Find()`. On it's own it will act as a modifier meaning "If Exists". Such as `lookup.Reflector(root).Find("Node2", This("Name")).Find("Size")` Will filter Node2 and return an array of Size for all elements which have a valid `.Name` Field.
-
-## Todo data structures
+### Todo Data Structures
 
 | Data structure | Description |
-| --- | --- |
-| json.Raw / Jsonor | A version I wish to develop which does on-demand deserialization of Json based on the query - In a way which would also work for yaml etc if possible without including them as libraries |
-| Simpleor | A typecast version of Reflector which works using type switching, type assertions rather than reflection, but will only work with a much more limited set of input |
+|----------------|-------------|
+| `json.Raw` / `Jsonor` | Planned on-demand deserialisation of JSON (and YAML) values. |
+| `Simpleor` | A type-switch based version of `Reflector` for a smaller set of inputs. |
 
-# Modifiers (AKA Runners)
-
-The modifier functions available:
-
-| Modifier | Category | Description | Input | Output |
-| --- | --- | --- | --- | --- |
-| Index(i) | Collections | Selects a single index in an array | An int (raw or as a string.) Another modifier which is run for another compatible result. | The element referred to by index, or an Invalidor |
-| Filter(?) | Collections | Runs a Modifier over a collection and filters out value based on boolean returned | | |
-| Map(?) | Collections | Runs a modifier over a collection and converts it to another value based on content | | |
-| Contains(?) | Collections | Returns Constantor(True) if scope contains ? | | |
-| In(?) | Collections | Returns Constantor(True) if scope is in ? | | |
-| Every(?) | Collections | Returns Constantor(True) if every element in scope is in ? | | |
-| Any(?) | Collections | Returns Constantor(True) if any element in scope is in ? | | |
-| Constant(?) | Constant | Returns Constantor(?) | | |
-| True() | Constant | Returns Constantor(True) | | |
-| False() | Constant | Constantor(False) | | |
-| Array(?...) | Constant | Constantor(? as an array) | | |
-| Match(?) | Expression | Permits scope if ? is True or Not Is Zero otherwise Invalidor | Boolean | |
-| ToBool(?) | Expression | Converts scope to Constantor(bool) if possible otehrwise returns Invalidor | | Boolean |
-| Truthy(?) | Expression | Converts scope to bool using truthy like logic otherwise returns Invalidor | | |
-| Not(?) | Expression | Toggles Constantor(bool) | | |
-| IsZero(?) | Expression | Uses Go Reflect's Value.IsZero to return Constantor(bool) | | |
-| Default(?) | Expression | If scope is Invalidor Converts it to Constantor(?) | | |
-| Find(?) | Relator | Runs a series of paths and Runners against the Scope.Current position | | |
-| Parent(?) | Relator | Runs a series of paths and Runners against the Scope.Parent position (Note this changes) | | |
-| This(?) | Relator | Runs a series of paths and Runners against the Scope.Current position | | |
-| Result(?) | Relator | Runs a series of paths and Runners against the Scope.Position position | | |
-| ValueOf(?) | Valuor | Evaluates ? as a Pathor and returns it as scope. | | |
 
 ## Planned / TODO
 
@@ -153,19 +98,73 @@ The modifier functions available:
 | Last(?) | Collections | Returns the last value only that matches a predicate, using a Modifier as a predicate | | |
 | Range(?, ?) | Collections | Like Index but returns an array | | |
 | If(?, ?, ?) | Expression | Conditional | | |
-| Error(?) | Invalidor | Returns an invalid / failed result  | | |
+| Error(?) | Invalidor | Returns an invalid / failed result | | |
+## Basic Lookup Behaviour
+
+The library works by calling `Find` with field names. Arrays are expanded automatically so subsequent lookups act as map operations over the elements. Each field navigation can be followed by modifiers. For example, `Index` selects a specific element:
+
+```go
+
+lookup.Reflect(root).Find("Node2", lookup.Index("1")).Find("Size")
+```
+
+Here `.Find("Node2")` extracts an array and `Index("1")` picks a single element from it.
+
+Functions with no arguments and a single return value (optionally followed by an error) can also be executed as part of a lookup.
+
+```go
+log.Printf("%s", lookup.Reflect(root).Find("Method1").Raw())
+```
+
+All usage is null-safe. When a path does not exist or an error occurs you receive an object implementing `error` which still satisfies `Pathor`:
+
+```go
+result := lookup.Reflect(root).Find("Node1").Find("DoesntExist")
+if err, ok := result.(error); ok {
+    panic(err)
+}
+```
+
+Errors returned by functions are wrapped appropriately:
+
+```go
+result := lookup.Reflect(root).Find("Method2")
+if errors.Is(result, Err1) {
+    // expected error
+}
+```
+
+## Advanced Usage
+
+A runnable advanced example lives in `examples/advanced/advanced_example.go` and demonstrates combining modifiers for more complex queries:
+
+```go
+r := lookup.Reflect(root)
+
+// Filter children by tag and fetch their names
+names := r.Find("Children",
+    lookup.Filter(lookup.This("Tags").Find("", lookup.Contains(lookup.Constant("groupA"))))).
+    Find("Name").Raw()
+
+// Select the largest child size
+largest := r.Find("Children", lookup.Map(lookup.This("Size")), lookup.Index("-1")).Raw()
+
+// Check if any child has the tag "groupB"
+hasB := r.Find("Children",
+    lookup.Any(lookup.Map(lookup.This("Tags").Find("", lookup.Contains(lookup.Constant("groupB")))))).Raw()
+```
+
+Run `go test ./examples/...` to execute the examples as tests.
 
 ## Internals - Scope
 
-(IIRC) Modifiers run with a scope. Depending on if they are Nested, or sequential modifies the scope. Scope doesn't escape out of
-a query.
+Modifiers operate with a `Scope` that tracks the current, parent and position values. Nested and sequential modifiers adjust the scope without escaping the query. Consider the following:
 
-So with:
 ```go
-lookup.Reflector(root).Find("Node2", Index(Constant("-1")), Index(Constant("-2"))).Find("Size", Index(Constant("-3"))
+lookup.Reflect(root).Find("Node2", lookup.Index(lookup.Constant("-1")), lookup.Index(lookup.Constant("-2"))).Find("Size", lookup.Index(lookup.Constant("-3")))
 ```
 
-and
+Given this YAML:
 
 ```yaml
 Node2:
@@ -183,49 +182,50 @@ Node2:
       - 9
 ```
 
-In all of the examples:
-
-`Index(Constant("-1"))` sees
-* Scope.Parent = `[ { Sizes: [1,2,3] }, {Sizes: [4,5,6]}, {Sizes: [7,8,9]} ]`
-* Scope.Current = `[ { Sizes: [1,2,3] }, {Sizes: [4,5,6]}, {Sizes: [7,8,9]} ]`
-* Scope.Position = `[ { Sizes: [1,2,3] }, {Sizes: [4,5,6]}, {Sizes: [7,8,9]} ]`
+During the query `Index(Constant("-1"))` sees:
+* `Scope.Parent` = `[ { Sizes: [1,2,3] }, {Sizes: [4,5,6]}, {Sizes: [7,8,9]} ]`
+* `Scope.Current` = `[ { Sizes: [1,2,3] }, {Sizes: [4,5,6]}, {Sizes: [7,8,9]} ]`
+* `Scope.Position` = `[ { Sizes: [1,2,3] }, {Sizes: [4,5,6]}, {Sizes: [7,8,9]} ]`
 * Result: `{Sizes: [7,8,9]}`
 
-`Constant("-1")` sees
-* Scope.Parent = `[ { Sizes: [1,2,3] }, {Sizes: [4,5,6]}, {Sizes: [7,8,9]} ]`
-* Scope.Current = `[ { Sizes: [1,2,3] }, {Sizes: [4,5,6]}, {Sizes: [7,8,9]} ]`
-* Scope.Position = `[ { Sizes: [1,2,3] }, {Sizes: [4,5,6]}, {Sizes: [7,8,9]} ]`
-* Result: `-1`
+`Constant("-1")` sees the same parent, current and position but returns `-1`.
 
-`Index(Constant("-2"))` sees
-* Scope.Parent = `[ { Sizes: [1,2,3] }, {Sizes: [4,5,6]}, {Sizes: [7,8,9]} ]`
-* Scope.Current = `{Sizes: [7,8,9]}`
-* Scope.Position = `{Sizes: [7,8,9]}`
+`Index(Constant("-2"))` then sees:
+* `Scope.Parent` = `[ { Sizes: [1,2,3] }, {Sizes: [4,5,6]}, {Sizes: [7,8,9]} ]`
+* `Scope.Current` = `{Sizes: [7,8,9]}`
+* `Scope.Position` = `{Sizes: [7,8,9]}`
 * Result: `8`
 
-`Constant("-2")` sees
-* Scope.Parent = `[ { Sizes: [1,2,3] }, {Sizes: [4,5,6]}, {Sizes: [7,8,9]} ]`
-* Scope.Current = `{Sizes: [7,8,9]}`
-* Scope.Position = `{Sizes: [7,8,9]}`
-* Result: `-2`
+With other modifiers `Scope.Current` may differ from `Scope.Position`.
 
-Note: With other Modifiers than `index` Scope.Current would be different to Scope.Position.
+## Extensions
 
-# Public Extensions
-
-Please put any library that extends this in this section here:
+Please contribute any external libraries that build upon `lookup` here:
 * ...
 
-# Public License
+## Contributing
 
-This project is publicly available under the Affero GPL license.
+Bug reports and pull requests are welcome on GitHub. Feel free to open issues for discussion or ideas.
 
-# Custom Licensing
+A JSONata parser built on top of this library is planned. Once available it will be linked here.
 
-If the AGPL is not suitable for your purposes, please log an issue or email me, and let's talk.
+## License
 
-# Q/A
+This project is publicly available under the Affero GPL license. See `LICENSE` for details.
 
-## Can I use it as part of tests in a private library
+### Custom Licensing
+
+If the AGPL does not suit your needs, log an issue or email to discuss alternatives.
+
+## Q&A
+
+### Can I use it as part of tests in a private library?
 
 Yes. Tests are not considered part of the released binary.
+### Is lookup production ready?
+
+The core API is stable but still evolving. Feedback and contributions are encouraged before locking it down.
+
+### Where can I get help?
+
+Open an issue on GitHub if you have questions or run into problems.
