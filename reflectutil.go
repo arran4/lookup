@@ -195,6 +195,12 @@ func mapPath(prefix string, path string, v reflect.Value) Pathor {
 		return pather
 	}
 	ve := v.MapIndex(k)
+	for ve.Kind() == reflect.Interface {
+		if ve.IsNil() {
+			break
+		}
+		ve = ve.Elem()
+	}
 	if !ve.IsValid() {
 		return &Invalidor{
 			err:  fmt.Errorf("element not found at simple path %s element was %s expected %s", p, v.Kind(), v.Type().Key().Kind()),

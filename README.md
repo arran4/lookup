@@ -10,6 +10,8 @@ This README outlines the core concepts, shows practical examples and documents t
 |---------|-------------|
 | **Pathor** | Interface returned from all queries. Exposes `Find`, `Raw`, `Type` and `Value`. |
 | **Reflector** | Implementation of `Pathor` based on reflection for arbitrary Go values. Use `lookup.Reflect` to create one. |
+| **Jsonor** | Lazily unmarshals raw JSON as fields are requested. Use `lookup.Json` to create one. |
+| **Yamlor** | Lazily unmarshals raw YAML as fields are requested. Use `lookup.Yaml` to create one. |
 | **Interfaceor** | Wraps a user defined `Interface` so you can implement custom lookups. |
 | **Constantor** | Holds a constant value and is often used internally by modifiers. |
 | **Invalidor** | Represents an invalid path while still implementing `Pathor`. |
@@ -49,6 +51,26 @@ name = root
 size = 10
 ```
 
+### JSON Example
+
+`Json` lets you query raw JSON without fully unmarshalling it:
+
+```go
+raw := []byte(`{"name":"root","sizes":[1,2,3]}`)
+r := lookup.Json(raw)
+log.Printf("last size = %d", r.Find("sizes", lookup.Index("-1")).Raw())
+```
+
+### YAML Example
+
+`Yaml` behaves the same for YAML input:
+
+```go
+raw := []byte("name: root\nsizes:\n  - 1\n  - 2\n  - 3\n")
+r := lookup.Yaml(raw)
+log.Printf("first size = %d", r.Find("sizes", lookup.Index(0)).Raw())
+```
+
 ## Modifiers
 
 Modifiers are `Runner` implementations that transform the current scope of a lookup. They are passed to `Find` after the path name.
@@ -76,13 +98,14 @@ See `expression.go` and `collections.go` for the full list of helpers.
 | **Invalidor** | Indicates that the search reached an invalid path. It implements the `error` interface. |
 | **Constantor** | Similar to `Invalidor` but wraps a constant value. Attempting to navigate it does not change the position. |
 | **Interfaceor** | Like `Reflector` but relies on a user supplied interface to obtain children. |
+| **Jsonor** | Navigate raw JSON values without unmarshalling everything up front. |
+| **Yamlor** | Navigate raw YAML values without unmarshalling everything up front. |
 | **Relator** | Stores a path which can be replayed. Mostly used by modifiers for relative lookups. |
 
 ### Todo Data Structures
 
 | Data structure | Description |
 |----------------|-------------|
-| `json.Raw` / `Jsonor` | Planned on-demand deserialisation of JSON (and YAML) values. |
 | `Simpleor` | A type-switch based version of `Reflector` for a smaller set of inputs. |
 
 
