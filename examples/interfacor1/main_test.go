@@ -26,7 +26,7 @@ func Test(t *testing.T) {
 			},
 		},
 	}
-	var root lookup.Pathor = lookup.NewInterfaceor(&InterfaceorNode{
+	root := lookup.NewInterfaceor(&InterfaceorNode{
 		Node: rootNode,
 	})
 	assert.Equal(t, "A(B(D()),C())", fmt.Sprintf("%s", root.Raw()), "A failed")

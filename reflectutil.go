@@ -75,7 +75,7 @@ func arrayOrSliceForEachPath(prefix string, paths []string, v reflect.Value, run
 	}
 	switch len(typeCount) {
 	case 0:
-		var err error = ErrNoMatchesForQuery
+		err := ErrNoMatchesForQuery
 		if len(paths) == 0 && len(runners) > 0 {
 			err = ErrEvalFail
 		}

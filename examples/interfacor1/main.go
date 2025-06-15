@@ -61,7 +61,7 @@ func main() {
 			},
 		},
 	}
-	var root lookup.Pathor = lookup.NewInterfaceor(&InterfaceorNode{
+	root := lookup.NewInterfaceor(&InterfaceorNode{
 		Node: rootNode,
 	})
 	log.Printf("A = %s", root.Raw())
