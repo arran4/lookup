@@ -156,6 +156,22 @@ hasB := r.Find("Children",
 
 Run `go test ./examples/...` to execute the examples as tests.
 
+### Custom Interface Example
+
+You can plug your own data structures into `lookup` by implementing the
+`Interface` interface. Provide `Get` to return the next element of the path and
+`Raw` to expose the underlying value. A runnable demo lives in
+[`examples/interfacor1`](examples/interfacor1).
+
+```go
+type MyNode struct{}
+
+func (n *MyNode) Get(path string) (interface{}, error) { /* ... */ }
+func (n *MyNode) Raw() interface{} { return n }
+
+r := lookup.NewInterfaceor(&MyNode{})
+```
+
 ## Internals - Scope
 
 Modifiers operate with a `Scope` that tracks the current, parent and position values. Nested and sequential modifiers adjust the scope without escaping the query. Consider the following:
