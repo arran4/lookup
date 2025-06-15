@@ -83,6 +83,11 @@ Modifiers are `Runner` implementations that transform the current scope of a loo
 | `Match(r)` | Proceed only if `r` evaluates to true. |
 | `If(c, t, o)` | When `c` is true run `t` otherwise `o`. |
 | `Default(v)` | Use `v` whenever the lookup would result in an invalid value. |
+| `Union(r)` | Combine the current collection with `r` removing duplicates. |
+| `Intersection(r)` | Elements present in both the current collection and `r`. |
+| `First(r)` | Return the first value matching `r`. |
+| `Last(r)` | Return the last value matching `r`. |
+| `Range(s, e)` | Like `Index` but returns a slice from `s` to `e`. |
 | `This(p)` `Parent(p)` `Result(p)` | Relative lookups executed from different points in a query. |
 
 See `expression.go` and `collections.go` for the full list of helpers.
@@ -109,13 +114,7 @@ See `expression.go` and `collections.go` for the full list of helpers.
 
 | Modifier | Category | Description | Input | Output |
 | --- | --- | --- | --- | --- |
-| Map(?) | Collections | Runs a modifier over a collection and converts it to another value based on content | | |
-| Union(?) | Collections | Combine two results with no duplicates | | |
 | Append(?) | Collections | Combine two results with duplicates | | |
-| Intersection(?) | Collections | Combine two results only returning common values | | |
-| First(?) | Collections | Returns the first value only that matches a predicate, using a Modifier as a predicate | | |
-| Last(?) | Collections | Returns the last value only that matches a predicate, using a Modifier as a predicate | | |
-| Range(?, ?) | Collections | Like Index but returns an array | | |
 | If(?, ?, ?) | Expression | Conditional | | |
 | Error(?) | Invalidor | Returns an invalid / failed result | | |
 ## Basic Lookup Behaviour
@@ -171,6 +170,30 @@ largest := r.Find("Children", lookup.Map(lookup.This("Size")), lookup.Index("-1"
 // Check if any child has the tag "groupB"
 hasB := r.Find("Children",
     lookup.Any(lookup.Map(lookup.This("Tags").Find("", lookup.Contains(lookup.Constant("groupB")))))).Raw()
+```
+
+A second runnable example demonstrates the collection helpers defined in
+`examples/collections/collections_example.go`:
+
+```go
+numbers := []int{1, 2, 3, 3}
+r := lookup.Reflect(numbers)
+
+union := r.Find("", lookup.Union(lookup.Array(3, 4))).Raw()
+intersection := r.Find("", lookup.Intersection(lookup.Array(2, 3, 4))).Raw()
+first := r.Find("", lookup.First(lookup.Equals(lookup.Constant(3)))).Raw()
+last := r.Find("", lookup.Last(lookup.Equals(lookup.Constant(3)))).Raw()
+slice := r.Find("", lookup.Range(1, 3)).Raw()
+```
+
+Running the example prints:
+
+```
+union: []interface{}{1, 2, 3, 4}
+intersection: []interface{}{2, 3}
+first 3: 3
+last 3: 3
+range [1:3]: []int{2, 3}
 ```
 
 Run `go test ./examples/...` to execute the examples as tests.
