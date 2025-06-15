@@ -1,0 +1,62 @@
+version: 2
+project_name: lookup
+builds:
+  - id: json-simpe-path
+    main: ./cmd/json-simpe-path
+    binary: json-simpe-path
+    env:
+      - CGO_ENABLED=0
+  - id: yaml-simpe-path
+    main: ./cmd/yaml-simpe-path
+    binary: yaml-simpe-path
+    env:
+      - CGO_ENABLED=0
+archives:
+  - id: json
+    builds: [json-simpe-path]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_json_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+  - id: yaml
+    builds: [yaml-simpe-path]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_yaml_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+checksum:
+  name_template: checksums.txt
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+man_pages:
+  - source: man/json-simpe-path.1
+    target: json-simpe-path.1
+    builds: [json-simpe-path]
+  - source: man/yaml-simpe-path.1
+    target: yaml-simpe-path.1
+    builds: [yaml-simpe-path]
+nfpms:
+  - vendor: Ubels Software Development
+    homepage: https://github.com/arran4/
+    maintainer: Arran Ubels <arran@ubels.com.au>
+    description: NA
+    license: Private
+    formats:
+      - apk
+      - deb
+      - rpm
+      - termux.deb
+      - archlinux
+    release: 1
+    section: default
+    priority: extra
+release:
+  github:
+    owner: arran4
+    name: lookup

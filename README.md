@@ -279,6 +279,69 @@ During the query `Index(Constant("-1"))` sees:
 
 With other modifiers `Scope.Current` may differ from `Scope.Position`.
 
+## Command Line Tools
+
+Two helper binaries make navigating YAML and JSON from the shell easy. Both use
+lookup's `SimplePath` syntax and share the same set of options.
+
+### yaml-simpe-path
+
+Reads one or more YAML documents and prints selected values. The interface is
+inspired by classic Unix text processing tools with jq-style niceties.
+
+```
+Usage: yaml-simpe-path [options] PATH [PATH ...]
+
+Options:
+  -f string   YAML file to read (default stdin)
+  -e string   simple path query (can be repeated)
+  -d string   output delimiter (default "\n")
+  -json       output as JSON
+  -yaml       output as YAML (default)
+  -raw        output raw value without formatting
+  -grep str   only print results matching the regex
+  -v          invert regex match
+  -n          prefix results with their index
+  -0          use NUL as output delimiter
+  -count      only print the number of matched results
+```
+
+Example:
+
+```bash
+$ cat <<'EOF' > doc.yaml
+name: foo
+spec:
+  replicas: 3
+metadata:
+  name: prod-service
+EOF
+$ yaml-simpe-path -f doc.yaml .spec.replicas
+3
+```
+
+### json-simpe-path
+
+Operates on JSON input with the same flags. It defaults to JSON output but can
+emit YAML when `-yaml` is specified.
+
+```bash
+$ cat <<'EOF' > doc.json
+{"name":"foo","spec":{"replicas":3},"metadata":{"name":"prod-service"}}
+EOF
+$ json-simpe-path -f doc.json .spec.replicas
+3
+```
+
+Manual pages generated with `go-md2man` are available in the `man/` directory.
+
+## Releases
+
+Versioned releases are published automatically when a Git tag starting with
+`v` is pushed. The release workflow runs [GoReleaser](https://goreleaser.com)
+to build binaries for all supported platforms, package the man pages and upload
+the archives to GitHub.
+
 ## Extensions
 
 Please contribute any external libraries that build upon `lookup` here:

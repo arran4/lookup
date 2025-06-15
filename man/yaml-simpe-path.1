@@ -1,0 +1,47 @@
+.nh
+.TH YAML-SIMPE-PATH(1) go2man
+Auto-generated
+Jun 2025
+
+.SH NAME
+yaml-simpe-path \- query YAML files using lookup paths
+
+
+.SH SYNOPSIS
+\fByaml-simpe-path [options] PATH [PATH ...]\fR
+
+
+.SH DESCRIPTION
+Reads one or more YAML documents and extracts values with lookup's SimplePath syntax. It mimics unix tools like cut, sed and grep while adding jq-like features.
+
+
+.SH OPTIONS
+See README for details.
+
+
+.SH EXAMPLES
+.EX
+$ cat <<'EOF' > doc.yaml
+name: foo
+spec:
+  replicas: 3
+metadata:
+  name: prod-service
+EOF
+$ yaml-simpe-path -f doc.yaml .spec.replicas
+3
+.EE
+
+.EX
+$ yaml-simpe-path -grep '^prod' -f doc.yaml .metadata.name
+prod-service
+.EE
+
+.EX
+$ yaml-simpe-path -count -f doc.yaml .metadata.name
+1
+.EE
+
+
+.SH SEE ALSO
+json-simpe-path(1)
