@@ -177,7 +177,7 @@ func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
 		}
 		return arrayOrSlicePath(fmt.Sprintf("%s[%d]", ExtractPath(pathor), ip), ip, pathor.Value())
 	case reflect.String:
-		simpleValue, err := regexp.Compile("^-?\\d+$")
+		simpleValue, err := regexp.Compile(`^-?\d+$`)
 		if err != nil {
 			return NewInvalidor(ExtractPath(pathor), err)
 		}
