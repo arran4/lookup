@@ -63,6 +63,7 @@ Modifiers are `Runner` implementations that transform the current scope of a loo
 | `Every(r)` | True if every element in scope matches `r`. |
 | `Any(r)` | True if any element in scope matches `r`. |
 | `Match(r)` | Proceed only if `r` evaluates to true. |
+| `If(cond, then, otherwise)` | Use `then` if `cond` evaluates to true, otherwise `otherwise`. |
 | `Default(v)` | Use `v` whenever the lookup would result in an invalid value. |
 | `This(p)` `Parent(p)` `Result(p)` | Relative lookups executed from different points in a query. |
 
@@ -97,7 +98,6 @@ See `expression.go` and `collections.go` for the full list of helpers.
 | First(?) | Collections | Returns the first value only that matches a predicate, using a Modifier as a predicate | | |
 | Last(?) | Collections | Returns the last value only that matches a predicate, using a Modifier as a predicate | | |
 | Range(?, ?) | Collections | Like Index but returns an array | | |
-| If(?, ?, ?) | Expression | Conditional | | |
 | Error(?) | Invalidor | Returns an invalid / failed result | | |
 ## Basic Lookup Behaviour
 
@@ -152,6 +152,14 @@ largest := r.Find("Children", lookup.Map(lookup.This("Size")), lookup.Index("-1"
 // Check if any child has the tag "groupB"
 hasB := r.Find("Children",
     lookup.Any(lookup.Map(lookup.This("Tags").Find("", lookup.Contains(lookup.Constant("groupB")))))).Raw()
+
+// Choose a value based on a condition
+desc := r.Find("Children", lookup.Index("0"),
+    lookup.If(
+        lookup.This("Tags").Find("", lookup.Contains(lookup.Constant("groupA"))),
+        lookup.This("Name"),
+        lookup.Constant("other"),
+    )).Raw()
 ```
 
 Run `go test ./examples/...` to execute the examples as tests.
