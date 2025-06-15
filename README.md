@@ -49,6 +49,24 @@ name = root
 size = 10
 ```
 
+### Query Strings
+
+For quick lookups the library understands a tiny query language that mirrors the
+`Find` API. Paths are written using dot notation with optional array/slice
+indexes in brackets. Negative indexes count from the end of the collection.
+The helper `lookup.QuerySimplePath` parses the expression and runs it against your value:
+
+```go
+// Get the value of root.A.B[0].C
+result := lookup.QuerySimplePath(root, "A.B[0].C").Raw()
+
+// Last element using a negative index
+last := lookup.QuerySimplePath(root, "A.B[-1].C").Raw()
+```
+
+If you need to reuse a query repeatedly you can compile it once using
+`lookup.ParseSimplePath` which returns a `Relator` that can be executed on any `Pathor`.
+
 ## Modifiers
 
 Modifiers are `Runner` implementations that transform the current scope of a lookup. They are passed to `Find` after the path name.
@@ -63,6 +81,7 @@ Modifiers are `Runner` implementations that transform the current scope of a loo
 | `Every(r)` | True if every element in scope matches `r`. |
 | `Any(r)` | True if any element in scope matches `r`. |
 | `Match(r)` | Proceed only if `r` evaluates to true. |
+| `If(c, t, o)` | When `c` is true run `t` otherwise `o`. |
 | `Default(v)` | Use `v` whenever the lookup would result in an invalid value. |
 | `Union(r)` | Combine the current collection with `r` removing duplicates. |
 | `Intersection(r)` | Elements present in both the current collection and `r`. |
@@ -246,7 +265,8 @@ Please contribute any external libraries that build upon `lookup` here:
 
 Bug reports and pull requests are welcome on GitHub. Feel free to open issues for discussion or ideas.
 
-A JSONata parser built on top of this library is planned. Once available it will be linked here.
+See [docs/jsonata.md](docs/jsonata.md) for a minimal JSONata parser built on top
+of this package.
 
 ## License
 

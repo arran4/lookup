@@ -42,7 +42,7 @@ func (i *Interfaceor) Find(path string, opts ...Runner) Pathor {
 			ni = nii
 		default:
 			ni = &Invalidor{
-				err:  fmt.Errorf("invalid return type: %s", reflect.TypeOf(ni)),
+				err:  fmt.Errorf("invalid return type: %s", reflect.TypeOf(nii)),
 				path: p,
 			}
 		}

@@ -34,13 +34,23 @@ func (ef *matchFunc) Run(scope *Scope) Pathor {
 }
 
 func ToBool(expression Runner) *toBoolFunc {
-	return &toBoolFunc{}
+	return &toBoolFunc{
+		expression: expression,
+	}
 }
 
-type toBoolFunc struct{}
+type toBoolFunc struct {
+	expression Runner
+}
 
 func (s *toBoolFunc) Run(scope *Scope) Pathor {
-	b, err := interfaceToBoolOrParse(scope.Position.Raw())
+	var result Pathor
+	if s.expression != nil {
+		result = s.expression.Run(scope)
+	} else {
+		result = scope.Position
+	}
+	b, err := interfaceToBoolOrParse(result.Raw())
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
 	}
@@ -48,13 +58,22 @@ func (s *toBoolFunc) Run(scope *Scope) Pathor {
 }
 
 func Truthy(expression Runner) *truthyFunc {
-	return &truthyFunc{}
+	return &truthyFunc{
+		expression: expression,
+	}
 }
 
-type truthyFunc struct{}
+type truthyFunc struct {
+	expression Runner
+}
 
 func (s *truthyFunc) Run(scope *Scope) Pathor {
-	result := scope.Position
+	var result Pathor
+	if s.expression != nil {
+		result = s.expression.Run(scope)
+	} else {
+		result = scope.Position
+	}
 	return truthy(scope, result)
 }
 
@@ -169,20 +188,38 @@ func Default(i interface{}) *otherwiseFunc {
 	return otherwise(NewConstantor("", i))
 }
 
-//TODO
-//type ifFunc struct {
-//	cond Runner
-//	then Runner
-//	otherwise Runner
-//}
-//
-//func If(e ...Runner) *ifFunc {
-//	return &ifFunc{
-//		cond: e,
-//		then: e,
-//		otherwise: e,
-//	}
-//}
-//
-//func (ef *ifFunc) Run(scope *Scope, position Pathor) Pathor {
-//}
+type ifFunc struct {
+	cond      Runner
+	then      Runner
+	otherwise Runner
+}
+
+// If evaluates `cond` and runs `then` when true otherwise `otherwise`.
+func If(cond Runner, then Runner, otherwise Runner) *ifFunc {
+	return &ifFunc{
+		cond:      cond,
+		then:      then,
+		otherwise: otherwise,
+	}
+}
+
+func (ef *ifFunc) Run(scope *Scope) Pathor {
+	c := ef.cond.Run(scope)
+	if invalid, ok := c.(*Invalidor); ok {
+		return invalid
+	}
+	b, err := interfaceToBoolOrParse(c.Raw())
+	if err != nil {
+		return NewInvalidor(scope.Path(), err)
+	}
+	if b {
+		if ef.then != nil {
+			return ef.then.Run(scope)
+		}
+		return scope.Position
+	}
+	if ef.otherwise != nil {
+		return ef.otherwise.Run(scope)
+	}
+	return scope.Position
+}
