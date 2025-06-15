@@ -138,7 +138,7 @@ func arrayOrSliceForEachPath(prefix string, paths []string, v reflect.Value, run
 // arrayOrSlicePath attempts to extract the path as an index from the array, if this fails it will then use the index to
 // assemble an array of matching children using arrayOrSliceForEachPath
 func arrayOrSlicePath(prefix string, path interface{}, v reflect.Value) Pathor {
-	var i int64 = 0
+	var i int64
 	pathS := "0"
 	switch path := path.(type) {
 	case string:
@@ -463,22 +463,6 @@ func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
 		return false
 	}
 	switch in.Kind() {
-	//case reflect.Bool:
-	//case reflect.Int:
-	//case reflect.Int8:
-	//case reflect.Int16:
-	//case reflect.Int32:
-	//case reflect.Int64:
-	//case reflect.Uint:
-	//case reflect.Uint8:
-	//case reflect.Uint16:
-	//case reflect.Uint32:
-	//case reflect.Uint64:
-	//case reflect.Uintptr:
-	//case reflect.Float32:
-	//case reflect.Float64:
-	//case reflect.Complex64:
-	//case reflect.Complex128:
 	case reflect.Array:
 		for i := 0; i < in.Len(); i++ {
 			f := in.Index(i)
@@ -486,10 +470,8 @@ func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
 				return true
 			}
 		}
-	//case reflect.Chan:
 	case reflect.Func:
-		var r Pathor
-		r = runMethod(in, "")
+		r := runMethod(in, "")
 		return elementOf(r.Value(), in, nil)
 	case reflect.Map:
 		for _, k := range in.MapKeys() {
@@ -507,7 +489,6 @@ func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
 				return true
 			}
 		}
-	//case reflect.String:
 	case reflect.Struct:
 		for i := 0; i < in.NumField(); i++ {
 			f := in.Field(i)
@@ -527,8 +508,6 @@ func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
 				return true
 			}
 		}
-
-	//case reflect.UnsafePointer:
 	default:
 		return reflect.DeepEqual(v.Interface(), in.Interface())
 	}

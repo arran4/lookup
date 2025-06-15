@@ -96,18 +96,7 @@ func (ef *containsFunc) Run(scope *Scope) Pathor {
 		}, scope)
 		return every(scope, equals(scope, result))
 	}
-	v := scope.Position.Value()
-	found := false
-	if err := forEach(scope, v, func(pathor Pathor) error {
-		p := Equals(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(pathor))
-		b, err := interfaceToBoolOrParse(p.Raw())
-		if err == nil && b {
-			found = true
-		}
-		return nil
-	}); err != nil {
-		return err
-	}
+	found := elementOf(result.Value(), scope.Position.Value(), nil)
 	return NewConstantor(scope.Path(), found)
 }
 
@@ -122,27 +111,13 @@ type inFunc struct {
 }
 
 func (ef *inFunc) Run(scope *Scope) Pathor {
-	var result Pathor
 	switch scope.Position.Value().Kind() {
 	case reflect.Slice, reflect.Array:
-		result = arrayOrSliceForEachPath(scope.Path(), nil, scope.Position.Value(), []Runner{ef}, scope)
+		result := arrayOrSliceForEachPath(scope.Path(), nil, scope.Position.Value(), []Runner{ef}, scope)
 		return any(scope, result)
-	default:
-		result = scope.Position
 	}
 	inThis := ef.expression.Run(scope)
-	inV := inThis.Value()
-	found := false
-	if err := forEach(scope, inV, func(pathor Pathor) error {
-		p := Equals(NewConstantor(ExtractPath(pathor), result.Raw())).Run(scope.Next(pathor))
-		b, err := interfaceToBoolOrParse(p.Raw())
-		if err == nil && b {
-			found = true
-		}
-		return nil
-	}); err != nil {
-		return err
-	}
+	found := elementOf(scope.Position.Value(), inThis.Value(), nil)
 	return NewConstantor(scope.Path(), found)
 }
 
@@ -190,11 +165,11 @@ func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
 		}
 	case reflect.Struct, reflect.Ptr:
 		switch ii := i.(type) {
+		case *Constantor:
+			return evaluateType(scope, pathor, ii.Raw())
 		case Runner:
 			p := ii.Run(scope)
 			return evaluateType(scope, p, p.Raw())
-		case *Constantor:
-			return evaluateType(scope, pathor, ii.Raw())
 		default:
 			return NewInvalidor(ExtractPath(pathor), ErrIndexValueNotValid)
 		}
@@ -221,10 +196,9 @@ func (ef *everyFunc) Run(scope *Scope) Pathor {
 
 func every(scope *Scope, everyThis Pathor) Pathor {
 	v := everyThis.Value()
-	result := scope.Current
 	every := true
 	if err := forEach(scope, v, func(pathor Pathor) error {
-		p := Truthy(NewConstantor(ExtractPath(result), result.Raw())).Run(scope.Next(pathor))
+		p := Truthy(Result()).Run(scope.Next(pathor))
 		b, err := interfaceToBoolOrParse(p.Raw())
 		if err == nil && b {
 			every = false
@@ -267,9 +241,206 @@ func any(scope *Scope, anyThis Pathor) Pathor {
 	return NewConstantor(scope.Path(), found)
 }
 
-// TODO Map
-// TODO Union
-// TODO Intersection
-// TODO First - warp index
-// TODO Last - wrap index
-// TODO Range
+type unionFunc struct {
+	expression Runner
+}
+
+func Union(e Runner) *unionFunc {
+	return &unionFunc{expression: e}
+}
+
+func (u *unionFunc) Run(scope *Scope) Pathor {
+	other := u.expression.Run(scope)
+	if _, ok := other.(*Invalidor); ok {
+		return other
+	}
+	leftVals := valueToSlice(scope.Position.Value())
+	rightVals := valueToSlice(other.Value())
+	result := []interface{}{}
+	add := func(v reflect.Value) {
+		for _, existing := range result {
+			if reflect.DeepEqual(existing, v.Interface()) {
+				return
+			}
+		}
+		result = append(result, v.Interface())
+	}
+	for _, v := range leftVals {
+		add(v)
+	}
+	for _, v := range rightVals {
+		add(v)
+	}
+	return &Reflector{path: scope.Path(), v: reflect.ValueOf(result)}
+}
+
+type intersectionFunc struct {
+	expression Runner
+}
+
+func Intersection(e Runner) *intersectionFunc {
+	return &intersectionFunc{expression: e}
+}
+
+func (i *intersectionFunc) Run(scope *Scope) Pathor {
+	other := i.expression.Run(scope)
+	if _, ok := other.(*Invalidor); ok {
+		return other
+	}
+	leftVals := valueToSlice(scope.Position.Value())
+	rightVals := valueToSlice(other.Value())
+	result := []interface{}{}
+	for _, lv := range leftVals {
+		for _, rv := range rightVals {
+			if reflect.DeepEqual(lv.Interface(), rv.Interface()) {
+				// ensure not already added
+				exists := false
+				for _, existing := range result {
+					if reflect.DeepEqual(existing, lv.Interface()) {
+						exists = true
+						break
+					}
+				}
+				if !exists {
+					result = append(result, lv.Interface())
+				}
+			}
+		}
+	}
+	if len(result) == 0 {
+		return &Invalidor{err: ErrNoMatchesForQuery, path: scope.Path()}
+	}
+	return &Reflector{path: scope.Path(), v: reflect.ValueOf(result)}
+}
+
+type firstFunc struct {
+	expression Runner
+}
+
+func First(e Runner) *firstFunc { return &firstFunc{expression: e} }
+
+func (f *firstFunc) Run(scope *Scope) Pathor {
+	v := scope.Position.Value()
+	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
+		return NewInvalidor(ExtractPath(scope.Position), ErrIndexOfNotArray)
+	}
+	if v.IsNil() {
+		return NewInvalidor(scope.Path(), fmt.Errorf("nil element"))
+	}
+	for i := 0; i < v.Len(); i++ {
+		p := &Reflector{path: fmt.Sprintf("%s[%d]", scope.Path(), i), v: v.Index(i)}
+		r := f.expression.Run(scope.Next(p))
+		b, err := interfaceToBoolOrParse(r.Raw())
+		if err == nil && b {
+			return p
+		}
+	}
+	return NewInvalidor(scope.Path(), ErrNoMatchesForQuery)
+}
+
+type lastFunc struct {
+	expression Runner
+}
+
+func Last(e Runner) *lastFunc { return &lastFunc{expression: e} }
+
+func (l *lastFunc) Run(scope *Scope) Pathor {
+	v := scope.Position.Value()
+	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
+		return NewInvalidor(ExtractPath(scope.Position), ErrIndexOfNotArray)
+	}
+	if v.IsNil() {
+		return NewInvalidor(scope.Path(), fmt.Errorf("nil element"))
+	}
+	for i := v.Len() - 1; i >= 0; i-- {
+		p := &Reflector{path: fmt.Sprintf("%s[%d]", scope.Path(), i), v: v.Index(i)}
+		r := l.expression.Run(scope.Next(p))
+		b, err := interfaceToBoolOrParse(r.Raw())
+		if err == nil && b {
+			return p
+		}
+	}
+	return NewInvalidor(scope.Path(), ErrNoMatchesForQuery)
+}
+
+type rangeFunc struct {
+	start interface{}
+	end   interface{}
+}
+
+func Range(start, end interface{}) *rangeFunc { return &rangeFunc{start: start, end: end} }
+
+func (rf *rangeFunc) Run(scope *Scope) Pathor {
+	v := scope.Position.Value()
+	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
+		return NewInvalidor(ExtractPath(scope.Position), ErrIndexOfNotArray)
+	}
+	length := v.Len()
+	start, err := evalIndex(scope, rf.start, 0)
+	if err != nil {
+		return NewInvalidor(scope.Path(), err)
+	}
+	end, err := evalIndex(scope, rf.end, length)
+	if err != nil {
+		return NewInvalidor(scope.Path(), err)
+	}
+	if start < 0 {
+		start += length
+	}
+	if end < 0 {
+		end += length
+	}
+	if start < 0 || start > length || end < 0 || end > length || start > end {
+		return NewInvalidor(fmt.Sprintf("%s[%d:%d]", scope.Path(), start, end), ErrIndexOutOfRange)
+	}
+	slice := v.Slice(start, end)
+	return &Reflector{path: fmt.Sprintf("%s[%d:%d]", scope.Path(), start, end), v: slice}
+}
+
+func valueToSlice(v reflect.Value) []reflect.Value {
+	if !v.IsValid() {
+		return nil
+	}
+	switch v.Kind() {
+	case reflect.Slice, reflect.Array:
+		if v.Kind() == reflect.Slice && v.IsNil() {
+			return nil
+		}
+		res := make([]reflect.Value, v.Len())
+		for i := 0; i < v.Len(); i++ {
+			res[i] = v.Index(i)
+		}
+		return res
+	default:
+		return []reflect.Value{v}
+	}
+}
+
+func evalIndex(scope *Scope, val interface{}, def int) (int, error) {
+	if val == nil {
+		return def, nil
+	}
+	switch v := val.(type) {
+	case Runner:
+		r := v.Run(scope)
+		if _, ok := r.(*Invalidor); ok {
+			return 0, ErrEvalFail
+		}
+		return evalIndex(scope, r.Raw(), def)
+	case *Constantor:
+		return evalIndex(scope, v.Raw(), def)
+	case Pathor:
+		return evalIndex(scope, v.Raw(), def)
+	case string:
+		i, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			return 0, err
+		}
+		return int(i), nil
+	default:
+		if i, err := interfaceToInt(v); err == nil {
+			return i, nil
+		}
+	}
+	return 0, ErrIndexValueNotValid
+}
