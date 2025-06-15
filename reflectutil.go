@@ -153,7 +153,6 @@ func arrayOrSlicePath(prefix string, path interface{}, v reflect.Value) Pathor {
 			}
 		}
 	default:
-		pathS = fmt.Sprintf("%d", i)
 		pathI, err := interfaceToInt(path)
 		if err != nil {
 			p := prefix + "[" + strconv.Quote(pathS) + "]"
@@ -163,6 +162,7 @@ func arrayOrSlicePath(prefix string, path interface{}, v reflect.Value) Pathor {
 			}
 		}
 		i = int64(pathI)
+		pathS = fmt.Sprintf("%d", i)
 	}
 	p := prefix + "[" + strconv.Quote(pathS) + "]"
 	l := int64(v.Len())
