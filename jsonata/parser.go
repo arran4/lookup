@@ -84,11 +84,11 @@ func (p *parser) parseIdent() (string, error) {
 	start := p.i
 	for p.i < len(p.s) {
 		c := p.s[p.i]
-		if !(c == '_' || c == '$' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' ||
-			(p.i > start && (c >= '0' && c <= '9'))) {
-			break
+		if c == '_' || c == '$' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (p.i > start && c >= '0' && c <= '9') {
+			p.i++
+			continue
 		}
-		p.i++
+		break
 	}
 	if start == p.i {
 		return "", fmt.Errorf("expected identifier at %d", start)

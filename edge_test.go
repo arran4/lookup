@@ -5,11 +5,11 @@ import (
 	"testing"
 )
 
-var sentinelErr = errors.New("sentinel")
+var errSentinel = errors.New("sentinel")
 
 type errorStruct struct{}
 
-func (errorStruct) Fail() (int, error) { return 0, sentinelErr }
+func (errorStruct) Fail() (int, error) { return 0, errSentinel }
 
 func TestArrayNavigationEdges(t *testing.T) {
 	arr := []int{10, 20, 30}
@@ -63,7 +63,7 @@ func TestMapKeyConversion(t *testing.T) {
 
 func TestErrorWrapping(t *testing.T) {
 	r := Reflect(&errorStruct{}).Find("Fail")
-	if !errors.Is(r.(error), sentinelErr) {
+	if !errors.Is(r.(error), errSentinel) {
 		t.Fatalf("expected wrapped sentinel error")
 	}
 }
