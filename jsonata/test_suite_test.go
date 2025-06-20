@@ -3,7 +3,7 @@ package jsonata
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -26,7 +26,7 @@ func loadDataset(t *testing.T, name string) interface{} {
 }
 
 func loadJSONFile(t *testing.T, path string) interface{} {
-	data, err := ioutil.ReadFile(filepath.Clean(path))
+	data, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		t.Fatalf("failed to read %s: %v", path, err)
 	}
@@ -47,7 +47,7 @@ func runCase(t *testing.T, casePath string, c suiteCase) interface{} {
 		data = loadDataset(t, c.Dataset)
 	}
 	exprFile := filepath.Join(filepath.Dir(casePath), c.ExprFile)
-	exprBytes, err := ioutil.ReadFile(filepath.Clean(exprFile))
+	exprBytes, err := os.ReadFile(filepath.Clean(exprFile))
 	if err != nil {
 		t.Fatalf("failed to read expression file: %v", err)
 	}
@@ -78,7 +78,7 @@ func TestJSONataFieldsGroup(t *testing.T) {
 	for _, f := range files {
 		f := f
 		t.Run(filepath.Base(f), func(t *testing.T) {
-			bytes, err := ioutil.ReadFile(f)
+			bytes, err := os.ReadFile(f)
 			if err != nil {
 				t.Fatalf("failed to read case: %v", err)
 			}
@@ -105,7 +105,7 @@ func TestJSONataArrayConstructorGroup(t *testing.T) {
 	for _, f := range files {
 		f := f
 		t.Run(filepath.Base(f), func(t *testing.T) {
-			bytes, err := ioutil.ReadFile(f)
+			bytes, err := os.ReadFile(f)
 			if err != nil {
 				t.Fatalf("failed to read case: %v", err)
 			}

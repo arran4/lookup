@@ -2,7 +2,7 @@ package jsonata
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -24,7 +24,7 @@ func loadSample(t *testing.T) interface{} {
 // documentation samples.
 func loadPerson(t *testing.T) interface{} {
 	path := filepath.Join("testdata", "test-suite", "datasets", "dataset1__INPUT.json")
-	data, err := ioutil.ReadFile(filepath.Clean(path))
+	data, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		t.Fatalf("failed to read person dataset: %v", err)
 	}
@@ -174,50 +174,50 @@ func TestDocExampleDateTimeNow(t *testing.T) {
 
 // TestDocExampleRegexMatch demonstrates regular expression matching.
 func TestDocExampleRegexMatch(t *testing.T) {
-        skipIf(t, testFeatureRegex, "regex functions")
-        out := run(t, nil, "$match('abc','/^a/')")
-        _ = out
+	skipIf(t, testFeatureRegex, "regex functions")
+	out := run(t, nil, "$match('abc','/^a/')")
+	_ = out
 }
 
 // TestDocExampleWildcardPath demonstrates the wildcard path operator.
 func TestDocExampleWildcardPath(t *testing.T) {
-       skipIf(t, testFeaturePathOperators, "path operators")
-       data := loadPerson(t)
-       out := run(t, data, "Phone.type")
-       assert.Equal(t, []interface{}{"home", "office", "office", "mobile"}, out)
+	skipIf(t, testFeaturePathOperators, "path operators")
+	data := loadPerson(t)
+	out := run(t, data, "Phone.type")
+	assert.Equal(t, []interface{}{"home", "office", "office", "mobile"}, out)
 }
 
 // TestDocExampleSubstring demonstrates the $substring string function.
 func TestDocExampleSubstring(t *testing.T) {
-       skipIf(t, testFeatureStringFunctions, "string functions")
-       out := run(t, nil, "$substring('Hello World', 3, 5)")
-       assert.Equal(t, "lo Wo", out)
+	skipIf(t, testFeatureStringFunctions, "string functions")
+	out := run(t, nil, "$substring('Hello World', 3, 5)")
+	assert.Equal(t, "lo Wo", out)
 }
 
 // TestDocExampleRound demonstrates the $round numeric function.
 func TestDocExampleRound(t *testing.T) {
-       skipIf(t, testFeatureNumericFunctions, "numeric functions")
-       out := run(t, nil, "$round(123.456, 2)")
-       assert.Equal(t, float64(123.46), out)
+	skipIf(t, testFeatureNumericFunctions, "numeric functions")
+	out := run(t, nil, "$round(123.456, 2)")
+	assert.Equal(t, float64(123.46), out)
 }
 
 // TestDocExampleBooleanNot demonstrates the $not boolean function.
 func TestDocExampleBooleanNot(t *testing.T) {
-       skipIf(t, testFeatureBooleanFunctions, "boolean functions")
-       out := run(t, nil, "$not(false)")
-       assert.Equal(t, true, out)
+	skipIf(t, testFeatureBooleanFunctions, "boolean functions")
+	out := run(t, nil, "$not(false)")
+	assert.Equal(t, true, out)
 }
 
 // TestDocExampleRegexReplace demonstrates the $replace string function using a regex.
 func TestDocExampleRegexReplace(t *testing.T) {
-       skipIf(t, testFeatureRegex, "regex functions")
-       out := run(t, nil, "$replace('John Smith and John Jones','John','Mr')")
-       assert.Equal(t, "Mr Smith and Mr Jones", out)
+	skipIf(t, testFeatureRegex, "regex functions")
+	out := run(t, nil, "$replace('John Smith and John Jones','John','Mr')")
+	assert.Equal(t, "Mr Smith and Mr Jones", out)
 }
 
 // TestDocExampleFromMillis demonstrates converting milliseconds to a timestamp.
 func TestDocExampleFromMillis(t *testing.T) {
-       skipIf(t, testFeatureDateTimeFunctions, "date-time functions")
-       out := run(t, nil, "$fromMillis(0)")
-       assert.Equal(t, "1970-01-01T00:00:00.000Z", out)
+	skipIf(t, testFeatureDateTimeFunctions, "date-time functions")
+	out := run(t, nil, "$fromMillis(0)")
+	assert.Equal(t, "1970-01-01T00:00:00.000Z", out)
 }
