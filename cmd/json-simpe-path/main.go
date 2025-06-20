@@ -15,7 +15,7 @@ import (
 )
 
 func usage(fs *flag.FlagSet) {
-	fmt.Fprintf(fs.Output(), `Usage: %s [options] PATH [PATH ...]
+	_, _ = fmt.Fprintf(fs.Output(), `Usage: %s [options] PATH [PATH ...]
 Options:
   -f string  JSON file to read (default stdin)
   -e string  simple path query (can be repeated)
@@ -65,13 +65,15 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 		*delim = "\x00"
 	}
 
-	var r io.Reader = stdin
+	r := stdin
 	if *file != "" {
 		f, err := os.Open(*file)
 		if err != nil {
 			return fmt.Errorf("open %s: %w", *file, err)
 		}
-		defer f.Close()
+		defer func() {
+			_ = f.Close()
+		}()
 		r = f
 	}
 
@@ -118,40 +120,40 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 				continue
 			}
 			if !first {
-				fmt.Fprint(stdout, *delim)
+				_, _ = fmt.Fprint(stdout, *delim)
 			}
 			first = false
 			if *number {
-				fmt.Fprintf(stdout, "%d:", index)
+				_, _ = fmt.Fprintf(stdout, "%d:", index)
 			}
 			switch {
 			case *rawOut:
-				fmt.Fprint(stdout, fmt.Sprint(val))
+				_, _ = fmt.Fprint(stdout, fmt.Sprint(val))
 			case *yamlOut:
 				b, err := yaml.Marshal(val)
 				if err != nil {
 					return fmt.Errorf("yaml encode: %w", err)
 				}
-				fmt.Fprint(stdout, strings.TrimSuffix(string(b), "\n"))
+				_, _ = fmt.Fprint(stdout, strings.TrimSuffix(string(b), "\n"))
 			case *jsonOut || (!*yamlOut && !*rawOut):
 				b, err := json.Marshal(val)
 				if err != nil {
 					return fmt.Errorf("json encode: %w", err)
 				}
-				fmt.Fprint(stdout, string(b))
+				_, _ = fmt.Fprint(stdout, string(b))
 			}
 			index++
 		}
 	}
 	if *countOnly {
-		fmt.Fprint(stdout, count)
+		_, _ = fmt.Fprint(stdout, count)
 	}
 	return nil
 }
 
 func main() {
 	if err := run(os.Args[1:], os.Stdin, os.Stdout, os.Stderr); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
