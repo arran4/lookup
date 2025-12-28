@@ -32,7 +32,7 @@ func (s *Simpleor) Find(path string, opts ...Runner) Pathor {
 			}
 		default:
 			// Fallback to reflection for other types or deep navigation
-			return Reflect(s.v).Find(path, opts...)
+			return (&Reflector{path: s.path, v: reflect.ValueOf(s.v)}).Find(path, opts...)
 		}
 	}
 

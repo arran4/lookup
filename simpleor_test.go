@@ -57,3 +57,26 @@ func TestSimpleorModifiers(t *testing.T) {
 		t.Errorf("Index(1) unexpected result: %s", diff)
 	}
 }
+
+func TestSimpleorFallbackPath(t *testing.T) {
+	type Struct struct{ Name string }
+	data := map[string]interface{}{
+		"s": Struct{Name: "foo"},
+	}
+	s := Simple(data)
+
+	// This should trigger fallback for "s" and then find "Name" via reflection
+	// The path should be "s.Name"
+	r := s.Find("s").Find("Name")
+
+	if diff := cmp.Diff("foo", r.Raw()); diff != "" {
+		t.Errorf("Value mismatch: %s", diff)
+	}
+
+	// Path check depends on how PathBuilder builds it.
+	// Simpleor.Find("s") -> path "s"
+	// Reflector("s").Find("Name") -> path "s.Name" (if initialized with path "s")
+	if p := ExtractPath(r); p != "s.Name" {
+		t.Errorf("Path mismatch: expected 's.Name', got '%s'", p)
+	}
+}
