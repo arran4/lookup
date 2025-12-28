@@ -25,6 +25,8 @@ type Pathor interface {
 	Value() reflect.Value
 	// Raw returns the raw contents / result of the lookup. This won't change
 	Raw() interface{}
+	// RawAsInterfaceSlice returns the raw contents as a slice of interface{}. If the value is not a slice it returns nil.
+	RawAsInterfaceSlice() []interface{}
 	// Type returns the reflect.Type or nil. This could be restricted to lookup.Reflector and others where appropriate
 	Type() reflect.Type
 }

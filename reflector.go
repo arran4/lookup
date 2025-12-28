@@ -25,6 +25,19 @@ func (r *Reflector) Raw() interface{} {
 	return r.v.Interface()
 }
 
+// RawAsInterfaceSlice returns the contained object as a slice of interface{}.
+func (r *Reflector) RawAsInterfaceSlice() []interface{} {
+	switch r.v.Kind() {
+	case reflect.Slice, reflect.Array:
+		res := make([]interface{}, r.v.Len())
+		for i := 0; i < r.v.Len(); i++ {
+			res[i] = r.v.Index(i).Interface()
+		}
+		return res
+	}
+	return nil
+}
+
 // Value returns the reflect.Value
 func (r *Reflector) Value() reflect.Value {
 	return r.v

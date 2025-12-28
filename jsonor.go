@@ -43,6 +43,9 @@ func (j *Jsonor) Find(path string, opts ...Runner) Pathor {
 // Raw returns the decoded value.
 func (j *Jsonor) Raw() interface{} { return j.ensure().Raw() }
 
+// RawAsInterfaceSlice returns the decoded value as a slice of interface{}.
+func (j *Jsonor) RawAsInterfaceSlice() []interface{} { return j.ensure().RawAsInterfaceSlice() }
+
 // Value returns the reflect.Value of the decoded value.
 func (j *Jsonor) Value() reflect.Value { return j.ensure().Value() }
 

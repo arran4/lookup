@@ -70,6 +70,29 @@ func (s *Simpleor) Raw() interface{} {
 	return s.v
 }
 
+func (s *Simpleor) RawAsInterfaceSlice() []interface{} {
+	if s.v == nil {
+		return nil
+	}
+	switch v := s.v.(type) {
+	case []interface{}:
+		return v
+	}
+	// Fallback to reflection if it's a different kind of slice?
+	// Simpleor tries to avoid reflection.
+	// But s.v can be anything.
+	rv := reflect.ValueOf(s.v)
+	switch rv.Kind() {
+	case reflect.Slice, reflect.Array:
+		res := make([]interface{}, rv.Len())
+		for i := 0; i < rv.Len(); i++ {
+			res[i] = rv.Index(i).Interface()
+		}
+		return res
+	}
+	return nil
+}
+
 func (s *Simpleor) Value() reflect.Value {
 	return reflect.ValueOf(s.v)
 }

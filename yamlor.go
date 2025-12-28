@@ -44,6 +44,9 @@ func (y *Yamlor) Find(path string, opts ...Runner) Pathor {
 // Raw returns the decoded value.
 func (y *Yamlor) Raw() interface{} { return y.ensure().Raw() }
 
+// RawAsInterfaceSlice returns the decoded value as a slice of interface{}.
+func (y *Yamlor) RawAsInterfaceSlice() []interface{} { return y.ensure().RawAsInterfaceSlice() }
+
 // Value returns the reflect.Value of the decoded value.
 func (y *Yamlor) Value() reflect.Value { return y.ensure().Value() }
 
