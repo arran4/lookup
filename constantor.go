@@ -88,3 +88,74 @@ func (r *Constantor) Find(path string, opts ...Runner) Pathor {
 func (c *Constantor) Run(scope *Scope) Pathor {
 	return c
 }
+
+func (c *Constantor) IsString() bool {
+	_, ok := c.c.(string)
+	return ok
+}
+
+func (c *Constantor) IsInt() bool {
+	switch c.c.(type) {
+	case int, int8, int16, int32, int64:
+		return true
+	}
+	return false
+}
+
+func (c *Constantor) IsBool() bool {
+	_, ok := c.c.(bool)
+	return ok
+}
+
+func (c *Constantor) IsFloat() bool {
+	switch c.c.(type) {
+	case float32, float64:
+		return true
+	}
+	return false
+}
+
+func (c *Constantor) IsSlice() bool {
+	if c.c == nil {
+		return false
+	}
+	t := reflect.TypeOf(c.c)
+	return t.Kind() == reflect.Slice || t.Kind() == reflect.Array
+}
+
+func (c *Constantor) IsMap() bool {
+	if c.c == nil {
+		return false
+	}
+	return reflect.TypeOf(c.c).Kind() == reflect.Map
+}
+
+func (c *Constantor) IsStruct() bool {
+	if c.c == nil {
+		return false
+	}
+	return reflect.TypeOf(c.c).Kind() == reflect.Struct
+}
+
+func (c *Constantor) IsNil() bool {
+	if c.c == nil {
+		return true
+	}
+	v := reflect.ValueOf(c.c)
+	switch v.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.Interface, reflect.Slice:
+		return v.IsNil()
+	}
+	return false
+}
+
+func (c *Constantor) IsPtr() bool {
+	if c.c == nil {
+		return false
+	}
+	return reflect.TypeOf(c.c).Kind() == reflect.Ptr
+}
+
+func (c *Constantor) IsInterface() bool {
+	return false
+}

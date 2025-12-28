@@ -22,6 +22,9 @@ func (r *Reflector) Type() reflect.Type {
 
 // Raw returns the contained object / reference.
 func (r *Reflector) Raw() interface{} {
+	if !r.v.IsValid() {
+		return nil
+	}
 	return r.v.Interface()
 }
 
@@ -125,4 +128,54 @@ func Reflect(i interface{}) Pathor {
 	return &Reflector{
 		v: reflect.ValueOf(i),
 	}
+}
+
+func (r *Reflector) IsString() bool {
+	return r.v.Kind() == reflect.String
+}
+
+func (r *Reflector) IsInt() bool {
+	k := r.v.Kind()
+	return k == reflect.Int || k == reflect.Int8 || k == reflect.Int16 || k == reflect.Int32 || k == reflect.Int64
+}
+
+func (r *Reflector) IsBool() bool {
+	return r.v.Kind() == reflect.Bool
+}
+
+func (r *Reflector) IsFloat() bool {
+	k := r.v.Kind()
+	return k == reflect.Float32 || k == reflect.Float64
+}
+
+func (r *Reflector) IsSlice() bool {
+	k := r.v.Kind()
+	return k == reflect.Slice || k == reflect.Array
+}
+
+func (r *Reflector) IsMap() bool {
+	return r.v.Kind() == reflect.Map
+}
+
+func (r *Reflector) IsStruct() bool {
+	return r.v.Kind() == reflect.Struct
+}
+
+func (r *Reflector) IsNil() bool {
+	if !r.v.IsValid() {
+		return true
+	}
+	switch r.v.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.Interface, reflect.Slice:
+		return r.v.IsNil()
+	}
+	return false
+}
+
+func (r *Reflector) IsPtr() bool {
+	return r.v.Kind() == reflect.Ptr
+}
+
+func (r *Reflector) IsInterface() bool {
+	return r.v.Kind() == reflect.Interface
 }

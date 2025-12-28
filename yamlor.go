@@ -49,3 +49,14 @@ func (y *Yamlor) Value() reflect.Value { return y.ensure().Value() }
 
 // Type returns the reflect.Type of the decoded value.
 func (y *Yamlor) Type() reflect.Type { return y.ensure().Type() }
+
+func (y *Yamlor) IsString() bool    { return y.ensure().IsString() }
+func (y *Yamlor) IsInt() bool       { return y.ensure().IsInt() }
+func (y *Yamlor) IsBool() bool      { return y.ensure().IsBool() }
+func (y *Yamlor) IsFloat() bool     { return y.ensure().IsFloat() }
+func (y *Yamlor) IsSlice() bool     { return y.ensure().IsSlice() }
+func (y *Yamlor) IsMap() bool       { return y.ensure().IsMap() }
+func (y *Yamlor) IsStruct() bool    { return y.ensure().IsStruct() }
+func (y *Yamlor) IsNil() bool       { return y.ensure().IsNil() }
+func (y *Yamlor) IsPtr() bool       { return y.ensure().IsPtr() }
+func (y *Yamlor) IsInterface() bool { return y.ensure().IsInterface() }

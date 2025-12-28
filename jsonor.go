@@ -48,3 +48,14 @@ func (j *Jsonor) Value() reflect.Value { return j.ensure().Value() }
 
 // Type returns the reflect.Type of the decoded value.
 func (j *Jsonor) Type() reflect.Type { return j.ensure().Type() }
+
+func (j *Jsonor) IsString() bool    { return j.ensure().IsString() }
+func (j *Jsonor) IsInt() bool       { return j.ensure().IsInt() }
+func (j *Jsonor) IsBool() bool      { return j.ensure().IsBool() }
+func (j *Jsonor) IsFloat() bool     { return j.ensure().IsFloat() }
+func (j *Jsonor) IsSlice() bool     { return j.ensure().IsSlice() }
+func (j *Jsonor) IsMap() bool       { return j.ensure().IsMap() }
+func (j *Jsonor) IsStruct() bool    { return j.ensure().IsStruct() }
+func (j *Jsonor) IsNil() bool       { return j.ensure().IsNil() }
+func (j *Jsonor) IsPtr() bool       { return j.ensure().IsPtr() }
+func (j *Jsonor) IsInterface() bool { return j.ensure().IsInterface() }

@@ -77,3 +77,81 @@ func (s *Simpleor) Value() reflect.Value {
 func (s *Simpleor) Path() string {
 	return s.path
 }
+
+func (s *Simpleor) IsString() bool {
+	_, ok := s.v.(string)
+	return ok
+}
+
+func (s *Simpleor) IsInt() bool {
+	switch s.v.(type) {
+	case int, int8, int16, int32, int64:
+		return true
+	}
+	return false
+}
+
+func (s *Simpleor) IsBool() bool {
+	_, ok := s.v.(bool)
+	return ok
+}
+
+func (s *Simpleor) IsFloat() bool {
+	switch s.v.(type) {
+	case float32, float64:
+		return true
+	}
+	return false
+}
+
+func (s *Simpleor) IsSlice() bool {
+	if s.v == nil {
+		return false
+	}
+	t := reflect.TypeOf(s.v)
+	return t.Kind() == reflect.Slice || t.Kind() == reflect.Array
+}
+
+func (s *Simpleor) IsMap() bool {
+	if s.v == nil {
+		return false
+	}
+	return reflect.TypeOf(s.v).Kind() == reflect.Map
+}
+
+func (s *Simpleor) IsStruct() bool {
+	if s.v == nil {
+		return false
+	}
+	return reflect.TypeOf(s.v).Kind() == reflect.Struct
+}
+
+func (s *Simpleor) IsNil() bool {
+	if s.v == nil {
+		return true
+	}
+	// Also check if interface holds nil
+	v := reflect.ValueOf(s.v)
+	switch v.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.Interface, reflect.Slice:
+		return v.IsNil()
+	}
+	return false
+}
+
+func (s *Simpleor) IsPtr() bool {
+	if s.v == nil {
+		return false
+	}
+	return reflect.TypeOf(s.v).Kind() == reflect.Ptr
+}
+
+func (s *Simpleor) IsInterface() bool {
+	// Everything in Simpleor is in interface{}, but we check underlying kind?
+	// If checking if it is an interface, reflect.TypeOf(interface{}) just returns the type inside.
+	// Unless s.v is actually an interface that hasn't been unwrapped?
+	// But runtime types are never interface, only concrete types (or nil).
+	// reflect.Kind() can be Interface only for reflect.Value of an interface field in a struct, not for interface{} value itself unless using elem?
+	// Actually reflect.TypeOf(anyVar).Kind() will never be Interface.
+	return false
+}
