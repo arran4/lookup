@@ -307,15 +307,6 @@ With other modifiers `Scope.Current` may differ from `Scope.Position`.
 Two helper binaries make navigating YAML and JSON from the shell easy. Both use
 lookup's `SimplePath` syntax and share the same set of options.
 
-### Installation
-
-You can install the tools directly:
-
-```bash
-go install github.com/arran4/lookup/cmd/yaml-simpe-path@latest
-go install github.com/arran4/lookup/cmd/json-simpe-path@latest
-```
-
 ### yaml-simpe-path
 
 Reads one or more YAML documents and prints selected values. The interface is
@@ -366,28 +357,6 @@ $ json-simpe-path -f doc.json .spec.replicas
 ```
 
 Manual pages generated with `go-md2man` are available in the `man/` directory.
-
-## Development
-
-If you want to contribute or modify the library, here is how to work with the repo:
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/arran4/lookup.git
-    cd lookup
-    ```
-
-2.  **Run Tests:**
-    The project uses standard Go testing.
-    ```bash
-    go test ./...
-    ```
-
-3.  **Run Examples:**
-    You can run specific examples to see how they behave.
-    ```bash
-    go run examples/basic_example.go
-    ```
 
 ## Releases
 
