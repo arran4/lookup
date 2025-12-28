@@ -4,6 +4,29 @@
 
 This README outlines the core concepts, shows practical examples and documents the available modifiers and data structures. Many of the examples exist as runnable Go programs under `examples/`.
 
+## Why lookup?
+
+While Go's strong typing is excellent for safety and performance, it can be cumbersome when dealing with deeply nested dynamic data or exploring unknown structures (like complex JSON/YAML configuration).
+
+Standard approaches often involve:
+*   Verbose type assertions at every step.
+*   Risk of panics if a pointer is nil.
+*   Complex reflection code that is hard to maintain.
+
+`lookup` provides a middle ground: **safe, dynamic navigation** without the verbosity or risk. It allows you to write expressive queries to drill down into your data, automatically handling:
+*   Nil checks (returns an error-implementing object instead of panicking).
+*   Slice/Array indexing (including negative indices).
+*   Map lookups.
+*   Interface wrapping.
+
+## Installation
+
+To use `lookup` as a library in your Go project:
+
+```bash
+go get github.com/arran4/lookup
+```
+
 ## Concepts
 
 | Concept | Description |
