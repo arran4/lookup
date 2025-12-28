@@ -4,6 +4,29 @@
 
 This README outlines the core concepts, shows practical examples and documents the available modifiers and data structures. Many of the examples exist as runnable Go programs under `examples/`.
 
+## Why lookup?
+
+While Go's strong typing is excellent for safety and performance, it can be cumbersome when dealing with deeply nested dynamic data or exploring unknown structures (like complex JSON/YAML configuration).
+
+Standard approaches often involve:
+*   Verbose type assertions at every step.
+*   Risk of panics if a pointer is nil.
+*   Complex reflection code that is hard to maintain.
+
+`lookup` provides a middle ground: **safe, dynamic navigation** without the verbosity or risk. It allows you to write expressive queries to drill down into your data, automatically handling:
+*   Nil checks (returns an error-implementing object instead of panicking).
+*   Slice/Array indexing (including negative indices).
+*   Map lookups.
+*   Interface wrapping.
+
+## Installation
+
+To use `lookup` as a library in your Go project:
+
+```bash
+go get github.com/arran4/lookup
+```
+
 ## Concepts
 
 | Concept | Description |
@@ -284,6 +307,15 @@ With other modifiers `Scope.Current` may differ from `Scope.Position`.
 Two helper binaries make navigating YAML and JSON from the shell easy. Both use
 lookup's `SimplePath` syntax and share the same set of options.
 
+### Installation
+
+You can install the tools directly:
+
+```bash
+go install github.com/arran4/lookup/cmd/yaml-simpe-path@latest
+go install github.com/arran4/lookup/cmd/json-simpe-path@latest
+```
+
 ### yaml-simpe-path
 
 Reads one or more YAML documents and prints selected values. The interface is
@@ -334,6 +366,28 @@ $ json-simpe-path -f doc.json .spec.replicas
 ```
 
 Manual pages generated with `go-md2man` are available in the `man/` directory.
+
+## Development
+
+If you want to contribute or modify the library, here is how to work with the repo:
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/arran4/lookup.git
+    cd lookup
+    ```
+
+2.  **Run Tests:**
+    The project uses standard Go testing.
+    ```bash
+    go test ./...
+    ```
+
+3.  **Run Examples:**
+    You can run specific examples to see how they behave.
+    ```bash
+    go run examples/basic_example.go
+    ```
 
 ## Releases
 
