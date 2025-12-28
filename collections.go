@@ -245,6 +245,34 @@ type unionFunc struct {
 	expression Runner
 }
 
+type appendFunc struct {
+	expression Runner
+}
+
+func Append(e Runner) *appendFunc {
+	return &appendFunc{expression: e}
+}
+
+func (u *appendFunc) Run(scope *Scope) Pathor {
+	other := u.expression.Run(scope)
+	if _, ok := other.(*Invalidor); ok {
+		return other
+	}
+	leftVals := valueToSlice(scope.Position.Value())
+	rightVals := valueToSlice(other.Value())
+	result := []interface{}{}
+	add := func(v reflect.Value) {
+		result = append(result, v.Interface())
+	}
+	for _, v := range leftVals {
+		add(v)
+	}
+	for _, v := range rightVals {
+		add(v)
+	}
+	return &Reflector{path: scope.Path(), v: reflect.ValueOf(result)}
+}
+
 func Union(e Runner) *unionFunc {
 	return &unionFunc{expression: e}
 }
