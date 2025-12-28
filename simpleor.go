@@ -1,6 +1,7 @@
 package lookup
 
 import (
+	"fmt"
 	"reflect"
 )
 
@@ -154,4 +155,87 @@ func (s *Simpleor) IsInterface() bool {
 	// reflect.Kind() can be Interface only for reflect.Value of an interface field in a struct, not for interface{} value itself unless using elem?
 	// Actually reflect.TypeOf(anyVar).Kind() will never be Interface.
 	return false
+}
+
+func (s *Simpleor) AsString() (string, error) {
+	if str, ok := s.v.(string); ok {
+		return str, nil
+	}
+	return "", fmt.Errorf("path %s: %w", s.path, ErrNotString)
+}
+
+func (s *Simpleor) AsInt() (int64, error) {
+	switch v := s.v.(type) {
+	case int:
+		return int64(v), nil
+	case int8:
+		return int64(v), nil
+	case int16:
+		return int64(v), nil
+	case int32:
+		return int64(v), nil
+	case int64:
+		return v, nil
+	}
+	return 0, fmt.Errorf("path %s: %w", s.path, ErrNotInt)
+}
+
+func (s *Simpleor) AsBool() (bool, error) {
+	if b, ok := s.v.(bool); ok {
+		return b, nil
+	}
+	return false, fmt.Errorf("path %s: %w", s.path, ErrNotBool)
+}
+
+func (s *Simpleor) AsFloat() (float64, error) {
+	switch v := s.v.(type) {
+	case float32:
+		return float64(v), nil
+	case float64:
+		return v, nil
+	}
+	return 0.0, fmt.Errorf("path %s: %w", s.path, ErrNotFloat)
+}
+
+func (s *Simpleor) AsSlice() ([]interface{}, error) {
+	if s.IsSlice() {
+		// Use reflection to convert slice to []interface{}
+		v := reflect.ValueOf(s.v)
+		l := v.Len()
+		res := make([]interface{}, l)
+		for i := 0; i < l; i++ {
+			res[i] = v.Index(i).Interface()
+		}
+		return res, nil
+	}
+	return nil, fmt.Errorf("path %s: %w", s.path, ErrNotSlice)
+}
+
+func (s *Simpleor) AsMap() (map[string]interface{}, error) {
+	if s.IsMap() {
+		// If it's already map[string]interface{}, return it
+		if m, ok := s.v.(map[string]interface{}); ok {
+			return m, nil
+		}
+		// Otherwise use reflection
+		v := reflect.ValueOf(s.v)
+		if v.Type().Key().Kind() != reflect.String {
+			return nil, fmt.Errorf("path %s: map keys are not strings", s.path)
+		}
+		res := make(map[string]interface{})
+		iter := v.MapRange()
+		for iter.Next() {
+			k := iter.Key().String()
+			res[k] = iter.Value().Interface()
+		}
+		return res, nil
+	}
+	return nil, fmt.Errorf("path %s: %w", s.path, ErrNotMap)
+}
+
+func (s *Simpleor) AsPtr() (interface{}, error) {
+	if s.IsPtr() {
+		return s.v, nil
+	}
+	return nil, fmt.Errorf("path %s: %w", s.path, ErrNotPtr)
 }

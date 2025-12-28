@@ -1,6 +1,7 @@
 package lookup
 
 import (
+	"fmt"
 	"reflect"
 )
 
@@ -158,4 +159,81 @@ func (c *Constantor) IsPtr() bool {
 
 func (c *Constantor) IsInterface() bool {
 	return false
+}
+
+func (c *Constantor) AsString() (string, error) {
+	if s, ok := c.c.(string); ok {
+		return s, nil
+	}
+	return "", fmt.Errorf("path %s: %w", c.path, ErrNotString)
+}
+
+func (c *Constantor) AsInt() (int64, error) {
+	switch v := c.c.(type) {
+	case int:
+		return int64(v), nil
+	case int8:
+		return int64(v), nil
+	case int16:
+		return int64(v), nil
+	case int32:
+		return int64(v), nil
+	case int64:
+		return v, nil
+	}
+	return 0, fmt.Errorf("path %s: %w", c.path, ErrNotInt)
+}
+
+func (c *Constantor) AsBool() (bool, error) {
+	if v, ok := c.c.(bool); ok {
+		return v, nil
+	}
+	return false, fmt.Errorf("path %s: %w", c.path, ErrNotBool)
+}
+
+func (c *Constantor) AsFloat() (float64, error) {
+	switch v := c.c.(type) {
+	case float32:
+		return float64(v), nil
+	case float64:
+		return v, nil
+	}
+	return 0.0, fmt.Errorf("path %s: %w", c.path, ErrNotFloat)
+}
+
+func (c *Constantor) AsSlice() ([]interface{}, error) {
+	if c.IsSlice() {
+		v := reflect.ValueOf(c.c)
+		l := v.Len()
+		res := make([]interface{}, l)
+		for i := 0; i < l; i++ {
+			res[i] = v.Index(i).Interface()
+		}
+		return res, nil
+	}
+	return nil, fmt.Errorf("path %s: %w", c.path, ErrNotSlice)
+}
+
+func (c *Constantor) AsMap() (map[string]interface{}, error) {
+	if c.IsMap() {
+		v := reflect.ValueOf(c.c)
+		if v.Type().Key().Kind() != reflect.String {
+			return nil, fmt.Errorf("path %s: map keys are not strings", c.path)
+		}
+		res := make(map[string]interface{})
+		iter := v.MapRange()
+		for iter.Next() {
+			k := iter.Key().String()
+			res[k] = iter.Value().Interface()
+		}
+		return res, nil
+	}
+	return nil, fmt.Errorf("path %s: %w", c.path, ErrNotMap)
+}
+
+func (c *Constantor) AsPtr() (interface{}, error) {
+	if c.IsPtr() {
+		return c.c, nil
+	}
+	return nil, fmt.Errorf("path %s: %w", c.path, ErrNotPtr)
 }

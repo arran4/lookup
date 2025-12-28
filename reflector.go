@@ -179,3 +179,68 @@ func (r *Reflector) IsPtr() bool {
 func (r *Reflector) IsInterface() bool {
 	return r.v.Kind() == reflect.Interface
 }
+
+func (r *Reflector) AsString() (string, error) {
+	if r.IsString() {
+		return r.v.String(), nil
+	}
+	return "", fmt.Errorf("path %s: %w", r.Path(), ErrNotString)
+}
+
+func (r *Reflector) AsInt() (int64, error) {
+	if r.IsInt() {
+		return r.v.Int(), nil
+	}
+	return 0, fmt.Errorf("path %s: %w", r.Path(), ErrNotInt)
+}
+
+func (r *Reflector) AsBool() (bool, error) {
+	if r.IsBool() {
+		return r.v.Bool(), nil
+	}
+	return false, fmt.Errorf("path %s: %w", r.Path(), ErrNotBool)
+}
+
+func (r *Reflector) AsFloat() (float64, error) {
+	if r.IsFloat() {
+		return r.v.Float(), nil
+	}
+	return 0.0, fmt.Errorf("path %s: %w", r.Path(), ErrNotFloat)
+}
+
+func (r *Reflector) AsSlice() ([]interface{}, error) {
+	if r.IsSlice() {
+		// Convert slice to []interface{}
+		l := r.v.Len()
+		res := make([]interface{}, l)
+		for i := 0; i < l; i++ {
+			res[i] = r.v.Index(i).Interface()
+		}
+		return res, nil
+	}
+	return nil, fmt.Errorf("path %s: %w", r.Path(), ErrNotSlice)
+}
+
+func (r *Reflector) AsMap() (map[string]interface{}, error) {
+	if r.IsMap() {
+		// Convert map to map[string]interface{} if keys are strings
+		if r.v.Type().Key().Kind() != reflect.String {
+			return nil, fmt.Errorf("path %s: map keys are not strings", r.Path())
+		}
+		res := make(map[string]interface{})
+		iter := r.v.MapRange()
+		for iter.Next() {
+			k := iter.Key().String()
+			res[k] = iter.Value().Interface()
+		}
+		return res, nil
+	}
+	return nil, fmt.Errorf("path %s: %w", r.Path(), ErrNotMap)
+}
+
+func (r *Reflector) AsPtr() (interface{}, error) {
+	if r.IsPtr() {
+		return r.v.Interface(), nil
+	}
+	return nil, fmt.Errorf("path %s: %w", r.Path(), ErrNotPtr)
+}

@@ -1,6 +1,7 @@
 package lookup
 
 import (
+	"fmt"
 	"reflect"
 )
 
@@ -76,6 +77,28 @@ func (i *Invalidor) IsStruct() bool { return false }
 func (i *Invalidor) IsNil() bool    { return false } // Invalid is not nil, it's error state.
 func (i *Invalidor) IsPtr() bool    { return false }
 func (i *Invalidor) IsInterface() bool { return false }
+
+func (i *Invalidor) AsString() (string, error) {
+	return "", fmt.Errorf("path %s: %w", i.path, i.err)
+}
+func (i *Invalidor) AsInt() (int64, error) {
+	return 0, fmt.Errorf("path %s: %w", i.path, i.err)
+}
+func (i *Invalidor) AsBool() (bool, error) {
+	return false, fmt.Errorf("path %s: %w", i.path, i.err)
+}
+func (i *Invalidor) AsFloat() (float64, error) {
+	return 0.0, fmt.Errorf("path %s: %w", i.path, i.err)
+}
+func (i *Invalidor) AsSlice() ([]interface{}, error) {
+	return nil, fmt.Errorf("path %s: %w", i.path, i.err)
+}
+func (i *Invalidor) AsMap() (map[string]interface{}, error) {
+	return nil, fmt.Errorf("path %s: %w", i.path, i.err)
+}
+func (i *Invalidor) AsPtr() (interface{}, error) {
+	return nil, fmt.Errorf("path %s: %w", i.path, i.err)
+}
 
 type errorFunc struct {
 	err error

@@ -48,4 +48,19 @@ type Pathor interface {
 	IsPtr() bool
 	// IsInterface returns true if the underlying value is an interface
 	IsInterface() bool
+
+	// AsString returns the string value or error if not a string
+	AsString() (string, error)
+	// AsInt returns the int value (as int64) or error if not an int
+	AsInt() (int64, error)
+	// AsBool returns the bool value or error if not a bool
+	AsBool() (bool, error)
+	// AsFloat returns the float value (as float64) or error if not a float
+	AsFloat() (float64, error)
+	// AsSlice returns the slice value as []interface{} or error if not a slice
+	AsSlice() ([]interface{}, error)
+	// AsMap returns the map value as map[string]interface{} or error if not a map (or keys are not strings)
+	AsMap() (map[string]interface{}, error)
+	// AsPtr returns the pointer value or error if not a pointer
+	AsPtr() (interface{}, error)
 }
