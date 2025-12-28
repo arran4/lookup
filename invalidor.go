@@ -65,3 +65,15 @@ func (i *Invalidor) Find(path string, opts ...Runner) Pathor {
 		path: p,
 	}
 }
+
+type errorFunc struct {
+	err error
+}
+
+func Error(err error) *errorFunc {
+	return &errorFunc{err: err}
+}
+
+func (e *errorFunc) Run(scope *Scope) Pathor {
+	return NewInvalidor(scope.Path(), e.err)
+}
