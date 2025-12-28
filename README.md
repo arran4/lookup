@@ -379,11 +379,7 @@ of this package.
 
 ## License
 
-This project is publicly available under the Affero GPL license. See `LICENSE` for details.
-
-### Custom Licensing
-
-If the AGPL does not suit your needs, log an issue or email to discuss alternatives.
+This project is publicly available under the 3-Clause BSD License. See `LICENSE` for details.
 
 ## Q&A
 
