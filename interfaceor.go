@@ -64,6 +64,23 @@ func (i *Interfaceor) Raw() interface{} {
 	return i.i.Raw()
 }
 
+func (i *Interfaceor) RawAsInterfaceSlice() []interface{} {
+	v := i.i.Raw()
+	if v == nil {
+		return nil
+	}
+	rv := reflect.ValueOf(v)
+	switch rv.Kind() {
+	case reflect.Slice, reflect.Array:
+		res := make([]interface{}, rv.Len())
+		for j := 0; j < rv.Len(); j++ {
+			res[j] = rv.Index(j).Interface()
+		}
+		return res
+	}
+	return nil
+}
+
 func (i *Interfaceor) Type() reflect.Type {
 	return reflect.TypeOf(i.i.Raw())
 }

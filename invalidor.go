@@ -41,6 +41,11 @@ func (i *Invalidor) Raw() interface{} {
 	return nil
 }
 
+// RawAsInterfaceSlice returns nil
+func (i *Invalidor) RawAsInterfaceSlice() []interface{} {
+	return nil
+}
+
 // Raw returns a zero/invalid reflect.Value
 func (i *Invalidor) Value() reflect.Value {
 	return reflect.Value{}

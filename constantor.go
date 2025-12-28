@@ -57,6 +57,23 @@ func (r *Constantor) Raw() interface{} {
 	return r.c
 }
 
+// RawAsInterfaceSlice returns the contained object as a slice of interface{}.
+func (r *Constantor) RawAsInterfaceSlice() []interface{} {
+	if r.c == nil {
+		return nil
+	}
+	rv := reflect.ValueOf(r.c)
+	switch rv.Kind() {
+	case reflect.Slice, reflect.Array:
+		res := make([]interface{}, rv.Len())
+		for i := 0; i < rv.Len(); i++ {
+			res[i] = rv.Index(i).Interface()
+		}
+		return res
+	}
+	return nil
+}
+
 // Value returns the reflect.Value
 func (r *Constantor) Value() reflect.Value {
 	return reflect.ValueOf(r.c)
