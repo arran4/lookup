@@ -29,7 +29,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Test
-        run: go test ./...
+        run: go test -coverprofile=coverage.out ./...
+      - name: Archive code coverage results
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage
+          path: coverage.out
+      - name: Display coverage
+        if: matrix.os == 'ubuntu-latest'
+        run: go tool cover -func=coverage.out
       - name: Benchmarks
         if: matrix.os == 'ubuntu-latest' && runner.arch == 'X64'
         id: bench
