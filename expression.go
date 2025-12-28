@@ -223,3 +223,34 @@ func (ef *ifFunc) Run(scope *Scope) Pathor {
 	}
 	return scope.Position
 }
+
+type fallbackPathsFunc struct {
+	paths []string
+}
+
+func FallbackPaths(paths ...string) *fallbackPathsFunc {
+	return &fallbackPathsFunc{
+		paths: paths,
+	}
+}
+
+func (ef *fallbackPathsFunc) Run(scope *Scope) Pathor {
+	if _, ok := scope.Position.(*Invalidor); !ok {
+		return scope.Position
+	}
+
+	if scope.Parent == nil || scope.Parent.Current == nil {
+		return scope.Position
+	}
+
+	parent := scope.Parent.Current
+
+	for _, path := range ef.paths {
+		res := parent.Find(path)
+		if _, ok := res.(*Invalidor); !ok {
+			return res
+		}
+	}
+
+	return scope.Position
+}
