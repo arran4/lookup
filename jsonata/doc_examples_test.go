@@ -2,8 +2,8 @@ package jsonata
 
 import (
 	"encoding/json"
-	"os"
-	"path/filepath"
+	"io/fs"
+	"path"
 	"testing"
 
 	"github.com/arran4/lookup"
@@ -23,8 +23,8 @@ func loadSample(t *testing.T) interface{} {
 // loadPerson reads the example person dataset used by several
 // documentation samples.
 func loadPerson(t *testing.T) interface{} {
-	path := filepath.Join("testdata", "test-suite", "datasets", "dataset1__INPUT.json")
-	data, err := os.ReadFile(filepath.Clean(path))
+	filename := path.Join("testdata", "test-suite", "datasets", "dataset1__INPUT.json")
+	data, err := fs.ReadFile(testData, filename)
 	if err != nil {
 		t.Fatalf("failed to read person dataset: %v", err)
 	}

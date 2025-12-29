@@ -2,15 +2,19 @@ package jsonata
 
 import (
 	"bytes"
+	"embed"
 	"encoding/json"
-	"os"
-	"path/filepath"
+	"io/fs"
+	"path"
 	"strings"
 	"testing"
 
 	"github.com/arran4/lookup"
 	"github.com/stretchr/testify/assert"
 )
+
+//go:embed testdata
+var testData embed.FS
 
 type suiteCase struct {
 	ExprFile  string                 `json:"exprFile"`
@@ -21,37 +25,38 @@ type suiteCase struct {
 }
 
 func loadDataset(t *testing.T, name string) interface{} {
-	path := filepath.Join("testdata", "test-suite", "datasets", name+".json")
-	return loadJSONFile(t, filepath.Join("jsonata", path))
-}
-
-func loadJSONFile(t *testing.T, path string) interface{} {
-	data, err := os.ReadFile(filepath.Clean(path))
+	filename := path.Join("testdata", "test-suite", "datasets", name+".json")
+	data, err := fs.ReadFile(testData, filename)
 	if err != nil {
-		t.Fatalf("failed to read %s: %v", path, err)
+		t.Fatalf("failed to read %s: %v", filename, err)
 	}
 	var v interface{}
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.UseNumber()
 	if err := dec.Decode(&v); err != nil {
-		t.Fatalf("failed to unmarshal %s: %v", path, err)
+		t.Fatalf("failed to unmarshal %s: %v", filename, err)
 	}
 	return v
 }
 
-func runCase(t *testing.T, casePath string, c suiteCase) interface{} {
+func parseJSON(t *testing.T, data string) interface{} {
+	var v interface{}
+	dec := json.NewDecoder(strings.NewReader(data))
+	dec.UseNumber()
+	if err := dec.Decode(&v); err != nil {
+		t.Fatalf("failed to unmarshal json: %v", err)
+	}
+	return v
+}
+
+func runCase(t *testing.T, c suiteCase, expr string) interface{} {
 	var data interface{}
 	if c.Data != nil {
 		data = c.Data
 	} else if c.Dataset != "" {
 		data = loadDataset(t, c.Dataset)
 	}
-	exprFile := filepath.Join(filepath.Dir(casePath), c.ExprFile)
-	exprBytes, err := os.ReadFile(filepath.Clean(exprFile))
-	if err != nil {
-		t.Fatalf("failed to read expression file: %v", err)
-	}
-	expr := strings.TrimSpace(string(exprBytes))
+
 	ast, err := Parse(expr)
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
@@ -61,36 +66,12 @@ func runCase(t *testing.T, casePath string, c suiteCase) interface{} {
 	return q.Run(lookup.NewScope(root, root)).Raw()
 }
 
-func loadExpected(t *testing.T, caseFile string) interface{} {
-	expectedPath := strings.TrimSuffix(caseFile, ".json") + "_expected.json"
-	return loadJSONFile(t, expectedPath)
-}
-
 // TestJSONataFieldsGroup loads test cases from the upstream JSONata
 // "fields" group and evaluates each expression against the provided
 // dataset. Expected results are stored in companion _expected.json files.
 func TestJSONataFieldsGroup(t *testing.T) {
 	skipIf(t, testFeatureFieldsGroup, "fields group")
-	files, err := filepath.Glob("jsonata/testdata/test-suite/groups/fields/case*.json")
-	if err != nil {
-		t.Fatalf("glob failed: %v", err)
-	}
-	for _, f := range files {
-		f := f
-		t.Run(filepath.Base(f), func(t *testing.T) {
-			bytes, err := os.ReadFile(f)
-			if err != nil {
-				t.Fatalf("failed to read case: %v", err)
-			}
-			var c suiteCase
-			if err := json.Unmarshal(bytes, &c); err != nil {
-				t.Fatalf("invalid case: %v", err)
-			}
-			out := runCase(t, f, c)
-			expected := loadExpected(t, f)
-			assert.Equal(t, expected, out)
-		})
-	}
+	runTxtarGroup(t, "testdata/test-suite/groups/fields.txtar")
 }
 
 // TestJSONataArrayConstructorGroup loads cases from the array-constructor group
@@ -98,23 +79,29 @@ func TestJSONataFieldsGroup(t *testing.T) {
 // .JSONATA files next to each case JSON.
 func TestJSONataArrayConstructorGroup(t *testing.T) {
 	skipIf(t, testFeatureArrayConstructorGroup, "array constructor group")
-	files, err := filepath.Glob("jsonata/testdata/test-suite/groups/array-constructor/case*.json")
+	runTxtarGroup(t, "testdata/test-suite/groups/array-constructor.txtar")
+}
+
+func runTxtarGroup(t *testing.T, filename string) {
+	data, err := fs.ReadFile(testData, filename)
 	if err != nil {
-		t.Fatalf("glob failed: %v", err)
+		t.Fatalf("failed to read txtar file %s: %v", filename, err)
 	}
-	for _, f := range files {
-		f := f
-		t.Run(filepath.Base(f), func(t *testing.T) {
-			bytes, err := os.ReadFile(f)
-			if err != nil {
-				t.Fatalf("failed to read case: %v", err)
+
+	cases, err := parseTxtar(data)
+	if err != nil {
+		t.Fatalf("failed to parse txtar file %s: %v", filename, err)
+	}
+
+	for _, c := range cases {
+		t.Run(c.Name, func(t *testing.T) {
+			var sc suiteCase
+			if err := json.Unmarshal([]byte(c.Input), &sc); err != nil {
+				t.Fatalf("invalid suite case config: %v", err)
 			}
-			var c suiteCase
-			if err := json.Unmarshal(bytes, &c); err != nil {
-				t.Fatalf("invalid case: %v", err)
-			}
-			out := runCase(t, f, c)
-			expected := loadExpected(t, f)
+
+			out := runCase(t, sc, c.Expr)
+			expected := parseJSON(t, c.Expected)
 			assert.Equal(t, expected, out)
 		})
 	}
