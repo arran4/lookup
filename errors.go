@@ -14,4 +14,15 @@ var (
 	ErrValueNotIn                = errors.New("value not in set")
 	ErrNoMatchesForQuery         = errors.New("nothing matched query")
 	ErrFalse                     = errors.New("evaluated to false")
+
+	// Type errors
+	ErrNotString    = errors.New("value is not a string")
+	ErrNotInt       = errors.New("value is not an int")
+	ErrNotBool      = errors.New("value is not a bool")
+	ErrNotFloat     = errors.New("value is not a float")
+	ErrNotSlice     = errors.New("value is not a slice")
+	ErrNotMap       = errors.New("value is not a map")
+	ErrNotStruct    = errors.New("value is not a struct")
+	ErrNotPtr       = errors.New("value is not a pointer")
+	ErrNotInterface = errors.New("value is not an interface")
 )
