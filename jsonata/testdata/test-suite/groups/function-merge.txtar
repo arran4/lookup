@@ -1,0 +1,63 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA",
+  "undefinedResult": true
+}
+-- case000.JSONATA --
+$merge(nothing)
+-- case000_expected.json --
+null
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$merge({"a":1})
+-- case001_expected.json --
+{
+  "a": 1
+}
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$merge([{"a":1}, {"b":2}])
+-- case002_expected.json --
+{
+  "a": 1,
+  "b": 2
+}
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$merge([{"a": 1}, {"b": 2, "c": 3}])
+-- case003_expected.json --
+{
+  "a": 1,
+  "b": 2,
+  "c": 3
+}
+-- case004.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$merge([{"a": 1}, {"b": 2, "a": 3}])
+-- case004_expected.json --
+{
+  "a": 3,
+  "b": 2
+}

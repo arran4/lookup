@@ -1,0 +1,57 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$number()
+-- case000_expected.json --
+5
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+[1..5].$string()
+-- case001_expected.json --
+[
+  "1",
+  "2",
+  "3",
+  "4",
+  "5"
+]
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+[1..5].("Item " & $string())
+-- case002_expected.json --
+[
+  "Item 1",
+  "Item 2",
+  "Item 3",
+  "Item 4",
+  "Item 5"
+]
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+Account.Order.Product."Product Name".$uppercase().$substringBefore(" ")
+-- case003_expected.json --
+[
+  "BOWLER",
+  "TRILBY",
+  "BOWLER",
+  "CLOAK"
+]

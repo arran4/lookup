@@ -1,0 +1,41 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$ceil(3.7)
+-- case000_expected.json --
+4
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$ceil(-3.7)
+-- case001_expected.json --
+-3
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$ceil(0)
+-- case002_expected.json --
+0
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA",
+  "undefinedResult": true
+}
+-- case003.JSONATA --
+$ceil(nothing)
+-- case003_expected.json --
+null

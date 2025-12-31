@@ -1,0 +1,102 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$spread("Hello World")
+-- case000_expected.json --
+"Hello World"
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$spread((Account.Order.Product.Description))
+-- case001_expected.json --
+[
+  {
+    "Colour": "Purple"
+  },
+  {
+    "Width": 300
+  },
+  {
+    "Height": 200
+  },
+  {
+    "Depth": 210
+  },
+  {
+    "Weight": 0.75
+  },
+  {
+    "Colour": "Orange"
+  },
+  {
+    "Width": 300
+  },
+  {
+    "Height": 200
+  },
+  {
+    "Depth": 210
+  },
+  {
+    "Weight": 0.6
+  },
+  {
+    "Colour": "Purple"
+  },
+  {
+    "Width": 300
+  },
+  {
+    "Height": 200
+  },
+  {
+    "Depth": 210
+  },
+  {
+    "Weight": 0.75
+  },
+  {
+    "Colour": "Black"
+  },
+  {
+    "Width": 30
+  },
+  {
+    "Height": 20
+  },
+  {
+    "Depth": 210
+  },
+  {
+    "Weight": 2
+  }
+]
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA",
+  "undefinedResult": true
+}
+-- case002.JSONATA --
+$spread(blah)
+-- case002_expected.json --
+null
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$string($spread(function($x){$x*$x}))
+-- case003_expected.json --
+""

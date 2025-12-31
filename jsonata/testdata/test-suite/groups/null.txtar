@@ -1,0 +1,79 @@
+-- case000.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+null
+-- case000_expected.json --
+null
+-- case001.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+[null]
+-- case001_expected.json --
+[
+  null
+]
+-- case002.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+[null, null]
+-- case002_expected.json --
+[
+  null,
+  null
+]
+-- case003.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$not(null)
+-- case003_expected.json --
+true
+-- case004.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+null = null
+-- case004_expected.json --
+true
+-- case005.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+null != null
+-- case005_expected.json --
+false
+-- case006.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+{"true": true, "false":false, "null": null}
+-- case006_expected.json --
+{
+  "false": false,
+  "null": null,
+  "true": true
+}

@@ -1,0 +1,121 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$replace("Hello World", "World", "Everyone")
+-- case000_expected.json --
+"Hello Everyone"
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$replace("the cat sat on the mat", "at", "it")
+-- case001_expected.json --
+"the cit sit on the mit"
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$replace("the cat sat on the mat", "at", "it", 0)
+-- case002_expected.json --
+"the cat sat on the mat"
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$replace("the cat sat on the mat", "at", "it", 2)
+-- case003_expected.json --
+"the cit sit on the mat"
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA",
+  "undefinedResult": true
+}
+-- case004.JSONATA --
+$replace(nothing, "at", "it", 2)
+-- case004_expected.json --
+null
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$replace("hello")
+-- case005_expected.json --
+null
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$replace("hello", "l", "1", null)
+-- case006_expected.json --
+null
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$replace("hello", "l", "1", -2)
+-- case007_expected.json --
+null
+-- case008.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+$replace("hello", 1)
+-- case008_expected.json --
+null
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$replace("hello", "", "bye")
+-- case009_expected.json --
+null
+-- case010.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+$replace("hello", 2, 1)
+-- case010_expected.json --
+null
+-- case011.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+$replace(123, 2, 1)
+-- case011_expected.json --
+null

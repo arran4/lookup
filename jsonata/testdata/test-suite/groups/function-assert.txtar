@@ -1,0 +1,82 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$assert(Account.Order[0].Product[0].Price < 34, 'Too Expensive')
+-- case000_expected.json --
+null
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA",
+  "undefinedResult": true
+}
+-- case001.JSONATA --
+$assert(Account.Order[0].Product[0].Price < 35, 'Too Expensive')
+-- case001_expected.json --
+null
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+($assert(Account.Order[0].Product[0].Price < 35, 'Too Expensive'); Account.Order[0].Product[0].Price)
+-- case002_expected.json --
+34.45
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+($assert(Account.Order[0].Product[0].Price < 34, 'Too Expensive'); Account.Order[0].Product[0].Price)
+-- case003_expected.json --
+null
+-- case004.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$assert(null)
+-- case004_expected.json --
+null
+-- case005.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$assert(5)
+-- case005_expected.json --
+null
+-- case006.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$assert(false)
+-- case006_expected.json --
+null
+-- case007.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA",
+  "undefinedResult": true
+}
+-- case007.JSONATA --
+$assert(true)
+-- case007_expected.json --
+null

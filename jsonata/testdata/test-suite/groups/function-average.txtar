@@ -1,0 +1,138 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$average(Account.Order.Product.(Price * Quantity))
+-- case000_expected.json --
+84.09
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+Account.Order.$average(Product.(Price * Quantity))
+-- case001_expected.json --
+[
+  45.285000000000004,
+  122.89500000000001
+]
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+Account.Order.(OrderID & ": " & $average(Product.(Price*Quantity)))
+-- case002_expected.json --
+[
+  "order103: 45.285",
+  "order104: 122.895"
+]
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA",
+  "undefinedResult": true
+}
+-- case003.JSONATA --
+$average([])
+-- case003_expected.json --
+null
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$average([1,2,3])
+-- case004_expected.json --
+2
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$average(["1","2","3"])
+-- case005_expected.json --
+null
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$average(["1","2",3])
+-- case006_expected.json --
+null
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$average(1)
+-- case007_expected.json --
+1
+-- case008.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+$average([],[])
+-- case008_expected.json --
+null
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$average([1,2,3],[])
+-- case009_expected.json --
+null
+-- case010.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+$average([],[],[])
+-- case010_expected.json --
+null
+-- case011.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+$average([1,2],[],[])
+-- case011_expected.json --
+null
+-- case012.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case012.JSONATA",
+  "undefinedResult": true
+}
+-- case012.JSONATA --
+$average(undefined)
+-- case012_expected.json --
+null

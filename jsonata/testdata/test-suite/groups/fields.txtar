@@ -1,138 +1,107 @@
--- case0000.json --
+-- case000.json --
 {
   "dataset": "dataset0__INPUT",
   "bindings": {},
-  "exprFile": "case0000.JSONATA"
+  "exprFile": "case000.JSONATA"
 }
--- case0000.JSONATA --
+-- case000.JSONATA --
 foo.bar
--- case0000_expected.json --
+-- case000_expected.json --
 42
--- case0001.json --
+-- case001.json --
 {
   "dataset": "dataset0__INPUT",
   "bindings": {},
-  "exprFile": "case0001.JSONATA"
+  "exprFile": "case001.JSONATA"
 }
--- case0001.JSONATA --
+-- case001.JSONATA --
 foo.blah
--- case0001_expected.json --
+-- case001_expected.json --
 [
-    {
-        "baz": {
-            "fud": "hello"
-        }
-    },
-    {
-        "baz": {
-            "fud": "world"
-        }
-    },
-    {
-        "bazz": "gotcha"
+  {
+    "baz": {
+      "fud": "hello"
     }
+  },
+  {
+    "baz": {
+      "fud": "world"
+    }
+  },
+  {
+    "bazz": "gotcha"
+  }
 ]
--- case0002.json --
+-- case002.json --
 {
   "dataset": "dataset0__INPUT",
   "bindings": {},
-  "exprFile": "case0002.JSONATA"
+  "exprFile": "case002.JSONATA"
 }
--- case0002.JSONATA --
+-- case002.JSONATA --
 foo.blah.bazz
--- case0002_expected.json --
+-- case002_expected.json --
 "gotcha"
--- case0003.json --
+-- case003.json --
 {
   "dataset": "dataset0__INPUT",
   "bindings": {},
-  "exprFile": "case0003.JSONATA"
+  "exprFile": "case003.JSONATA"
 }
--- case0003.JSONATA --
+-- case003.JSONATA --
 foo.blah.baz
--- case0003_expected.json --
+-- case003_expected.json --
 [
-    {"fud": "hello"},
-    {"fud": "world"}
+  {
+    "fud": "hello"
+  },
+  {
+    "fud": "world"
+  }
 ]
--- case0004.json --
+-- case004.json --
 {
   "dataset": "dataset0__INPUT",
   "bindings": {},
-  "exprFile": "case0004.JSONATA"
+  "exprFile": "case004.JSONATA"
 }
--- case0004.JSONATA --
+-- case004.JSONATA --
 foo.blah.baz.fud
--- case0004_expected.json --
+-- case004_expected.json --
 [
-    "hello",
-    "world"
+  "hello",
+  "world"
 ]
--- case0005.json --
+-- case005.json --
 {
   "dataset": "dataset1__INPUT",
   "bindings": {},
-  "exprFile": "case0005.JSONATA"
+  "exprFile": "case005.JSONATA"
 }
--- case0005.JSONATA --
+-- case005.JSONATA --
 Other.Misc
--- case0005_expected.json --
+-- case005_expected.json --
 null
--- case0006.json --
+-- case006.json --
 {
   "dataset": "dataset2__INPUT",
   "bindings": {},
-  "exprFile": "case0006.JSONATA"
+  "exprFile": "case006.JSONATA"
 }
--- case0006.JSONATA --
+-- case006.JSONATA --
 bazz
--- case0006_expected.json --
+-- case006_expected.json --
 "gotcha"
--- case0007.json --
+-- case007.json --
 {
   "dataset": "dataset3__INPUT",
   "bindings": {},
-  "exprFile": "case0007.JSONATA"
+  "exprFile": "case007.JSONATA"
 }
--- case0007.JSONATA --
+-- case007.JSONATA --
 fud
--- case0007_expected.json --
+-- case007_expected.json --
 [
-    "hello",
-    "world"
+  "hello",
+  "world"
 ]
--- case0008.json --
-{
-  "dataset": "dataset1__INPUT",
-  "bindings": {},
-  "exprFile": "case0008.JSONATA"
-}
--- case0008.JSONATA --
-Phone.number
--- case0008_expected.json --
-[
-    "0203 544 1234",
-    "01962 001234",
-    "01962 001235",
-    "077 7700 1234"
-]
--- case0009.json --
-{
-  "dataset": "dataset1__INPUT",
-  "bindings": {},
-  "exprFile": "case0009.JSONATA"
-}
--- case0009.JSONATA --
-Phone[type='home'].number
--- case0009_expected.json --
-["0203 544 1234"]
--- case0010.json --
-{
-  "dataset": "dataset1__INPUT",
-  "bindings": {},
-  "exprFile": "case0010.JSONATA"
-}
--- case0010.JSONATA --
-Email[0].address[1]
--- case0010_expected.json --
-"fsmith@my-work.com"

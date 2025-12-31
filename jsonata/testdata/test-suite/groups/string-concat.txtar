@@ -1,0 +1,120 @@
+-- case000.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+"foo" & "bar"
+-- case000_expected.json --
+"foobar"
+-- case001.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+"foo"&"bar"
+-- case001_expected.json --
+"foobar"
+-- case002.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+foo.blah[0].baz.fud &foo.blah[1].baz.fud
+-- case002_expected.json --
+"helloworld"
+-- case003.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+foo.(blah[0].baz.fud & blah[1].baz.fud)
+-- case003_expected.json --
+"helloworld"
+-- case004.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+foo.(blah[0].baz.fud & none)
+-- case004_expected.json --
+"hello"
+-- case005.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+foo.(none.here & blah[1].baz.fud)
+-- case005_expected.json --
+"world"
+-- case006.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+[1,2]&[3,4]
+-- case006_expected.json --
+"[1,2][3,4]"
+-- case007.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+[1,2]&3
+-- case007_expected.json --
+"[1,2]3"
+-- case008.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+1&2
+-- case008_expected.json --
+"12"
+-- case009.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+1&[2]
+-- case009_expected.json --
+"1[2]"
+-- case010.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+"hello"&5
+-- case010_expected.json --
+"hello5"
+-- case011.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+"Prices: " & Account.Order.Product.Price
+-- case011_expected.json --
+"Prices: [34.45,21.67,34.45,107.99]"

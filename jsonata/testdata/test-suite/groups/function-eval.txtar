@@ -1,0 +1,123 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$eval('[1,2,3]')
+-- case000_expected.json --
+[
+  1,
+  2,
+  3
+]
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA",
+  "undefinedResult": true
+}
+-- case001.JSONATA --
+$eval(nothing)
+-- case001_expected.json --
+null
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$eval('[1,$string(2),3]')
+-- case002_expected.json --
+[
+  1,
+  "2",
+  3
+]
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$eval('Account.Order.Product.Quantity ~> $sum()')
+-- case003_expected.json --
+8
+-- case004.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+Account.Order.Product.{'Name': `Product Name`, 'Total': $eval('Price * Quantity')}
+-- case004_expected.json --
+[
+  {
+    "Name": "Bowler Hat",
+    "Total": 68.9
+  },
+  {
+    "Name": "Trilby hat",
+    "Total": 21.67
+  },
+  {
+    "Name": "Bowler Hat",
+    "Total": 137.8
+  },
+  {
+    "Name": "Cloak",
+    "Total": 107.99
+  }
+]
+-- case005.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+Account.Order.Product.{'Name': `Product Name`, 'Volume': $eval('Width*Height*Depth', Description)}
+-- case005_expected.json --
+[
+  {
+    "Name": "Bowler Hat",
+    "Volume": 12600000
+  },
+  {
+    "Name": "Trilby hat",
+    "Volume": 12600000
+  },
+  {
+    "Name": "Bowler Hat",
+    "Volume": 12600000
+  },
+  {
+    "Name": "Cloak",
+    "Volume": 126000
+  }
+]
+-- case006.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$eval('[1,string(2),3]')
+-- case006_expected.json --
+null
+-- case007.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$eval('[1,#string(2),3]')
+-- case007_expected.json --
+null

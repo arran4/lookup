@@ -1,0 +1,66 @@
+-- case000.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA",
+  "undefinedResult": true
+}
+-- case000.JSONATA --
+fdf
+-- case000_expected.json --
+null
+-- case001.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA",
+  "undefinedResult": true
+}
+-- case001.JSONATA --
+fdf.ett
+-- case001_expected.json --
+null
+-- case002.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA",
+  "undefinedResult": true
+}
+-- case002.JSONATA --
+fdf.ett[10]
+-- case002_expected.json --
+null
+-- case003.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA",
+  "undefinedResult": true
+}
+-- case003.JSONATA --
+fdf.ett[vc > 10]
+-- case003_expected.json --
+null
+-- case004.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA",
+  "undefinedResult": true
+}
+-- case004.JSONATA --
+fdf.ett + 27
+-- case004_expected.json --
+null
+-- case005.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA",
+  "undefinedResult": true
+}
+-- case005.JSONATA --
+$fdsd
+-- case005_expected.json --
+null

@@ -66,20 +66,22 @@ func runCase(t *testing.T, c suiteCase, expr string) interface{} {
 	return q.Run(lookup.NewScope(root, root)).Raw()
 }
 
-// TestJSONataFieldsGroup loads test cases from the upstream JSONata
-// "fields" group and evaluates each expression against the provided
-// dataset. Expected results are stored in companion _expected.json files.
-func TestJSONataFieldsGroup(t *testing.T) {
-	skipIf(t, testFeatureFieldsGroup, "fields group")
-	runTxtarGroup(t, "testdata/test-suite/groups/fields.txtar")
-}
+func TestGroups(t *testing.T) {
+    entries, err := testData.ReadDir("testdata/test-suite/groups")
+    if err != nil {
+        t.Fatalf("failed to list groups: %v", err)
+    }
 
-// TestJSONataArrayConstructorGroup loads cases from the array-constructor group
-// of the upstream JSONata test suite. Expressions are stored in companion
-// .JSONATA files next to each case JSON.
-func TestJSONataArrayConstructorGroup(t *testing.T) {
-	skipIf(t, testFeatureArrayConstructorGroup, "array constructor group")
-	runTxtarGroup(t, "testdata/test-suite/groups/array-constructor.txtar")
+    for _, entry := range entries {
+        if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".txtar") {
+            continue
+        }
+        groupName := strings.TrimSuffix(entry.Name(), ".txtar")
+        t.Run(groupName, func(t *testing.T) {
+            skipGroupIfDisabled(t, groupName)
+            runTxtarGroup(t, path.Join("testdata/test-suite/groups", entry.Name()))
+        })
+    }
 }
 
 func runTxtarGroup(t *testing.T, filename string) {
@@ -100,8 +102,26 @@ func runTxtarGroup(t *testing.T, filename string) {
 				t.Fatalf("invalid suite case config: %v", err)
 			}
 
+			// Capture panic to treat as failure instead of crash
+			defer func() {
+				if r := recover(); r != nil {
+					t.Errorf("panic: %v", r)
+				}
+			}()
+
 			out := runCase(t, sc, c.Expr)
-			expected := parseJSON(t, c.Expected)
+
+			// If undefined is expected, check for nil or absence?
+			// The current runCase returns interface{}.
+			// If we expect undefined (null in txtar), out should be nil?
+
+			var expected interface{}
+			if c.Expected == "null" && sc.Undefined {
+			    expected = nil
+			} else {
+			    expected = parseJSON(t, c.Expected)
+			}
+
 			assert.Equal(t, expected, out)
 		})
 	}

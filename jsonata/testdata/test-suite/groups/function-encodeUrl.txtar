@@ -1,0 +1,31 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$encodeUrl("https://mozilla.org/?x=шеллы")
+-- case000_expected.json --
+"https://mozilla.org/?x=%D1%88%D0%B5%D0%BB%D0%BB%D1%8B"
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA",
+  "undefinedResult": true
+}
+-- case001.JSONATA --
+$encodeUrl(blah)
+-- case001_expected.json --
+null
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$encodeUrl('�')
+-- case002_expected.json --
+null

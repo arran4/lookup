@@ -33,3 +33,275 @@
   1,
   2
 ]
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+[1, 2,3]
+-- case003_expected.json --
+[
+  1,
+  2,
+  3
+]
+-- case004.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+[1, 2, [3, 4]]
+-- case004_expected.json --
+[
+  1,
+  2,
+  [
+    3,
+    4
+  ]
+]
+-- case005.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+[1, "two", ["three", 4]]
+-- case005_expected.json --
+[
+  1,
+  "two",
+  [
+    "three",
+    4
+  ]
+]
+-- case006.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {
+    "four": "four",
+    "two": 2
+  },
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+[1, $two, ["three", $four]]
+-- case006_expected.json --
+[
+  1,
+  2,
+  [
+    "three",
+    "four"
+  ]
+]
+-- case007.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+["foo.bar", foo.bar, ["foo.baz", foo.blah.baz]]
+-- case007_expected.json --
+[
+  "foo.bar",
+  42,
+  [
+    "foo.baz",
+    {
+      "fud": "hello"
+    },
+    {
+      "fud": "world"
+    }
+  ]
+]
+-- case008.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+[1, 2, 3][0]
+-- case008_expected.json --
+1
+-- case009.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+[1, 2, [3, 4]][-1]
+-- case009_expected.json --
+[
+  3,
+  4
+]
+-- case010.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+[1, 2, [3, 4]][-1][-1]
+-- case010_expected.json --
+4
+-- case011.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+foo.blah.baz.[fud, fud]
+-- case011_expected.json --
+[
+  [
+    "hello",
+    "hello"
+  ],
+  [
+    "world",
+    "world"
+  ]
+]
+-- case012.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+foo.blah.baz.[[fud, fud]]
+-- case012_expected.json --
+[
+  [
+    [
+      "hello",
+      "hello"
+    ]
+  ],
+  [
+    [
+      "world",
+      "world"
+    ]
+  ]
+]
+-- case013.json --
+{
+  "dataset": "dataset10__INPUT",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+foo.blah.[baz].fud
+-- case013_expected.json --
+"hello"
+-- case014.json --
+{
+  "dataset": "dataset10__INPUT",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+foo.blah.[baz, buz].fud
+-- case014_expected.json --
+[
+  "hello",
+  "world"
+]
+-- case015.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+[Address, Other."Alternative.Address"].City
+-- case015_expected.json --
+[
+  "Winchester",
+  "London"
+]
+-- case016.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+[Address, Other.`Alternative.Address`].City
+-- case016_expected.json --
+[
+  "Winchester",
+  "London"
+]
+-- case017.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case017.JSONATA"
+}
+-- case017.JSONATA --
+[0,1,2,3,4,5,6,7,8,9][$ % 2 = 0]
+-- case017_expected.json --
+[
+  0,
+  2,
+  4,
+  6,
+  8
+]
+-- case018.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case018.JSONATA"
+}
+-- case018.JSONATA --
+[1, 2, 3].$
+-- case018_expected.json --
+[
+  1,
+  2,
+  3
+]
+-- case019.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case019.JSONATA"
+}
+-- case019.JSONATA --
+[1, 2, 3].$
+-- case019_expected.json --
+[
+  1,
+  2,
+  3
+]
+-- case020.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case020.JSONATA"
+}
+-- case020.JSONATA --
+[1, 2, 3].$
+-- case020_expected.json --
+[
+  1,
+  2,
+  3
+]

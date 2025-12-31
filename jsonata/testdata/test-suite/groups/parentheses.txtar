@@ -1,0 +1,101 @@
+-- case000.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+foo.(blah).baz.fud
+-- case000_expected.json --
+[
+  "hello",
+  "world"
+]
+-- case001.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+foo.(blah.baz).fud
+-- case001_expected.json --
+[
+  "hello",
+  "world"
+]
+-- case002.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+(foo.blah.baz).fud
+-- case002_expected.json --
+[
+  "hello",
+  "world"
+]
+-- case003.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+foo.blah.(baz.fud)
+-- case003_expected.json --
+[
+  "hello",
+  "world"
+]
+-- case004.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+(foo.blah.baz.fud)
+-- case004_expected.json --
+[
+  "hello",
+  "world"
+]
+-- case005.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+(foo).(blah).baz.(fud)
+-- case005_expected.json --
+[
+  "hello",
+  "world"
+]
+-- case006.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+(foo.(blah).baz.fud)
+-- case006_expected.json --
+[
+  "hello",
+  "world"
+]
+-- case007.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+(4 + 2) / 2
+-- case007_expected.json --
+3

@@ -1,0 +1,40 @@
+-- case000.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$each(Address, λ($v, $k) {$k & ": " & $v})
+-- case000_expected.json --
+[
+  "Street: Hursley Park",
+  "City: Winchester",
+  "Postcode: SO21 2JN"
+]
+-- case001.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$each({'a': 'hello', 'b': 'world'}, $uppercase)
+-- case001_expected.json --
+[
+  "HELLO",
+  "WORLD"
+]
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$each(function($v, $k) {$k[$v>2]})
+-- case002_expected.json --
+[
+  "c",
+  "d"
+]

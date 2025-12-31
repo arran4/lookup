@@ -1,0 +1,154 @@
+-- case000.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+foo.*
+-- case000_expected.json --
+[
+  42,
+  {
+    "baz": {
+      "fud": "hello"
+    }
+  },
+  {
+    "baz": {
+      "fud": "world"
+    }
+  },
+  {
+    "bazz": "gotcha"
+  },
+  "here"
+]
+-- case001.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+foo.*.baz
+-- case001_expected.json --
+[
+  {
+    "fud": "hello"
+  },
+  {
+    "fud": "world"
+  }
+]
+-- case002.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+foo.*.bazz
+-- case002_expected.json --
+"gotcha"
+-- case003.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+foo.*.baz.*
+-- case003_expected.json --
+[
+  "hello",
+  "world"
+]
+-- case004.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+foo.*.baz.*
+-- case004_expected.json --
+[
+  "hello",
+  "world"
+]
+-- case005.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+foo.*.baz.*
+-- case005_expected.json --
+[
+  "hello",
+  "world"
+]
+-- case006.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+*[type="home"]
+-- case006_expected.json --
+[
+  {
+    "number": "0203 544 1234",
+    "type": "home"
+  },
+  {
+    "address": [
+      "freddy@my-social.com",
+      "frederic.smith@very-serious.com"
+    ],
+    "type": "home"
+  }
+]
+-- case007.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+Account[$$.Account."Account Name" = "Firefly"].*[OrderID="order104"].Product.Price
+-- case007_expected.json --
+[
+  34.45,
+  107.99
+]
+-- case008.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+Account[$$.Account.`Account Name` = "Firefly"].*[OrderID="order104"].Product.Price
+-- case008_expected.json --
+[
+  34.45,
+  107.99
+]
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+*
+-- case009_expected.json --
+[
+  1,
+  2,
+  3
+]

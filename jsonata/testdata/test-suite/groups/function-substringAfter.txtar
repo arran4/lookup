@@ -1,0 +1,51 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$substringAfter("Hello World", " ")
+-- case000_expected.json --
+"World"
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$substringAfter("Hello World", "l")
+-- case001_expected.json --
+"lo World"
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$substringAfter("Hello World", "f")
+-- case002_expected.json --
+"Hello World"
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$substringAfter("Hello World", "ld")
+-- case003_expected.json --
+""
+-- case004.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA",
+  "undefinedResult": true
+}
+-- case004.JSONATA --
+$substringAfter(blah, "ld")
+-- case004_expected.json --
+null

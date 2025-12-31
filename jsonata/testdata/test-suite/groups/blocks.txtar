@@ -1,0 +1,76 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA",
+  "undefinedResult": true
+}
+-- case000.JSONATA --
+()
+-- case000_expected.json --
+null
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+(1; 2; 3)
+-- case001_expected.json --
+3
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+(1; 2; 3;)
+-- case002_expected.json --
+3
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+($a:=1; $b:=2; $c:=($a:=4; $a+$b); $a+$c)
+-- case003_expected.json --
+7
+-- case004.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+Account.Order.Product.($var1 := Price ; $var2:=Quantity; $var1 * $var2)
+-- case004_expected.json --
+[
+  68.9,
+  21.67,
+  137.8,
+  107.99
+]
+-- case005.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+(  $func := function($arg) {$arg.Account.Order[0].OrderID};  $func($))
+-- case005_expected.json --
+"order103"
+-- case006.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+(  $func := function($arg) {$arg.Account.Order[0]};  $func($).OrderID)
+-- case006_expected.json --
+"order103"

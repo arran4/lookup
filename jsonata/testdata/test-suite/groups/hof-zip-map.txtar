@@ -1,0 +1,52 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+(  $data := {    "one": [1,2,3,4,5],    "two": [5,4,3,2,1]  };  $map($zip($data.one, $data.two), $sum))
+-- case000_expected.json --
+[
+  6,
+  6,
+  6,
+  6,
+  6
+]
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+(  $data := {    "one": [1,2,3,4,5],    "two": [5,4,3,2,1]  };  $data.$zip(one, two) ~> $map($sum))
+-- case001_expected.json --
+[
+  6,
+  6,
+  6,
+  6,
+  6
+]
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+(  $data := {    "one": [1],    "two": [5]  };  $data.$zip(one, two) ~> $map($sum))
+-- case002_expected.json --
+6
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+(  $data := {    "one": 1,    "two": 5  };  $data.$zip(one, two) ~> $map($sum))
+-- case003_expected.json --
+6

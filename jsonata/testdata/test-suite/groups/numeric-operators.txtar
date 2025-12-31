@@ -1,0 +1,193 @@
+-- case000.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+foo.bar + bar
+-- case000_expected.json --
+140
+-- case001.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+bar + foo.bar
+-- case001_expected.json --
+140
+-- case002.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+foo.bar - bar
+-- case002_expected.json --
+-56
+-- case003.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+bar - foo.bar
+-- case003_expected.json --
+56
+-- case004.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+foo.bar * bar
+-- case004_expected.json --
+4116
+-- case005.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+bar * foo.bar
+-- case005_expected.json --
+4116
+-- case006.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+foo.bar / bar
+-- case006_expected.json --
+0.42857142857142855
+-- case007.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+bar / foo.bar
+-- case007_expected.json --
+2.3333333333333335
+-- case008.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+foo.bar % bar
+-- case008_expected.json --
+42
+-- case009.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+bar % foo.bar
+-- case009_expected.json --
+14
+-- case010.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+bar + foo.bar * bar
+-- case010_expected.json --
+4214
+-- case011.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+foo.bar * bar + bar
+-- case011_expected.json --
+4214
+-- case012.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case012.JSONATA",
+  "undefinedResult": true
+}
+-- case012.JSONATA --
+24 * notexist
+-- case012_expected.json --
+null
+-- case013.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case013.JSONATA",
+  "undefinedResult": true
+}
+-- case013.JSONATA --
+notexist + 1
+-- case013_expected.json --
+null
+-- case014.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+1/(10e300 * 10e100)
+-- case014_expected.json --
+null
+-- case015.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+"5" + "5"
+-- case015_expected.json --
+null
+-- case016.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case016.JSONATA",
+  "undefinedResult": true
+}
+-- case016.JSONATA --
+- notexist
+-- case016_expected.json --
+null
+-- case017.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case017.JSONATA"
+}
+-- case017.JSONATA --
+false + 1
+-- case017_expected.json --
+null
+-- case018.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case018.JSONATA"
+}
+-- case018.JSONATA --
+false + $x
+-- case018_expected.json --
+null

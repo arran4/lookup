@@ -1,0 +1,44 @@
+-- case000.json --
+{
+  "dataset": "dataset6__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+(library.books~>$filter(λ($v, $i, $a) {$v.price = $max($a.price)})).isbn
+-- case000_expected.json --
+"9780262510875"
+-- case001.json --
+{
+  "dataset": "dataset6__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA",
+  "undefinedResult": true
+}
+-- case001.JSONATA --
+nothing~>$filter(λ($v, $i, $a) {$v.price = $max($a.price)})
+-- case001_expected.json --
+null
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$filter(data, function($d) { true })
+-- case002_expected.json --
+5
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$filter([0, 1, 2], $boolean)
+-- case003_expected.json --
+[
+  1,
+  2
+]

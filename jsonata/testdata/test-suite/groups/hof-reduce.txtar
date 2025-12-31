@@ -1,0 +1,123 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+(  $seq := [1,2,3,4,5];  $reduce($seq, function($x, $y){$x+$y}))
+-- case000_expected.json --
+15
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+(  $concat := function($s){function($a, $b){$string($a) & $s & $string($b)}};  $comma_join := $concat(' ... ');  $reduce([1,2,3,4,5], $comma_join))
+-- case001_expected.json --
+"1 ... 2 ... 3 ... 4 ... 5"
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+(  $seq := [1,2,3,4,5];  $reduce($seq, function($x, $y){$x+$y}, 2))
+-- case002_expected.json --
+17
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+(  $seq := 1;  $reduce($seq, function($x, $y){$x+$y}))
+-- case003_expected.json --
+1
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+(  $seq := 1;  $reduce($seq, function($x, $y){$x+$y}))
+-- case004_expected.json --
+1
+-- case005.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$reduce(Account.Order.Product.Quantity, $append)
+-- case005_expected.json --
+[
+  2,
+  1,
+  4,
+  1
+]
+-- case006.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA",
+  "undefinedResult": true
+}
+-- case006.JSONATA --
+$reduce(Account.Order.Product.Quantity, $append)
+-- case006_expected.json --
+null
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+($product := function($a, $b) { $a * $b };$power := function($x, $n) { $n = 0 ? 1 : $reduce([1..$n].($x), $product) };[0..5].$power(2, $))
+-- case007_expected.json --
+[
+  1,
+  2,
+  4,
+  8,
+  16,
+  32
+]
+-- case008.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+(  $seq := 1;  $reduce($seq, function($x){$x}))
+-- case008_expected.json --
+null
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+
+-- case009_expected.json --
+4
+-- case010.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+
+-- case010_expected.json --
+6

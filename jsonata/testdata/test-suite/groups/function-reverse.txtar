@@ -1,0 +1,65 @@
+-- case000.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$reverse([1..5])
+-- case000_expected.json --
+[
+  5,
+  4,
+  3,
+  2,
+  1
+]
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+[[$], [$reverse($)], [$]]
+-- case001_expected.json --
+[
+  [
+    1,
+    2,
+    3
+  ],
+  [
+    3,
+    2,
+    1
+  ],
+  [
+    1,
+    2,
+    3
+  ]
+]
+-- case002.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA",
+  "undefinedResult": true
+}
+-- case002.JSONATA --
+$reverse(nothing)
+-- case002_expected.json --
+null
+-- case003.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$reverse([1])
+-- case003_expected.json --
+[
+  1
+]

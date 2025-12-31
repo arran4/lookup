@@ -1,0 +1,191 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$substring("hello world", 0, 5)
+-- case000_expected.json --
+"hello"
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$substring("hello world", -5, 5)
+-- case001_expected.json --
+"world"
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$substring("hello world", 6)
+-- case002_expected.json --
+"world"
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA",
+  "undefinedResult": true
+}
+-- case003.JSONATA --
+$substring(blah, 6)
+-- case003_expected.json --
+null
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$substring('𝄞💩', 0, 2)
+-- case004_expected.json --
+"𝄞💩"
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$substring('𝄞💩', 0, 1)
+-- case005_expected.json --
+"𝄞"
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$substring('𝄞💩', 1, 1)
+-- case006_expected.json --
+"💩"
+-- case007.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$substring("hello world", -5)
+-- case007_expected.json --
+"world"
+-- case008.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+$substring("hello world", -5, 5)
+-- case008_expected.json --
+"world"
+-- case009.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$substring("hello world", -5, 4)
+-- case009_expected.json --
+"worl"
+-- case010.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+$substring("hello world", -5, 1)
+-- case010_expected.json --
+"w"
+-- case011.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+$substring("hello world", -5, 0)
+-- case011_expected.json --
+""
+-- case012.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+$substring("hello world", -5, -1)
+-- case012_expected.json --
+""
+-- case013.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+$substring("hello world", 0, -6)
+-- case013_expected.json --
+""
+-- case014.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+$substring("hello world", -100, 3)
+-- case014_expected.json --
+"hel"
+-- case015.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+$substring("😂😁😀", -2, 1)
+-- case015_expected.json --
+"😁"
+-- case016.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+$substring("😂😁😀", -3, 1)
+-- case016_expected.json --
+"😂"
+-- case017.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case017.JSONATA"
+}
+-- case017.JSONATA --
+$substring("😂😁😀", -4, 1)
+-- case017_expected.json --
+"😂"
+-- case018.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case018.JSONATA"
+}
+-- case018.JSONATA --
+$substring("😂😁😀", -5, 1)
+-- case018_expected.json --
+"😂"
