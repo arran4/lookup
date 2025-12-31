@@ -1,6 +1,8 @@
 module github.com/arran4/lookup
 
-go 1.24
+go 1.24.0
+
+toolchain go1.24.3
 
 require (
 	github.com/google/go-cmp v0.7.0
@@ -11,4 +13,5 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	golang.org/x/tools v0.40.0 // indirect
 )
