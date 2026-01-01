@@ -6,6 +6,10 @@ import (
 
 // Compile converts the AST into a lookup.Runner.
 func Compile(ast *AST) lookup.Runner {
+	return &jsonataRunner{inner: compileInternal(ast)}
+}
+
+func compileInternal(ast *AST) lookup.Runner {
 	var r lookup.Runner = lookup.NewRelator()
 	for _, step := range ast.Steps {
 		if step.IsLiteral {
@@ -15,7 +19,6 @@ func Compile(ast *AST) lookup.Runner {
 			continue
 		}
 
-		// Create a runner for the current step
 		opts := []lookup.Runner{}
 		if step.Index != nil {
 			opts = append(opts, lookup.Index(*step.Index))
@@ -38,20 +41,35 @@ func Compile(ast *AST) lookup.Runner {
 			default:
 				op = lookup.Equals(lookup.Constant(step.Filter.Value))
 			}
+
+			field := step.Filter.Field
+			var fieldRunner *lookup.Relator
+			if field == "$" {
+				fieldRunner = lookup.This()
+			} else {
+				fieldRunner = lookup.This(field)
+			}
+
 			opts = append(opts, lookup.Filter(
-				lookup.This(step.Filter.Field).Find("", op),
+				fieldRunner.Find("", op),
 			))
 		}
 
-		if rel, ok := r.(*lookup.Relator); ok {
-			// Optimized path: use Relator.Find which chains internally
-			r = rel.Find(step.Name, opts...)
+		if step.Name == "$" {
+			r = lookup.Chain(r, &rootRunner{})
+			for _, opt := range opts {
+				r = lookup.Chain(r, opt)
+			}
 		} else {
-			// Chain existing runner with new navigation
-			// lookup.This(step.Name) creates a Relator starting from the input
-			// We attach opts to it.
-			next := lookup.This(step.Name).Find("", opts...)
-			r = lookup.Chain(r, next)
+			// Construct the runner for ONE item:
+			// Finds name, then applies opts.
+			stepRunner := lookup.This(step.Name).Find("", opts...)
+
+			// Wrap in jsonataMapRunner to handle sequence input.
+			mapRunner := &jsonataMapRunner{stepRunner: stepRunner}
+
+			// Chain it to previous result
+			r = lookup.Chain(r, mapRunner)
 		}
 	}
 	return r

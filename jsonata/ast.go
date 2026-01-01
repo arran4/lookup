@@ -12,7 +12,7 @@ type Step struct {
 	Filter    *Predicate // optional filter
 	Value     string     // if it's a literal value
 	IsLiteral bool
-	Operator  string     // operator preceding this step (e.g. "+")
+	Operator  string // operator preceding this step (e.g. "+")
 }
 
 // Predicate represents a condition.
