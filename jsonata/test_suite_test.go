@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"encoding/json"
+	"fmt"
 	"io/fs"
 	"path"
 	"strings"
@@ -24,67 +25,72 @@ type suiteCase struct {
 	Undefined bool                   `json:"undefinedResult"`
 }
 
-func loadDataset(t *testing.T, name string) interface{} {
+func loadDataset(name string) (interface{}, error) {
 	filename := path.Join("testdata", "test-suite", "datasets", name+".json")
 	data, err := fs.ReadFile(testData, filename)
 	if err != nil {
-		t.Fatalf("failed to read %s: %v", filename, err)
+		return nil, fmt.Errorf("failed to read %s: %w", filename, err)
 	}
 	var v interface{}
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.UseNumber()
 	if err := dec.Decode(&v); err != nil {
-		t.Fatalf("failed to unmarshal %s: %v", filename, err)
+		return nil, fmt.Errorf("failed to unmarshal %s: %w", filename, err)
 	}
-	return v
+	return v, nil
 }
 
-func parseJSON(t *testing.T, data string) interface{} {
+func parseJSON(data string) (interface{}, error) {
 	var v interface{}
 	dec := json.NewDecoder(strings.NewReader(data))
 	dec.UseNumber()
 	if err := dec.Decode(&v); err != nil {
-		t.Fatalf("failed to unmarshal json: %v", err)
+		return nil, fmt.Errorf("failed to unmarshal json: %w", err)
 	}
-	return v
+	return v, nil
 }
 
-func runCase(t *testing.T, c suiteCase, expr string) interface{} {
+func runCase(c suiteCase, expr string) (interface{}, error) {
 	var data interface{}
+	var err error
 	if c.Data != nil {
 		data = c.Data
 	} else if c.Dataset != "" {
-		data = loadDataset(t, c.Dataset)
+		data, err = loadDataset(c.Dataset)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	ast, err := Parse(expr)
 	if err != nil {
-		t.Fatalf("parse failed: %v", err)
+		return nil, fmt.Errorf("parse failed: %w", err)
 	}
 	q := Compile(ast)
 	root := lookup.Reflect(data)
-	return q.Run(lookup.NewScope(root, root)).Raw()
+	return q.Run(lookup.NewScope(root, root)).Raw(), nil
 }
 
 func TestGroups(t *testing.T) {
-    entries, err := testData.ReadDir("testdata/test-suite/groups")
-    if err != nil {
-        t.Fatalf("failed to list groups: %v", err)
-    }
+	entries, err := testData.ReadDir("testdata/test-suite/groups")
+	if err != nil {
+		t.Fatalf("failed to list groups: %v", err)
+	}
 
-    for _, entry := range entries {
-        if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".txtar") {
-            continue
-        }
-        groupName := strings.TrimSuffix(entry.Name(), ".txtar")
-        t.Run(groupName, func(t *testing.T) {
-            skipGroupIfDisabled(t, groupName)
-            runTxtarGroup(t, path.Join("testdata/test-suite/groups", entry.Name()))
-        })
-    }
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".txtar") {
+			continue
+		}
+		groupName := strings.TrimSuffix(entry.Name(), ".txtar")
+		t.Run(groupName, func(t *testing.T) {
+			_, skipOnFail := groupStatus[groupName]
+			expectPass := !skipOnFail
+			runTxtarGroup(t, path.Join("testdata/test-suite/groups", entry.Name()), expectPass)
+		})
+	}
 }
 
-func runTxtarGroup(t *testing.T, filename string) {
+func runTxtarGroup(t *testing.T, filename string, expectPass bool) {
 	data, err := fs.ReadFile(testData, filename)
 	if err != nil {
 		t.Fatalf("failed to read txtar file %s: %v", filename, err)
@@ -105,24 +111,42 @@ func runTxtarGroup(t *testing.T, filename string) {
 			// Capture panic to treat as failure instead of crash
 			defer func() {
 				if r := recover(); r != nil {
-					t.Errorf("panic: %v", r)
+					if expectPass {
+						t.Errorf("panic: %v", r)
+					} else {
+						t.Skipf("panic: %v", r)
+					}
 				}
 			}()
 
-			out := runCase(t, sc, c.Expr)
-
-			// If undefined is expected, check for nil or absence?
-			// The current runCase returns interface{}.
-			// If we expect undefined (null in txtar), out should be nil?
+			out, err := runCase(sc, c.Expr)
+			if err != nil {
+				if expectPass {
+					t.Fatalf("runCase failed: %v", err)
+				} else {
+					t.Skipf("runCase failed: %v", err)
+				}
+				return
+			}
 
 			var expected interface{}
 			if c.Expected == "null" && sc.Undefined {
-			    expected = nil
+				expected = nil
 			} else {
-			    expected = parseJSON(t, c.Expected)
+				var err error
+				expected, err = parseJSON(c.Expected)
+				if err != nil {
+					t.Fatalf("failed to parse expected json: %v", err)
+				}
 			}
 
-			assert.Equal(t, expected, out)
+			if expectPass {
+				assert.Equal(t, expected, out)
+			} else {
+				if !assert.ObjectsAreEqual(expected, out) {
+					t.Skipf("Skipping failed test. Expected: %v, Got: %v", expected, out)
+				}
+			}
 		})
 	}
 }
