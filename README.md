@@ -405,7 +405,7 @@ Test results generated from `go test ./jsonata`.
 | boolean-expresssions | 0 | 31 |
 | closures | 0 | 2 |
 | coalescing-operator | 0 | 13 |
-| comments | 0 | 4 |
+| comments | 4 | 0 |
 | comparison-operators | 0 | 29 |
 | conditionals | 0 | 9 |
 | context | 0 | 4 |
