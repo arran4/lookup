@@ -83,9 +83,8 @@ func TestGroups(t *testing.T) {
 		}
 		groupName := strings.TrimSuffix(entry.Name(), ".txtar")
 		t.Run(groupName, func(t *testing.T) {
-			// skipGroupIfDisabled(t, groupName) -> Removed to run all groups
-
-			expectPass := groupStatus[groupName]
+			_, skipOnFail := groupStatus[groupName]
+			expectPass := !skipOnFail
 			runTxtarGroup(t, path.Join("testdata/test-suite/groups", entry.Name()), expectPass)
 		})
 	}
