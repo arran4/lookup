@@ -37,11 +37,3 @@ func skipIf(t *testing.T, feature bool, name string) {
 		t.Skip("feature: " + name + " not ready for implementation")
 	}
 }
-
-func skipGroupIfDisabled(t *testing.T, groupName string) {
-	// This function is now deprecated in favor of running all groups with conditional skipping.
-	// But keeping it for backward compatibility if used elsewhere.
-	if enabled, ok := groupStatus[groupName]; !ok || !enabled {
-		// t.Skip("group: " + groupName + " disabled or not yet enabled")
-	}
-}
