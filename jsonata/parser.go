@@ -10,6 +10,7 @@ import (
 //   - dot separated field names
 //   - array indexes like [0] or [-1]
 //   - equality filters like [field="value"]
+//   - basic operators like +, >
 func Parse(expr string) (*AST, error) {
 	p := &parser{s: expr}
 	ast, err := p.parse()
@@ -82,10 +83,21 @@ func (p *parser) parse() (*AST, error) {
 				if err := p.consumeWhitespace(); err != nil {
 					return nil, err
 				}
-				if p.peek() != '=' {
-					return nil, fmt.Errorf("expected '=' after %s", field)
+
+				// Parse operator
+				var operator string
+				switch p.peek() {
+				case '=', '>', '<', '!':
+					operator = string(p.peek())
+					p.i++
+					if p.peek() == '=' { // >=, <=, !=
+						operator += string(p.peek())
+						p.i++
+					}
+				default:
+					return nil, fmt.Errorf("expected operator after %s", field)
 				}
-				p.i++
+
 				if err := p.consumeWhitespace(); err != nil {
 					return nil, err
 				}
@@ -103,19 +115,50 @@ func (p *parser) parse() (*AST, error) {
 				if err := p.consumeWhitespace(); err != nil {
 					return nil, err
 				}
-				step.Filter = &Predicate{Field: field, Value: val}
+				step.Filter = &Predicate{Field: field, Operator: operator, Value: val}
 			}
 		}
 		ast.Steps = append(ast.Steps, step)
 		if p.i >= len(p.s) {
 			break
 		}
-		if p.s[p.i] != '.' {
-			return nil, fmt.Errorf("expected '.' at position %d", p.i)
-		}
-		p.i++
-		if err := p.consumeWhitespace(); err != nil {
-			return nil, err
+
+		// Check for operators (like +) or dot
+		if p.s[p.i] == '.' {
+			p.i++
+			if err := p.consumeWhitespace(); err != nil {
+				return nil, err
+			}
+		} else if p.s[p.i] == '+' {
+			p.i++
+			if err := p.consumeWhitespace(); err != nil {
+				return nil, err
+			}
+			val, err := p.parseValue()
+			if err == nil {
+				litStep := Step{Value: val, IsLiteral: true, Operator: "+"}
+				ast.Steps = append(ast.Steps, litStep)
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
+				if p.i >= len(p.s) {
+					break
+				}
+				if p.s[p.i] == '.' {
+					p.i++
+					if err := p.consumeWhitespace(); err != nil {
+						return nil, err
+					}
+					continue
+				} else {
+					// Assume end or another operator (not handled yet)
+					break
+				}
+			} else {
+				continue
+			}
+		} else {
+			return nil, fmt.Errorf("expected '.' or operator at position %d, got %c", p.i, p.s[p.i])
 		}
 	}
 	return ast, nil

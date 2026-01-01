@@ -476,7 +476,7 @@ Test results generated from `go test ./jsonata`.
 | lambdas | 0 | 14 |
 | literals | 0 | 20 |
 | matchers | 0 | 2 |
-| missing-paths | 4 | 2 |
+| missing-paths | 6 | 0 |
 | multiple-array-selectors | 0 | 3 |
 | null | 1 | 6 |
 | numeric-operators | 0 | 19 |

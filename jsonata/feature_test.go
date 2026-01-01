@@ -28,6 +28,7 @@ var groupStatus = map[string]bool{
     "fields": true,
     "array-constructor": true,
     "comments": true,
+    "missing-paths": true,
 }
 
 func skipIf(t *testing.T, feature bool, name string) {
