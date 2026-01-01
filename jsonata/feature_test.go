@@ -27,6 +27,7 @@ var groupStatus = map[string]bool{
     // Existing groups (keeping previous config if needed)
     "fields": true,
     "array-constructor": true,
+    "comments": true,
 }
 
 func skipIf(t *testing.T, feature bool, name string) {

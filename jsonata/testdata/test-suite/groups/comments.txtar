@@ -5,7 +5,8 @@
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
-
+/* header comment */
+1 + 1
 -- case000_expected.json --
 2
 -- case001.json --
@@ -15,7 +16,7 @@
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
-
+$substring('Hello, world', 0 /* start at index 0 */, 5/*length*/)
 -- case001_expected.json --
 "Hello"
 -- case002.json --
@@ -25,7 +26,8 @@
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
-
+$substring('Hello, world', 0 /* start at index 0 */, 5/*length*/)
+/* trailing comment - no closing tag should trigger an error
 -- case002_expected.json --
 null
 -- case003.json --
@@ -35,6 +37,30 @@ null
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
+/* An expression to return the square root of a number without using the $sqrt function */
+/* Pointless, but demonstrates capability */
 
+(
+  /**
+   * Implements the square root function
+   * Uses the Newton-Raphson method
+   */
+  $my_sqrt := function($n) {(
+
+    $good_enough := function($guess) {
+      $abs($guess * $guess - $n) < 0.000000000001
+    };
+    $improve_guess := function($guess) {
+      ($guess + $n / $guess) / 2
+    };
+
+    /* Iterate using a tail-recursive function until convergence */
+    $sqrt_iter := function($guess) {
+      $good_enough($guess) ? $guess : $sqrt_iter($improve_guess($guess))
+    };
+    $n >= 0 ? $sqrt_iter(1) : "no complex numbers today"
+  )};
+  $my_sqrt($$)
+)
 -- case003_expected.json --
 16

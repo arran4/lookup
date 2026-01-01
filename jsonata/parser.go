@@ -27,22 +27,49 @@ type parser struct {
 
 func (p *parser) parse() (*AST, error) {
 	ast := &AST{}
+	if err := p.consumeWhitespace(); err != nil {
+		return nil, err
+	}
 	for {
 		name, err := p.parseIdent()
 		if err != nil {
+			return nil, err
+		}
+		if err := p.consumeWhitespace(); err != nil {
 			return nil, err
 		}
 		step := Step{Name: name}
 		// zero or more brackets
 		for p.peek() == '[' {
 			p.i++ // consume '['
+			if err := p.consumeWhitespace(); err != nil {
+				return nil, err
+			}
 			if p.peek() == ']' {
 				return nil, fmt.Errorf("empty brackets")
 			}
 			if isDigit(p.peek()) || p.peek() == '-' {
 				// index
-				numStr := p.readUntil(']')
+				start := p.i
+				if p.peek() == '-' {
+					p.i++
+				}
+				for isDigit(p.peek()) {
+					p.i++
+				}
+				numStr := p.s[start:p.i]
+
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
+				if p.peek() != ']' {
+					return nil, fmt.Errorf("expected closing bracket after index")
+				}
 				p.i++ // consume closing
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
+
 				num, err := strconv.Atoi(numStr)
 				if err != nil {
 					return nil, fmt.Errorf("invalid index %s", numStr)
@@ -53,18 +80,30 @@ func (p *parser) parse() (*AST, error) {
 				if err != nil {
 					return nil, err
 				}
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
 				if p.peek() != '=' {
 					return nil, fmt.Errorf("expected '=' after %s", field)
 				}
 				p.i++
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
 				val, err := p.parseValue()
 				if err != nil {
+					return nil, err
+				}
+				if err := p.consumeWhitespace(); err != nil {
 					return nil, err
 				}
 				if p.peek() != ']' {
 					return nil, fmt.Errorf("expected closing bracket")
 				}
 				p.i++
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
 				step.Filter = &Predicate{Field: field, Value: val}
 			}
 		}
@@ -76,8 +115,34 @@ func (p *parser) parse() (*AST, error) {
 			return nil, fmt.Errorf("expected '.' at position %d", p.i)
 		}
 		p.i++
+		if err := p.consumeWhitespace(); err != nil {
+			return nil, err
+		}
 	}
 	return ast, nil
+}
+
+func (p *parser) consumeWhitespace() error {
+	for p.i < len(p.s) {
+		c := p.s[p.i]
+		if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
+			p.i++
+			continue
+		}
+		if c == '/' && p.i+1 < len(p.s) && p.s[p.i+1] == '*' {
+			p.i += 2
+			for p.i+1 < len(p.s) && !(p.s[p.i] == '*' && p.s[p.i+1] == '/') {
+				p.i++
+			}
+			if p.i+1 >= len(p.s) {
+				return fmt.Errorf("unclosed comment")
+			}
+			p.i += 2
+			continue
+		}
+		break
+	}
+	return nil
 }
 
 func (p *parser) parseIdent() (string, error) {
