@@ -1,0 +1,241 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$boolean("Hello World")
+-- case000_expected.json --
+true
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$boolean("")
+-- case001_expected.json --
+false
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$boolean(true)
+-- case002_expected.json --
+true
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$boolean(false)
+-- case003_expected.json --
+false
+-- case004.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$boolean(0)
+-- case004_expected.json --
+false
+-- case005.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$boolean(10)
+-- case005_expected.json --
+true
+-- case006.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$boolean(-0.5)
+-- case006_expected.json --
+true
+-- case007.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$boolean(null)
+-- case007_expected.json --
+false
+-- case008.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+$boolean([])
+-- case008_expected.json --
+false
+-- case009.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$boolean([0])
+-- case009_expected.json --
+false
+-- case010.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+$boolean([1])
+-- case010_expected.json --
+true
+-- case011.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+$boolean([1,2,3])
+-- case011_expected.json --
+true
+-- case012.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+$boolean([0,0])
+-- case012_expected.json --
+false
+-- case013.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+$boolean([[]])
+-- case013_expected.json --
+false
+-- case014.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+$boolean([[null]])
+-- case014_expected.json --
+false
+-- case015.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+$boolean([[[true]]])
+-- case015_expected.json --
+true
+-- case016.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+$boolean({})
+-- case016_expected.json --
+false
+-- case017.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case017.JSONATA"
+}
+-- case017.JSONATA --
+$boolean({"hello":"world"})
+-- case017_expected.json --
+true
+-- case018.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case018.JSONATA"
+}
+-- case018.JSONATA --
+$boolean(Account)
+-- case018_expected.json --
+true
+-- case019.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case019.JSONATA"
+}
+-- case019.JSONATA --
+$boolean(Account.Order.Product.Price)
+-- case019_expected.json --
+true
+-- case020.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case020.JSONATA",
+  "undefinedResult": true
+}
+-- case020.JSONATA --
+$boolean(Account.blah)
+-- case020_expected.json --
+null
+-- case021.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case021.JSONATA"
+}
+-- case021.JSONATA --
+$boolean($boolean)
+-- case021_expected.json --
+false
+-- case022.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case022.JSONATA"
+}
+-- case022.JSONATA --
+$boolean(function(){true})
+-- case022_expected.json --
+false
+-- case023.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case023.JSONATA"
+}
+-- case023.JSONATA --
+$boolean(2,3)
+-- case023_expected.json --
+null

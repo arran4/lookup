@@ -7,8 +7,6 @@ const (
 	testFeatureArrayIndexNavigation  = true
 	testFeatureEqualityFilter        = true
 	testFeatureFunctionCalls         = false
-	testFeatureFieldsGroup           = false
-	testFeatureArrayConstructorGroup = false
 	testFeaturePredicate             = false
 	testFeaturePathOperators         = false
 	testFeatureNumericOperators      = false
@@ -24,8 +22,23 @@ const (
 	testFeatureRegex                 = false
 )
 
+// groupStatus controls which test groups are enabled.
+var groupStatus = map[string]bool{
+    // Existing groups (keeping previous config if needed)
+    "fields": true,
+    "array-constructor": true,
+}
+
 func skipIf(t *testing.T, feature bool, name string) {
 	if !feature {
 		t.Skip("feature: " + name + " not ready for implementation")
 	}
+}
+
+func skipGroupIfDisabled(t *testing.T, groupName string) {
+    // Default to disabled (skipped) to ensure build passes after import.
+    // Enable groups in groupStatus as they are verified to pass.
+    if enabled, ok := groupStatus[groupName]; !ok || !enabled {
+        t.Skip("group: " + groupName + " disabled or not yet enabled")
+    }
 }

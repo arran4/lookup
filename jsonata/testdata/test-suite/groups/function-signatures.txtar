@@ -1,0 +1,381 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+λ($arg)<b:b>{$not($arg)}(true)
+-- case000_expected.json --
+false
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA",
+  "undefinedResult": true
+}
+-- case001.JSONATA --
+λ($arg)<b:b>{$not($arg)}(foo)
+-- case001_expected.json --
+null
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+λ($arg)<x:b>{$not($arg)}(null)
+-- case002_expected.json --
+true
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+function($x,$y)<n-n:n>{$x+$y}(2, 6)
+-- case003_expected.json --
+8
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+[1..5].function($x,$y)<n-n:n>{$x+$y}(6)
+-- case004_expected.json --
+[
+  7,
+  8,
+  9,
+  10,
+  11
+]
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+[1..5].function($x,$y)<n-n:n>{$x+$y}(2, 6)
+-- case005_expected.json --
+[
+  8,
+  8,
+  8,
+  8,
+  8
+]
+-- case006.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+Age.function($x,$y)<n-n:n>{$x+$y}(6)
+-- case006_expected.json --
+34
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+λ($str)<s->{$uppercase($str)}("hello")
+-- case007_expected.json --
+"HELLO"
+-- case008.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+Account.Order.Product.Description.Colour.λ($str)<s->{$uppercase($str)}()
+-- case008_expected.json --
+[
+  "PURPLE",
+  "ORANGE",
+  "PURPLE",
+  "BLACK"
+]
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+λ($str, $prefix)<s-s>{$prefix & $str}("World", "Hello ")
+-- case009_expected.json --
+"Hello World"
+-- case010.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+FirstName.λ($str, $prefix)<s-s>{$prefix & $str}("Hello ")
+-- case010_expected.json --
+"Hello Fred"
+-- case011.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+λ($arr, $sep)<a<s>s?:s>{$join($arr, $sep)}("a")
+-- case011_expected.json --
+"a"
+-- case012.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+λ($arr, $sep)<a<s>s?:s>{$join($arr, $sep)}(["a"])
+-- case012_expected.json --
+"a"
+-- case013.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+λ($arr, $sep)<a<s>s?:s>{$join($arr, $sep)}("a", "-")
+-- case013_expected.json --
+"a"
+-- case014.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+λ($arr, $sep)<a<s>s?:s>{$join($arr, $sep)}(["a"], "-")
+-- case014_expected.json --
+"a"
+-- case015.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+λ($arr, $sep)<a<s>s?:s>{$join($arr, $sep)}(["a", "b"], "-")
+-- case015_expected.json --
+"a-b"
+-- case016.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+λ($arr, $sep)<as?:s>{$join($arr, $sep)}(["a", "b"], "-")
+-- case016_expected.json --
+"a-b"
+-- case017.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case017.JSONATA"
+}
+-- case017.JSONATA --
+λ($arr, $sep)<a<s>s?:s>{$join($arr, $sep)}([], "-")
+-- case017_expected.json --
+""
+-- case018.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case018.JSONATA",
+  "undefinedResult": true
+}
+-- case018.JSONATA --
+λ($arr, $sep)<a<s>s?:s>{$join($arr, $sep)}(foo, "-")
+-- case018_expected.json --
+null
+-- case019.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case019.JSONATA"
+}
+-- case019.JSONATA --
+λ($obj)<o>{$obj}({"hello": "world"})
+-- case019_expected.json --
+{
+  "hello": "world"
+}
+-- case020.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case020.JSONATA"
+}
+-- case020.JSONATA --
+λ($arr)<a<a<n>>>{$arr}([[1]])
+-- case020_expected.json --
+[
+  [
+    1
+  ]
+]
+-- case021.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case021.JSONATA"
+}
+-- case021.JSONATA --
+λ($num)<(ns)-:n>{$number($num)}(5)
+-- case021_expected.json --
+5
+-- case022.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case022.JSONATA"
+}
+-- case022.JSONATA --
+λ($num)<(ns)-:n>{$number($num)}("5")
+-- case022_expected.json --
+5
+-- case023.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case023.JSONATA"
+}
+-- case023.JSONATA --
+[1..5].λ($num)<(ns)-:n>{$number($num)}()
+-- case023_expected.json --
+[
+  1,
+  2,
+  3,
+  4,
+  5
+]
+-- case024.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case024.JSONATA"
+}
+-- case024.JSONATA --
+($twice := function($f)<f:f>{function($x)<n:n>{$f($f($x))}};$add2 := function($x)<n:n>{$x+2};$add4 := $twice($add2);$add4(5))
+-- case024_expected.json --
+9
+-- case025.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case025.JSONATA"
+}
+-- case025.JSONATA --
+($twice := function($f)<f<n:n>:f<n:n>>{function($x)<n:n>{$f($f($x))}};$add2 := function($x)<n:n>{$x+2};$add4 := $twice($add2);$add4(5))
+-- case025_expected.json --
+9
+-- case026.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case026.JSONATA"
+}
+-- case026.JSONATA --
+λ($arg)<n<n>>{$arg}(5)
+-- case026_expected.json --
+null
+-- case027.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case027.JSONATA"
+}
+-- case027.JSONATA --
+λ($arg1, $arg2)<nn:a>{[$arg1, $arg2]}(1,"2")
+-- case027_expected.json --
+null
+-- case028.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case028.JSONATA"
+}
+-- case028.JSONATA --
+λ($arg1, $arg2)<nn:a>{[$arg1, $arg2]}(1,3,"2")
+-- case028_expected.json --
+null
+-- case029.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case029.JSONATA"
+}
+-- case029.JSONATA --
+λ($arg1, $arg2)<nn+:a>{[$arg1, $arg2]}(1,3, 2,"g")
+-- case029_expected.json --
+null
+-- case030.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case030.JSONATA"
+}
+-- case030.JSONATA --
+λ($arr)<a<n>>{$arr}(["3"])
+-- case030_expected.json --
+null
+-- case031.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case031.JSONATA"
+}
+-- case031.JSONATA --
+λ($arr)<a<n>>{$arr}([1, 2, "3"])
+-- case031_expected.json --
+null
+-- case032.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case032.JSONATA"
+}
+-- case032.JSONATA --
+λ($arr)<a<n>>{$arr}("f")
+-- case032_expected.json --
+null
+-- case033.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case033.JSONATA"
+}
+-- case033.JSONATA --
+($fun := λ($arr)<a<n>>{$arr};$fun("f"))
+-- case033_expected.json --
+null
+-- case034.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case034.JSONATA"
+}
+-- case034.JSONATA --
+λ($arr)<(sa<n>)>>{$arr}([[1]])
+-- case034_expected.json --
+null

@@ -1,0 +1,32 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$trim("Hello World")
+-- case000_expected.json --
+"Hello World"
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$trim("   Hello
+	 World  	 ")
+-- case001_expected.json --
+"Hello World"
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA",
+  "undefinedResult": true
+}
+-- case002.JSONATA --
+$trim()
+-- case002_expected.json --
+null

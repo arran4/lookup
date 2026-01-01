@@ -1,0 +1,371 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$formatNumber(12345.6, "#,###.00")
+-- case000_expected.json --
+"12,345.60"
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$formatNumber(12345678.9, "9,999.99")
+-- case001_expected.json --
+"12,345,678.90"
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$formatNumber(123412345678.9, "9,9,99.99")
+-- case002_expected.json --
+"123412345,6,78.90"
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$formatNumber(1234.56789, "9,999.999,999")
+-- case003_expected.json --
+"1,234.567,890"
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$formatNumber(123.9, "9999")
+-- case004_expected.json --
+"0124"
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$formatNumber(0.14, "01%")
+-- case005_expected.json --
+"14%"
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$formatNumber(0.4857,"###.###‰")
+-- case006_expected.json --
+"485.7‰"
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$formatNumber(0.14, "###pm", {"per-mille": "pm"})
+-- case007_expected.json --
+"140pm"
+-- case008.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+$formatNumber(-6, "000")
+-- case008_expected.json --
+"-006"
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$formatNumber(1234.5678, "00.000e0")
+-- case009_expected.json --
+"12.346e2"
+-- case010.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+$formatNumber(1234.5678, "00.000e000")
+-- case010_expected.json --
+"12.346e002"
+-- case011.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+$formatNumber(1234.5678, "①①.①①①e①", {"zero-digit": "⑟"})
+-- case011_expected.json --
+"①②.③④⑥e②"
+-- case012.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+$formatNumber(0.234, "0.0e0")
+-- case012_expected.json --
+"2.3e-1"
+-- case013.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+$formatNumber(0.234, "#.00e0")
+-- case013_expected.json --
+"0.23e0"
+-- case014.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+$formatNumber(0.123, "#.e9")
+-- case014_expected.json --
+"0.1e0"
+-- case015.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+$formatNumber(0.234, ".00e0")
+-- case015_expected.json --
+".23e0"
+-- case016.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+$formatNumber(2392.14*(-36.58), "000,000.000###;###,###.000###")
+-- case016_expected.json --
+"87,504.4812"
+-- case017.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case017.JSONATA"
+}
+-- case017.JSONATA --
+$formatNumber(2.14*86.58,"PREFIX##00.000###SUFFIX")
+-- case017_expected.json --
+"PREFIX185.2812SUFFIX"
+-- case018.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case018.JSONATA"
+}
+-- case018.JSONATA --
+$formatNumber(1E20,"#,######")
+-- case018_expected.json --
+"100,000000,000000,000000"
+-- case019.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case019.JSONATA"
+}
+-- case019.JSONATA --
+$formatNumber(20,"#;#;#")
+-- case019_expected.json --
+null
+-- case020.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case020.JSONATA"
+}
+-- case020.JSONATA --
+$formatNumber(20,"#.0.0")
+-- case020_expected.json --
+null
+-- case021.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case021.JSONATA"
+}
+-- case021.JSONATA --
+$formatNumber(20,"#0%%")
+-- case021_expected.json --
+null
+-- case022.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case022.JSONATA"
+}
+-- case022.JSONATA --
+$formatNumber(20,"#0‰‰")
+-- case022_expected.json --
+null
+-- case023.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case023.JSONATA"
+}
+-- case023.JSONATA --
+$formatNumber(20,"#0%‰")
+-- case023_expected.json --
+null
+-- case024.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case024.JSONATA"
+}
+-- case024.JSONATA --
+$formatNumber(20,".e0")
+-- case024_expected.json --
+null
+-- case025.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case025.JSONATA"
+}
+-- case025.JSONATA --
+$formatNumber(20,"0+.e0")
+-- case025_expected.json --
+null
+-- case026.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case026.JSONATA"
+}
+-- case026.JSONATA --
+$formatNumber(20,"0,.e0")
+-- case026_expected.json --
+null
+-- case027.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case027.JSONATA"
+}
+-- case027.JSONATA --
+$formatNumber(20,"0,")
+-- case027_expected.json --
+null
+-- case028.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case028.JSONATA"
+}
+-- case028.JSONATA --
+$formatNumber(20,"0,,0")
+-- case028_expected.json --
+null
+-- case029.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case029.JSONATA"
+}
+-- case029.JSONATA --
+$formatNumber(20,"0#.e0")
+-- case029_expected.json --
+null
+-- case030.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case030.JSONATA"
+}
+-- case030.JSONATA --
+$formatNumber(20,"#0.#0e0")
+-- case030_expected.json --
+null
+-- case031.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case031.JSONATA"
+}
+-- case031.JSONATA --
+$formatNumber(20,"#0.0e0%")
+-- case031_expected.json --
+null
+-- case032.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case032.JSONATA"
+}
+-- case032.JSONATA --
+$formatNumber(20,"#0.0e0,0")
+-- case032_expected.json --
+null
+-- case033.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case033.JSONATA"
+}
+-- case033.JSONATA --
+$formatNumber(2, '000.000')
+-- case033_expected.json --
+"002.000"
+-- case034.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case034.JSONATA"
+}
+-- case034.JSONATA --
+$formatNumber(2, 'AAA.AAA', {'zero-digit': 'A'})
+-- case034_expected.json --
+"AAC.AAA"
+-- case035.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case035.JSONATA"
+}
+-- case035.JSONATA --
+$formatNumber(0.1, 'AeAAA', {'zero-digit': 'A'})
+-- case035_expected.json --
+"Be-AAB"
+-- case036.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case036.JSONATA",
+  "undefinedResult": true
+}
+-- case036.JSONATA --
+$formatNumber(foo, '#0.00')
+-- case036_expected.json --
+null

@@ -1,0 +1,270 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+"s" - 1
+-- case000_expected.json --
+null
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+1 + null
+-- case001_expected.json --
+null
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+"no closing quote
+-- case002_expected.json --
+null
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+`no closing backtick
+-- case003_expected.json --
+null
+-- case004.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+- "s"
+-- case004_expected.json --
+null
+-- case005.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+unknown(function)
+-- case005_expected.json --
+null
+-- case006.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+sum(Account.Order.OrderID)
+-- case006_expected.json --
+null
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+[1,2)
+-- case007_expected.json --
+null
+-- case008.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+[1:2]
+-- case008_expected.json --
+null
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$replace("foo", "o, "rr")
+-- case009_expected.json --
+null
+-- case010.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+[1!2]
+-- case010_expected.json --
+null
+-- case011.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+@ bar
+-- case011_expected.json --
+null
+-- case012.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+2(blah)
+-- case012_expected.json --
+null
+-- case013.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+2()
+-- case013_expected.json --
+null
+-- case014.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+3(?)
+-- case014_expected.json --
+null
+-- case015.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+1=
+-- case015_expected.json --
+null
+-- case016.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+function(x){$x}(3)
+-- case016_expected.json --
+null
+-- case017.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case017.JSONATA"
+}
+-- case017.JSONATA --
+x:=1
+-- case017_expected.json --
+null
+-- case018.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case018.JSONATA"
+}
+-- case018.JSONATA --
+2:=1
+-- case018_expected.json --
+null
+-- case019.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case019.JSONATA"
+}
+-- case019.JSONATA --
+$foo()
+-- case019_expected.json --
+null
+-- case020.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case020.JSONATA"
+}
+-- case020.JSONATA --
+55=>5
+-- case020_expected.json --
+null
+-- case021.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case021.JSONATA"
+}
+-- case021.JSONATA --
+Ssum(:)
+-- case021_expected.json --
+null
+-- case022.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case022.JSONATA"
+}
+-- case022.JSONATA --
+[1,2,3]{"num": $}[true]
+-- case022_expected.json --
+null
+-- case023.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case023.JSONATA"
+}
+-- case023.JSONATA --
+[1,2,3]{"num": $}{"num": $}
+-- case023_expected.json --
+null
+-- case024.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case024.JSONATA"
+}
+-- case024.JSONATA --
+Account.Order[0].Product;
+-- case024_expected.json --
+null
+-- case025.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case025.JSONATA"
+}
+-- case025.JSONATA --
+( $A := function(){$min(2, 3)}; $A() )
+-- case025_expected.json --
+null
+-- case026.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case026.JSONATA"
+}
+-- case026.JSONATA --
+( $B := function(){''}; $A := function(){2 + $B()}; $A() )
+-- case026_expected.json --
+null

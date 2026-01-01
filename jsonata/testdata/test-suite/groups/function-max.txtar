@@ -1,0 +1,286 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$max(Account.Order.Product.(Price * Quantity))
+-- case000_expected.json --
+137.8
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+Account.Order.$max(Product.(Price * Quantity))
+-- case001_expected.json --
+[
+  68.9,
+  137.8
+]
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+Account.Order.(OrderID & ": " & $count(Product.(Price*Quantity)))
+-- case002_expected.json --
+[
+  "order103: 2",
+  "order104: 2"
+]
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA",
+  "undefinedResult": true
+}
+-- case003.JSONATA --
+$max([])
+-- case003_expected.json --
+null
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$max([1,2,3])
+-- case004_expected.json --
+3
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$max(["1","2","3"])
+-- case005_expected.json --
+null
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$max(["1","2",3])
+-- case006_expected.json --
+null
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$max(1)
+-- case007_expected.json --
+1
+-- case008.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+$max([-1,-5])
+-- case008_expected.json --
+-1
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$max([],[])
+-- case009_expected.json --
+null
+-- case010.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+$max([1,2,3],[])
+-- case010_expected.json --
+null
+-- case011.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+$max([],[],[])
+-- case011_expected.json --
+null
+-- case012.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+$max([1,2],[],[])
+-- case012_expected.json --
+null
+-- case013.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case013.JSONATA",
+  "undefinedResult": true
+}
+-- case013.JSONATA --
+$max(undefined)
+-- case013_expected.json --
+null
+-- case014.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+$min(Account.Order.Product.(Price * Quantity))
+-- case014_expected.json --
+21.67
+-- case015.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+Account.Order.$min(Product.(Price * Quantity))
+-- case015_expected.json --
+[
+  21.67,
+  107.99
+]
+-- case016.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+Account.Order.(OrderID & ": " & $min(Product.(Price*Quantity)))
+-- case016_expected.json --
+[
+  "order103: 21.67",
+  "order104: 107.99"
+]
+-- case017.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case017.JSONATA",
+  "undefinedResult": true
+}
+-- case017.JSONATA --
+$min([])
+-- case017_expected.json --
+null
+-- case018.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case018.JSONATA"
+}
+-- case018.JSONATA --
+$min([1,2,3])
+-- case018_expected.json --
+1
+-- case019.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case019.JSONATA"
+}
+-- case019.JSONATA --
+$min(["1","2","3"])
+-- case019_expected.json --
+null
+-- case020.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case020.JSONATA"
+}
+-- case020.JSONATA --
+$min(["1","2",3])
+-- case020_expected.json --
+null
+-- case021.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case021.JSONATA"
+}
+-- case021.JSONATA --
+$min(1)
+-- case021_expected.json --
+1
+-- case022.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case022.JSONATA"
+}
+-- case022.JSONATA --
+$min([],[])
+-- case022_expected.json --
+null
+-- case023.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case023.JSONATA"
+}
+-- case023.JSONATA --
+$min([1,2,3],[])
+-- case023_expected.json --
+null
+-- case024.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case024.JSONATA"
+}
+-- case024.JSONATA --
+$min([],[],[])
+-- case024_expected.json --
+null
+-- case025.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case025.JSONATA"
+}
+-- case025.JSONATA --
+$min([1,2],[],[])
+-- case025_expected.json --
+null
+-- case026.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case026.JSONATA",
+  "undefinedResult": true
+}
+-- case026.JSONATA --
+$min(undefined)
+-- case026_expected.json --
+null

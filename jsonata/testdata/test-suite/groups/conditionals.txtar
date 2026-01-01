@@ -1,0 +1,102 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+["Red"[$$="Bus"], "White"[$$="Police Car"]][0]
+-- case000_expected.json --
+"Red"
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+["Red"[$$="Bus"], "White"[$$="Police Car"]][0]
+-- case001_expected.json --
+"White"
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA",
+  "undefinedResult": true
+}
+-- case002.JSONATA --
+["Red"[$$="Bus"], "White"[$$="Police Car"]][0]
+-- case002_expected.json --
+null
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$lookup({"Bus": "Red", "Police Car": "White"}, $$)
+-- case003_expected.json --
+"Red"
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$lookup({"Bus": "Red", "Police Car": "White"}, $$)
+-- case004_expected.json --
+"White"
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA",
+  "undefinedResult": true
+}
+-- case005.JSONATA --
+$lookup({"Bus": "Red", "Police Car": "White"}, $$)
+-- case005_expected.json --
+null
+-- case006.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+Account.Order.Product.(Price < 30 ? "Cheap")
+-- case006_expected.json --
+"Cheap"
+-- case007.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+Account.Order.Product.(Price < 30 ? "Cheap" : "Expensive")
+-- case007_expected.json --
+[
+  "Expensive",
+  "Cheap",
+  "Expensive",
+  "Expensive"
+]
+-- case008.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+Account.Order.Product.(Price < 30 ? "Cheap" : Price < 100 ? "Expensive" : "Rip off")
+-- case008_expected.json --
+[
+  "Expensive",
+  "Cheap",
+  "Expensive",
+  "Rip off"
+]

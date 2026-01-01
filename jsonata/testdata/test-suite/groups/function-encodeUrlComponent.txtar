@@ -1,0 +1,31 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$encodeUrlComponent("?x=test")
+-- case000_expected.json --
+"%3Fx%3Dtest"
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA",
+  "undefinedResult": true
+}
+-- case001.JSONATA --
+$encodeUrlComponent(blah)
+-- case001_expected.json --
+null
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$encodeUrlComponent('�')
+-- case002_expected.json --
+null

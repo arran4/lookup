@@ -1,0 +1,131 @@
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$toMillis("1970-01-01T00:00:00.001Z")
+-- case001_expected.json --
+1
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$toMillis("2018-02-01T09:42:13.123+0000")
+-- case002_expected.json --
+1517478133123
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$toMillis("2017-10-30")
+-- case003_expected.json --
+1509321600000
+-- case004.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$toMillis("2017-10-30T15:28:34Z")
+-- case004_expected.json --
+1509377314000
+-- case005.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$toMillis("2018")
+-- case005_expected.json --
+1514764800000
+-- case006.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA",
+  "undefinedResult": true
+}
+-- case006.JSONATA --
+$toMillis(foo)
+-- case006_expected.json --
+null
+-- case007.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$toMillis("foo")
+-- case007_expected.json --
+null
+-- case008.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+$toMillis("01-02-2018")
+-- case008_expected.json --
+null
+-- case009.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$toMillis("2018-02-03 11:15:33")
+-- case009_expected.json --
+null
+-- case010.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+$toMillis("201802", "[Y0001][M01]")
+-- case010_expected.json --
+1517443200000
+-- case011.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+$toMillis("201802", "[Y,*-4][M01]")
+-- case011_expected.json --
+1517443200000
+-- case012.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+$toMillis("20180205", "[Y0001][M01][D01]")
+-- case012_expected.json --
+1517788800000
+-- case013.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+$toMillis('2024-01-01T12:38:49Z') = $toMillis('20240101123849', '[Y0000][M00][D00][H00][m00][s00]')
+-- case013_expected.json --
+true

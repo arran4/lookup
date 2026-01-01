@@ -1,0 +1,54 @@
+-- case000.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$count($shuffle([1..10]))
+-- case000_expected.json --
+10
+-- case001.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$sort($shuffle([1..10]))
+-- case001_expected.json --
+[
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10
+]
+-- case002.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA",
+  "undefinedResult": true
+}
+-- case002.JSONATA --
+$shuffle(nothing)
+-- case002_expected.json --
+null
+-- case003.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$shuffle([1])
+-- case003_expected.json --
+[
+  1
+]

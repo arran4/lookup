@@ -1,0 +1,93 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+1 in [1,2]
+-- case000_expected.json --
+true
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+3 in [1,2]
+-- case001_expected.json --
+false
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+"hello" in [1,2]
+-- case002_expected.json --
+false
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+"world" in ["hello", "world"]
+-- case003_expected.json --
+true
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+in in ["hello", "world"]
+-- case004_expected.json --
+false
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+"world" in in
+-- case005_expected.json --
+false
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+"hello" in "hello"
+-- case006_expected.json --
+true
+-- case007.json --
+{
+  "dataset": "dataset6__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+library.books["Aho" in authors].title
+-- case007_expected.json --
+[
+  "The AWK Programming Language",
+  "Compilers: Principles, Techniques, and Tools"
+]
+-- case008.json --
+{
+  "dataset": "dataset7__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+content.integration.$lowercase(name)
+-- case008_expected.json --
+"fakeintegrationname"

@@ -1,0 +1,181 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$round(4)
+-- case000_expected.json --
+4
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$round(2.3)
+-- case001_expected.json --
+2
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$round(2.7)
+-- case002_expected.json --
+3
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$round(2.5)
+-- case003_expected.json --
+2
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$round(3.5)
+-- case004_expected.json --
+4
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$round(-0.5)
+-- case005_expected.json --
+0
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$round(-0.3)
+-- case006_expected.json --
+0
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$round(0.5)
+-- case007_expected.json --
+0
+-- case008.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+$round(-7.5)
+-- case008_expected.json --
+-8
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$round(-8.5)
+-- case009_expected.json --
+-8
+-- case010.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+$round(4.49, 1)
+-- case010_expected.json --
+4.5
+-- case011.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+$round(4.525, 2)
+-- case011_expected.json --
+4.52
+-- case012.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+$round(4.515, 2)
+-- case012_expected.json --
+4.52
+-- case013.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+$round(12345, -2)
+-- case013_expected.json --
+12300
+-- case014.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+$round(12450, -2)
+-- case014_expected.json --
+12400
+-- case015.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+$round(12350, -2)
+-- case015_expected.json --
+12400
+-- case016.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+$round(6.022e-23, 24)
+-- case016_expected.json --
+6e-23
+-- case017.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case017.JSONATA",
+  "undefinedResult": true
+}
+-- case017.JSONATA --
+$round(unknown)
+-- case017_expected.json --
+null

@@ -1,0 +1,31 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$fromMillis(1)
+-- case000_expected.json --
+"1970-01-01T00:00:00.001Z"
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$fromMillis(1509380732935)
+-- case001_expected.json --
+"2017-10-30T16:25:32.935Z"
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA",
+  "undefinedResult": true
+}
+-- case002.JSONATA --
+$fromMillis(foo)
+-- case002_expected.json --
+null

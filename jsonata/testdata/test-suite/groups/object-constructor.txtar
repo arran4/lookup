@@ -1,0 +1,483 @@
+-- case000.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+{}
+-- case000_expected.json --
+{}
+-- case001.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+{"key": "value"}
+-- case001_expected.json --
+{
+  "key": "value"
+}
+-- case002.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+{"one": 1, "two": 2}
+-- case002_expected.json --
+{
+  "one": 1,
+  "two": 2
+}
+-- case003.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+{"one": 1, "two": 2}.two
+-- case003_expected.json --
+2
+-- case004.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+{"one": 1, "two": {"three": 3, "four": "4"}}
+-- case004_expected.json --
+{
+  "one": 1,
+  "two": {
+    "four": "4",
+    "three": 3
+  }
+}
+-- case005.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+{"one": 1, "two": [3, "four"]}
+-- case005_expected.json --
+{
+  "one": 1,
+  "two": [
+    3,
+    "four"
+  ]
+}
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+{"test": ()}
+-- case006_expected.json --
+{}
+-- case007.json --
+{
+  "dataset": "dataset0__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA",
+  "undefinedResult": true
+}
+-- case007.JSONATA --
+blah.{}
+-- case007_expected.json --
+null
+-- case008.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+Account.Order{OrderID: Product."Product Name"}
+-- case008_expected.json --
+{
+  "order103": [
+    "Bowler Hat",
+    "Trilby hat"
+  ],
+  "order104": [
+    "Bowler Hat",
+    "Cloak"
+  ]
+}
+-- case009.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+Account.Order.{OrderID: Product."Product Name"}
+-- case009_expected.json --
+[
+  {
+    "order103": [
+      "Bowler Hat",
+      "Trilby hat"
+    ]
+  },
+  {
+    "order104": [
+      "Bowler Hat",
+      "Cloak"
+    ]
+  }
+]
+-- case010.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+Account.Order.Product{$string(ProductID): Price}
+-- case010_expected.json --
+{
+  "345664": 107.99,
+  "858236": 21.67,
+  "858383": [
+    34.45,
+    34.45
+  ]
+}
+-- case011.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+Account.Order.Product{$string(ProductID): (Price)[0]}
+-- case011_expected.json --
+{
+  "345664": 107.99,
+  "858236": 21.67,
+  "858383": 34.45
+}
+-- case012.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+Account.Order.Product.{$string(ProductID): Price}
+-- case012_expected.json --
+[
+  {
+    "858383": 34.45
+  },
+  {
+    "858236": 21.67
+  },
+  {
+    "858383": 34.45
+  },
+  {
+    "345664": 107.99
+  }
+]
+-- case013.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+Account.Order.Product{ProductID: "Product Name"}
+-- case013_expected.json --
+null
+-- case014.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+Account.Order.Product.{ProductID: "Product Name"}
+-- case014_expected.json --
+null
+-- case015.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+Account.Order{OrderID: $sum(Product.(Price*Quantity))}
+-- case015_expected.json --
+{
+  "order103": 90.57000000000001,
+  "order104": 245.79000000000002
+}
+-- case016.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+Account.Order.{OrderID: $sum(Product.(Price*Quantity))}
+-- case016_expected.json --
+[
+  {
+    "order103": 90.57000000000001
+  },
+  {
+    "order104": 245.79000000000002
+  }
+]
+-- case017.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case017.JSONATA"
+}
+-- case017.JSONATA --
+Account.Order.Product{$."Product Name": Price, $."Product Name": Price}
+-- case017_expected.json --
+null
+-- case018.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case018.JSONATA"
+}
+-- case018.JSONATA --
+Account.Order.Product{`Product Name`: Price, SKU: Price}
+-- case018_expected.json --
+{
+  "040657863": 34.45,
+  "0406634348": 21.67,
+  "0406654603": 107.99,
+  "0406654608": 34.45,
+  "Bowler Hat": [
+    34.45,
+    34.45
+  ],
+  "Cloak": 107.99,
+  "Trilby hat": 21.67
+}
+-- case019.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case019.JSONATA"
+}
+-- case019.JSONATA --
+Account.Order{  OrderID: {    "TotalPrice":$sum(Product.(Price * Quantity)),    "Items": Product."Product Name"  }}
+-- case019_expected.json --
+{
+  "order103": {
+    "Items": [
+      "Bowler Hat",
+      "Trilby hat"
+    ],
+    "TotalPrice": 90.57000000000001
+  },
+  "order104": {
+    "Items": [
+      "Bowler Hat",
+      "Cloak"
+    ],
+    "TotalPrice": 245.79000000000002
+  }
+}
+-- case020.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case020.JSONATA"
+}
+-- case020.JSONATA --
+{  "Order": Account.Order.{      "ID": OrderID,      "Product": Product.{          "Name": $."Product Name",          "SKU": ProductID,          "Details": {            "Weight": Description.Weight,            "Dimensions": Description.(Width & " x " & Height & " x " & Depth)          }        },      "Total Price": $sum(Product.(Price * Quantity))    }}
+-- case020_expected.json --
+{
+  "Order": [
+    {
+      "ID": "order103",
+      "Product": [
+        {
+          "Details": {
+            "Dimensions": "300 x 200 x 210",
+            "Weight": 0.75
+          },
+          "Name": "Bowler Hat",
+          "SKU": 858383
+        },
+        {
+          "Details": {
+            "Dimensions": "300 x 200 x 210",
+            "Weight": 0.6
+          },
+          "Name": "Trilby hat",
+          "SKU": 858236
+        }
+      ],
+      "Total Price": 90.57000000000001
+    },
+    {
+      "ID": "order104",
+      "Product": [
+        {
+          "Details": {
+            "Dimensions": "300 x 200 x 210",
+            "Weight": 0.75
+          },
+          "Name": "Bowler Hat",
+          "SKU": 858383
+        },
+        {
+          "Details": {
+            "Dimensions": "30 x 20 x 210",
+            "Weight": 2
+          },
+          "Name": "Cloak",
+          "SKU": 345664
+        }
+      ],
+      "Total Price": 245.79000000000002
+    }
+  ]
+}
+-- case021.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case021.JSONATA"
+}
+-- case021.JSONATA --
+{  "Order": Account.Order.{      "ID": OrderID,      "Product": Product.{          "Name": `Product Name`,          "SKU": ProductID,          "Details": {            "Weight": Description.Weight,            "Dimensions": Description.(Width & " x " & Height & " x " & Depth)          }        },      "Total Price": $sum(Product.(Price * Quantity))    }}
+-- case021_expected.json --
+{
+  "Order": [
+    {
+      "ID": "order103",
+      "Product": [
+        {
+          "Details": {
+            "Dimensions": "300 x 200 x 210",
+            "Weight": 0.75
+          },
+          "Name": "Bowler Hat",
+          "SKU": 858383
+        },
+        {
+          "Details": {
+            "Dimensions": "300 x 200 x 210",
+            "Weight": 0.6
+          },
+          "Name": "Trilby hat",
+          "SKU": 858236
+        }
+      ],
+      "Total Price": 90.57000000000001
+    },
+    {
+      "ID": "order104",
+      "Product": [
+        {
+          "Details": {
+            "Dimensions": "300 x 200 x 210",
+            "Weight": 0.75
+          },
+          "Name": "Bowler Hat",
+          "SKU": 858383
+        },
+        {
+          "Details": {
+            "Dimensions": "30 x 20 x 210",
+            "Weight": 2
+          },
+          "Name": "Cloak",
+          "SKU": 345664
+        }
+      ],
+      "Total Price": 245.79000000000002
+    }
+  ]
+}
+-- case022.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case022.JSONATA"
+}
+-- case022.JSONATA --
+Phone{type: $join(number, ", "), "phone":number}
+-- case022_expected.json --
+{
+  "home": "0203 544 1234",
+  "mobile": "077 7700 1234",
+  "office": "01962 001234, 01962 001235",
+  "phone": [
+    "0203 544 1234",
+    "01962 001234",
+    "01962 001235",
+    "077 7700 1234"
+  ]
+}
+-- case023.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case023.JSONATA"
+}
+-- case023.JSONATA --
+$.{ type: $average(value), kind: $sum(value) }
+-- case023_expected.json --
+null
+-- case024.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case024.JSONATA"
+}
+-- case024.JSONATA --
+{ type: $average(value), kind: $sum(value) }
+-- case024_expected.json --
+null
+-- case025.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case025.JSONATA"
+}
+-- case025.JSONATA --
+
+-- case025_expected.json --
+{
+  "2019-01": 68281,
+  "2019-02": 63672,
+  "2019-03": 78625,
+  "2019-04": 76505,
+  "2019-05": 129360,
+  "2019-06": 484244,
+  "2019-07": 698748,
+  "2019-08": 788322
+}
+-- case026.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case026.JSONATA"
+}
+-- case026.JSONATA --
+$${id:{'label':label,'value':value}}
+-- case026_expected.json --
+{}

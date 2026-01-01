@@ -1,0 +1,160 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+(  $data := {    "one": [1,2,3,4,5],    "two": [5,4,3,2,1]  };  $add := function($x){$x*$x};  $map($data.one, $add) )
+-- case000_expected.json --
+[
+  1,
+  4,
+  9,
+  16,
+  25
+]
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+(  $data := {    "one": [1,2,3,4,5],    "two": [5,4,3,2,1]  };  $add := function($x){$x*$x};  $map($add) )
+-- case001_expected.json --
+null
+-- case0010.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case0010.JSONATA"
+}
+-- case0010.JSONATA --
+( $square := function($x){$x*$x}; $map([1], $square)[] )
+-- case0010_expected.json --
+[
+  1
+]
+-- case0011.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case0011.JSONATA"
+}
+-- case0011.JSONATA --
+( $data := [1]; $square := function($x){$x*$x}; $data ~> $map($square)[] )
+-- case0011_expected.json --
+[
+  1
+]
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$map([1,2,3], $string)
+-- case002_expected.json --
+[
+  "1",
+  "2",
+  "3"
+]
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+Account.Order.Product ~> $map(λ($prod, $index) { $index+1 & ": " & $prod."Product Name" })
+-- case003_expected.json --
+[
+  "1: Bowler Hat",
+  "2: Trilby hat",
+  "3: Bowler Hat",
+  "4: Cloak"
+]
+-- case004.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+Account.Order.Product ~> $map(λ($prod, $index, $arr) { $index+1 & "/" & $count($arr) & ": " & $prod."Product Name" })
+-- case004_expected.json --
+[
+  "1/4: Bowler Hat",
+  "2/4: Trilby hat",
+  "3/4: Bowler Hat",
+  "4/4: Cloak"
+]
+-- case005.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$map(Phone, function($v, $i) {$i[$v.type="office"]})
+-- case005_expected.json --
+[
+  1,
+  2
+]
+-- case006.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$map(Phone, function($v, $i) {$v.type="office" ? $i})
+-- case006_expected.json --
+[
+  1,
+  2
+]
+-- case007.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$map(Phone, function($v, $i) {$v.type="office" ? $i: null})
+-- case007_expected.json --
+[
+  null,
+  1,
+  2,
+  null
+]
+-- case008.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA",
+  "undefinedResult": true
+}
+-- case008.JSONATA --
+$map(Phone, function($v, $i) {$v.type="office" ? $i: null})
+-- case008_expected.json --
+null
+-- case009.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$map([0, 1, 2], $boolean)
+-- case009_expected.json --
+[
+  false,
+  true,
+  true
+]

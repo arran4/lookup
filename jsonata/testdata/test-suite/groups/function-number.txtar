@@ -1,0 +1,341 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$number(0)
+-- case000_expected.json --
+0
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$number(10)
+-- case001_expected.json --
+10
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$number(-0.05)
+-- case002_expected.json --
+-0.05
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$number("0")
+-- case003_expected.json --
+0
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$number("-0.05")
+-- case004_expected.json --
+-0.05
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$number("1e2")
+-- case005_expected.json --
+100
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$number("1.0e-2")
+-- case006_expected.json --
+0.01
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$number("1e0")
+-- case007_expected.json --
+1
+-- case008.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+$number("10e500")
+-- case008_expected.json --
+null
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$number("Hello world")
+-- case009_expected.json --
+null
+-- case010.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+$number("1/2")
+-- case010_expected.json --
+null
+-- case011.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+$number("1234 hello")
+-- case011_expected.json --
+null
+-- case012.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+$number("")
+-- case012_expected.json --
+null
+-- case013.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+$number(true)
+-- case013_expected.json --
+1
+-- case014.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+$number(false)
+-- case014_expected.json --
+0
+-- case015.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case015.JSONATA",
+  "undefinedResult": true
+}
+-- case015.JSONATA --
+$number(Account.blah)
+-- case015_expected.json --
+null
+-- case016.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+$number(null)
+-- case016_expected.json --
+null
+-- case017.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case017.JSONATA"
+}
+-- case017.JSONATA --
+$number([])
+-- case017_expected.json --
+null
+-- case018.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case018.JSONATA"
+}
+-- case018.JSONATA --
+$number("[1]")
+-- case018_expected.json --
+null
+-- case019.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case019.JSONATA"
+}
+-- case019.JSONATA --
+$number([1,2])
+-- case019_expected.json --
+null
+-- case020.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case020.JSONATA"
+}
+-- case020.JSONATA --
+$number(["hello"])
+-- case020_expected.json --
+null
+-- case021.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case021.JSONATA"
+}
+-- case021.JSONATA --
+$number(["2"])
+-- case021_expected.json --
+null
+-- case022.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case022.JSONATA"
+}
+-- case022.JSONATA --
+$number({})
+-- case022_expected.json --
+null
+-- case023.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case023.JSONATA"
+}
+-- case023.JSONATA --
+$number({"hello":"world"})
+-- case023_expected.json --
+null
+-- case024.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case024.JSONATA"
+}
+-- case024.JSONATA --
+$number($number)
+-- case024_expected.json --
+null
+-- case025.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case025.JSONATA"
+}
+-- case025.JSONATA --
+$number(function(){5})
+-- case025_expected.json --
+null
+-- case026.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case026.JSONATA"
+}
+-- case026.JSONATA --
+$number(1,2)
+-- case026_expected.json --
+null
+-- case027.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case027.JSONATA"
+}
+-- case027.JSONATA --
+$number('00')
+-- case027_expected.json --
+0
+-- case028.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case028.JSONATA"
+}
+-- case028.JSONATA --
+$number('0123')
+-- case028_expected.json --
+123
+-- case029.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case029.JSONATA"
+}
+-- case029.JSONATA --
+$number('-007')
+-- case029_expected.json --
+-7
+-- case030.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case030.JSONATA"
+}
+-- case030.JSONATA --
+$number('000.00123000')
+-- case030_expected.json --
+0.00123
+-- case031.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case031.JSONATA"
+}
+-- case031.JSONATA --
+$number('0x12')
+-- case031_expected.json --
+18
+-- case032.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case032.JSONATA"
+}
+-- case032.JSONATA --
+$number('0B101')
+-- case032_expected.json --
+5
+-- case033.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case033.JSONATA"
+}
+-- case033.JSONATA --
+$number('0O12')
+-- case033_expected.json --
+10

@@ -1,0 +1,181 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+function($x){$x*$x}(5)
+-- case000_expected.json --
+25
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+function($x){$x>5 ? "foo"}(6)
+-- case001_expected.json --
+"foo"
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA",
+  "undefinedResult": true
+}
+-- case002.JSONATA --
+function($x){$x>5 ? "foo"}(3)
+-- case002_expected.json --
+null
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+($factorial:= function($x){$x <= 1 ? 1 : $x * $factorial($x-1)}; $factorial(4))
+-- case003_expected.json --
+24
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+($fibonacci := function($x){$x <= 1 ? $x : $fibonacci($x-1) + $fibonacci($x-2)}; [1,2,3,4,5,6,7,8,9].$fibonacci($))
+-- case004_expected.json --
+[
+  1,
+  1,
+  2,
+  3,
+  5,
+  8,
+  13,
+  21,
+  34
+]
+-- case005.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+($nth_price := function($n) { (Account.Order.Product.Price)[$n] }; $nth_price(1) )
+-- case005_expected.json --
+21.67
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+            (              $even := function($n) { $n = 0 ? true : $odd($n-1) };              $odd := function($n) { $n = 0 ? false : $even($n-1) };              $even(82)            )
+-- case006_expected.json --
+true
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+            (              $even := function($n) { $n = 0 ? true : $odd($n-1) };               $odd := function($n) { $n = 0 ? false : $even($n-1) };               $even(65) )
+-- case007_expected.json --
+false
+-- case008.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+        (          $even := function($n) { $n = 0 ? true : $odd($n-1) };           $odd := function($n) { $n = 0 ? false : $even($n-1) };           $odd(65)         )
+-- case008_expected.json --
+true
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+(  $gcd := λ($a, $b){$b = 0 ? $a : $gcd($b, $a%$b) };  [$gcd(8,12), $gcd(9,12)])
+-- case009_expected.json --
+[
+  4,
+  3
+]
+-- case010.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+(  $range := function($start, $end, $step) { (    $step:=($step?$step:1);    $start+$step > $end ? $start : $append($start, $range($start+$step, $end, $step))   )};  $range(0,15))
+-- case010_expected.json --
+[
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15
+]
+-- case011.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+(  $range := function($start, $end, $step) { (      $step:=($step?$step:1);        $start+$step > $end ? $start : $append($start, $range($start+$step, $end, $step))   )};  $range(0,15,2))
+-- case011_expected.json --
+[
+  0,
+  2,
+  4,
+  6,
+  8,
+  10,
+  12,
+  14
+]
+-- case012.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+( $median := λ($x){$sort($x)[$count($x)/2]};  $median([5,4,3,2,1,6,7,8,1]) )
+-- case012_expected.json --
+4
+-- case013.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case013.JSONATA",
+  "undefinedResult": true
+}
+-- case013.JSONATA --
+( $f := function(){1}; $f.environment )
+-- case013_expected.json --
+null

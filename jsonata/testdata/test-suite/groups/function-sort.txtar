@@ -1,0 +1,168 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA",
+  "undefinedResult": true
+}
+-- case000.JSONATA --
+$sort(nothing)
+-- case000_expected.json --
+null
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$sort(1)
+-- case001_expected.json --
+[
+  1
+]
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$sort([1,3,2])
+-- case002_expected.json --
+[
+  1,
+  2,
+  3
+]
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$sort([1,3,22,11])
+-- case003_expected.json --
+[
+  1,
+  3,
+  11,
+  22
+]
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+[[$], [$sort($)], [$]]
+-- case004_expected.json --
+[
+  [
+    1,
+    3,
+    2
+  ],
+  [
+    1,
+    2,
+    3
+  ],
+  [
+    1,
+    3,
+    2
+  ]
+]
+-- case005.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$sort(Account.Order.Product.Price)
+-- case005_expected.json --
+[
+  21.67,
+  34.45,
+  34.45,
+  107.99
+]
+-- case006.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$sort(Account.Order.Product."Product Name")
+-- case006_expected.json --
+[
+  "Bowler Hat",
+  "Bowler Hat",
+  "Cloak",
+  "Trilby hat"
+]
+-- case007.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$sort(Account.Order.Product)
+-- case007_expected.json --
+null
+-- case008.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+$sort(Account.Order.Product, function($a, $b) { $a.(Price * Quantity) > $b.(Price * Quantity) }).(Price & " x " & Quantity)
+-- case008_expected.json --
+[
+  "21.67 x 1",
+  "34.45 x 2",
+  "107.99 x 1",
+  "34.45 x 4"
+]
+-- case009.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$sort(Account.Order.Product, function($a, $b) { $a.Price > $b.Price }).SKU
+-- case009_expected.json --
+[
+  "0406634348",
+  "0406654608",
+  "040657863",
+  "0406654603"
+]
+-- case010.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+
+                (Account.Order.Product
+                  ~> $sort(λ($a,$b){$a.Quantity < $b.Quantity})
+                  ~> $sort(λ($a,$b){$a.Price > $b.Price})
+                ).SKU
+
+-- case010_expected.json --
+[
+  "0406634348",
+  "040657863",
+  "0406654608",
+  "0406654603"
+]

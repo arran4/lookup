@@ -1,0 +1,131 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$pad("foo", 5)
+-- case000_expected.json --
+"foo  "
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$pad("foo", -5)
+-- case001_expected.json --
+"  foo"
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$pad("foo", -5, "#")
+-- case002_expected.json --
+"##foo"
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$pad("foo", 5, "")
+-- case003_expected.json --
+"foo  "
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$pad("foo", 1)
+-- case004_expected.json --
+"foo"
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$pad("foo", 8, "-+")
+-- case005_expected.json --
+"foo-+-+-"
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA",
+  "undefinedResult": true
+}
+-- case006.JSONATA --
+$pad(nothing, 1)
+-- case006_expected.json --
+null
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$pad('a𝄞💩', 7)
+-- case007_expected.json --
+"a𝄞💩    "
+-- case008.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+$pad('𝄞💩', -7)
+-- case008_expected.json --
+"     𝄞💩"
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+$pad('a𝄞💩', 7, '💩')
+-- case009_expected.json --
+"a𝄞💩💩💩💩💩"
+-- case010.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+$pad('a𝄞💩', 6, '💩')
+-- case010_expected.json --
+"a𝄞💩💩💩💩"
+-- case011.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+$pad('foo', 5.7, ' ')
+-- case011_expected.json --
+"foo  "
+-- case012.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+$pad('foo', -5.7, ' ')
+-- case012_expected.json --
+"  foo"

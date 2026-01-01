@@ -1,0 +1,50 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+(  $add := function($x, $y){$x+$y};  $add2 := $add(?, 2);  $add2(3))
+-- case000_expected.json --
+5
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+(  $add := function($x, $y){$x+$y};  $add2 := $add(2, ?);  $add2(4))
+-- case001_expected.json --
+6
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+(  $firstn := $substring(?, 0, ?);  $first5 := $firstn(?, 5);  $first5("Hello World"))
+-- case002_expected.json --
+"Hello"
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+substring(?, 0, ?)
+-- case003_expected.json --
+null
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+unknown(?)
+-- case004_expected.json --
+null

@@ -1,0 +1,46 @@
+-- case000.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+
+-- case000_expected.json --
+[
+  {
+    "groups": [],
+    "index": 0,
+    "match": "a"
+  },
+  {
+    "groups": [],
+    "index": 3,
+    "match": "a"
+  },
+  {
+    "groups": [],
+    "index": 5,
+    "match": "a"
+  },
+  {
+    "groups": [],
+    "index": 7,
+    "match": "a"
+  },
+  {
+    "groups": [],
+    "index": 10,
+    "match": "a"
+  }
+]
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$split('some text', $uppercase)
+-- case001_expected.json --
+null

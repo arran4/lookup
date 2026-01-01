@@ -1,0 +1,566 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$ ~> |Account.Order.Product|{"Total":Price*Quantity},["Description", "SKU"]|
+-- case000_expected.json --
+{
+  "Account": {
+    "Account Name": "Firefly",
+    "Order": [
+      {
+        "OrderID": "order103",
+        "Product": [
+          {
+            "Price": 34.45,
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "Quantity": 2,
+            "Total": 68.9
+          },
+          {
+            "Price": 21.67,
+            "Product Name": "Trilby hat",
+            "ProductID": 858236,
+            "Quantity": 1,
+            "Total": 21.67
+          }
+        ]
+      },
+      {
+        "OrderID": "order104",
+        "Product": [
+          {
+            "Price": 34.45,
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "Quantity": 4,
+            "Total": 137.8
+          },
+          {
+            "Price": 107.99,
+            "Product Name": "Cloak",
+            "ProductID": 345664,
+            "Quantity": 1,
+            "Total": 107.99
+          }
+        ]
+      }
+    ]
+  }
+}
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+Account.Order ~> |Product|{"Total":Price*Quantity},["Description", "SKU"]|
+-- case001_expected.json --
+[
+  {
+    "OrderID": "order103",
+    "Product": [
+      {
+        "Price": 34.45,
+        "Product Name": "Bowler Hat",
+        "ProductID": 858383,
+        "Quantity": 2,
+        "Total": 68.9
+      },
+      {
+        "Price": 21.67,
+        "Product Name": "Trilby hat",
+        "ProductID": 858236,
+        "Quantity": 1,
+        "Total": 21.67
+      }
+    ]
+  },
+  {
+    "OrderID": "order104",
+    "Product": [
+      {
+        "Price": 34.45,
+        "Product Name": "Bowler Hat",
+        "ProductID": 858383,
+        "Quantity": 4,
+        "Total": 137.8
+      },
+      {
+        "Price": 107.99,
+        "Product Name": "Cloak",
+        "ProductID": 345664,
+        "Quantity": 1,
+        "Total": 107.99
+      }
+    ]
+  }
+]
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$ ~> |Account.Order.Product|{"Total":Price*Quantity, "Price": Price * 1.2}|
+-- case002_expected.json --
+{
+  "Account": {
+    "Account Name": "Firefly",
+    "Order": [
+      {
+        "OrderID": "order103",
+        "Product": [
+          {
+            "Description": {
+              "Colour": "Purple",
+              "Depth": 210,
+              "Height": 200,
+              "Weight": 0.75,
+              "Width": 300
+            },
+            "Price": 41.34,
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "Quantity": 2,
+            "SKU": "0406654608",
+            "Total": 68.9
+          },
+          {
+            "Description": {
+              "Colour": "Orange",
+              "Depth": 210,
+              "Height": 200,
+              "Weight": 0.6,
+              "Width": 300
+            },
+            "Price": 26.004,
+            "Product Name": "Trilby hat",
+            "ProductID": 858236,
+            "Quantity": 1,
+            "SKU": "0406634348",
+            "Total": 21.67
+          }
+        ]
+      },
+      {
+        "OrderID": "order104",
+        "Product": [
+          {
+            "Description": {
+              "Colour": "Purple",
+              "Depth": 210,
+              "Height": 200,
+              "Weight": 0.75,
+              "Width": 300
+            },
+            "Price": 41.34,
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "Quantity": 4,
+            "SKU": "040657863",
+            "Total": 137.8
+          },
+          {
+            "Description": {
+              "Colour": "Black",
+              "Depth": 210,
+              "Height": 20,
+              "Weight": 2,
+              "Width": 30
+            },
+            "Price": 129.588,
+            "Product Name": "Cloak",
+            "ProductID": 345664,
+            "Quantity": 1,
+            "SKU": "0406654603",
+            "Total": 107.99
+          }
+        ]
+      }
+    ]
+  }
+}
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$ ~> |Account.Order.Product|{},"Description"|
+-- case003_expected.json --
+{
+  "Account": {
+    "Account Name": "Firefly",
+    "Order": [
+      {
+        "OrderID": "order103",
+        "Product": [
+          {
+            "Price": 34.45,
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "Quantity": 2,
+            "SKU": "0406654608"
+          },
+          {
+            "Price": 21.67,
+            "Product Name": "Trilby hat",
+            "ProductID": 858236,
+            "Quantity": 1,
+            "SKU": "0406634348"
+          }
+        ]
+      },
+      {
+        "OrderID": "order104",
+        "Product": [
+          {
+            "Price": 34.45,
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "Quantity": 4,
+            "SKU": "040657863"
+          },
+          {
+            "Price": 107.99,
+            "Product Name": "Cloak",
+            "ProductID": 345664,
+            "Quantity": 1,
+            "SKU": "0406654603"
+          }
+        ]
+      }
+    ]
+  }
+}
+-- case004.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$ ~> |Account.Order.Product|nomatch,"Description"|
+-- case004_expected.json --
+{
+  "Account": {
+    "Account Name": "Firefly",
+    "Order": [
+      {
+        "OrderID": "order103",
+        "Product": [
+          {
+            "Price": 34.45,
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "Quantity": 2,
+            "SKU": "0406654608"
+          },
+          {
+            "Price": 21.67,
+            "Product Name": "Trilby hat",
+            "ProductID": 858236,
+            "Quantity": 1,
+            "SKU": "0406634348"
+          }
+        ]
+      },
+      {
+        "OrderID": "order104",
+        "Product": [
+          {
+            "Price": 34.45,
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "Quantity": 4,
+            "SKU": "040657863"
+          },
+          {
+            "Price": 107.99,
+            "Product Name": "Cloak",
+            "ProductID": 345664,
+            "Quantity": 1,
+            "SKU": "0406654603"
+          }
+        ]
+      }
+    ]
+  }
+}
+-- case005.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$ ~> |(Account.Order.Product)[0]|{"Description":"blah"}|
+-- case005_expected.json --
+{
+  "Account": {
+    "Account Name": "Firefly",
+    "Order": [
+      {
+        "OrderID": "order103",
+        "Product": [
+          {
+            "Description": "blah",
+            "Price": 34.45,
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "Quantity": 2,
+            "SKU": "0406654608"
+          },
+          {
+            "Description": {
+              "Colour": "Orange",
+              "Depth": 210,
+              "Height": 200,
+              "Weight": 0.6,
+              "Width": 300
+            },
+            "Price": 21.67,
+            "Product Name": "Trilby hat",
+            "ProductID": 858236,
+            "Quantity": 1,
+            "SKU": "0406634348"
+          }
+        ]
+      },
+      {
+        "OrderID": "order104",
+        "Product": [
+          {
+            "Description": {
+              "Colour": "Purple",
+              "Depth": 210,
+              "Height": 200,
+              "Weight": 0.75,
+              "Width": 300
+            },
+            "Price": 34.45,
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "Quantity": 4,
+            "SKU": "040657863"
+          },
+          {
+            "Description": {
+              "Colour": "Black",
+              "Depth": 210,
+              "Height": 20,
+              "Weight": 2,
+              "Width": 30
+            },
+            "Price": 107.99,
+            "Product Name": "Cloak",
+            "ProductID": 345664,
+            "Quantity": 1,
+            "SKU": "0406654603"
+          }
+        ]
+      }
+    ]
+  }
+}
+-- case006.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$ ~> |foo.bar|{"Description":"blah"}|
+-- case006_expected.json --
+{
+  "Account": {
+    "Account Name": "Firefly",
+    "Order": [
+      {
+        "OrderID": "order103",
+        "Product": [
+          {
+            "Description": {
+              "Colour": "Purple",
+              "Depth": 210,
+              "Height": 200,
+              "Weight": 0.75,
+              "Width": 300
+            },
+            "Price": 34.45,
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "Quantity": 2,
+            "SKU": "0406654608"
+          },
+          {
+            "Description": {
+              "Colour": "Orange",
+              "Depth": 210,
+              "Height": 200,
+              "Weight": 0.6,
+              "Width": 300
+            },
+            "Price": 21.67,
+            "Product Name": "Trilby hat",
+            "ProductID": 858236,
+            "Quantity": 1,
+            "SKU": "0406634348"
+          }
+        ]
+      },
+      {
+        "OrderID": "order104",
+        "Product": [
+          {
+            "Description": {
+              "Colour": "Purple",
+              "Depth": 210,
+              "Height": 200,
+              "Weight": 0.75,
+              "Width": 300
+            },
+            "Price": 34.45,
+            "Product Name": "Bowler Hat",
+            "ProductID": 858383,
+            "Quantity": 4,
+            "SKU": "040657863"
+          },
+          {
+            "Description": {
+              "Colour": "Black",
+              "Depth": 210,
+              "Height": 20,
+              "Weight": 2,
+              "Width": 30
+            },
+            "Price": 107.99,
+            "Product Name": "Cloak",
+            "ProductID": 345664,
+            "Quantity": 1,
+            "SKU": "0406654603"
+          }
+        ]
+      }
+    ]
+  }
+}
+-- case007.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+Account ~> |Order|{"Product":"blah"},nomatch|
+-- case007_expected.json --
+{
+  "Account Name": "Firefly",
+  "Order": [
+    {
+      "OrderID": "order103",
+      "Product": "blah"
+    },
+    {
+      "OrderID": "order104",
+      "Product": "blah"
+    }
+  ]
+}
+-- case008.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA",
+  "undefinedResult": true
+}
+-- case008.JSONATA --
+foo ~> |foo.bar|{"Description":"blah"}|
+-- case008_expected.json --
+null
+-- case009.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+Account ~> |Order|5|
+-- case009_expected.json --
+null
+-- case010.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+Account ~> |Order|{},5|
+-- case010_expected.json --
+null
+-- case011.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+Account ~> |Order|{"Product":"blah"},nomatch|
+-- case011_expected.json --
+{
+  "Account Name": "Firefly",
+  "Order": [
+    {
+      "OrderID": "order103",
+      "Product": "blah"
+    },
+    {
+      "OrderID": "order104",
+      "Product": "blah"
+    }
+  ]
+}
+-- case012.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+{} ~> |$|['one', 'two', 'three']|
+-- case012_expected.json --
+null
+-- case013.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+$ ~> | ** ['hi'] | {'hello': hi}, ['hi'] |
+-- case013_expected.json --
+{
+  "bye": null,
+  "hello": "world"
+}
+-- case014.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+$ ~> | ** [hi] | {'hello': hi}, ['hi'] |
+-- case014_expected.json --
+{
+  "bye": null,
+  "hello": "world"
+}

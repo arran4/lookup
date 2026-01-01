@@ -1,0 +1,1132 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+{'Order': Account.Order.{  'ID': OrderID,  'Product': Product.{    'SKU': ProductID,    'Details': {      'Weight': Description.Weight,      'Dimensions': Description.(Width & ' x ' & Height & ' x ' & Depth)    }  },  'Total Price': $sum(Product.(Price * Quantity))}}
+-- case000_expected.json --
+{
+  "Order": [
+    {
+      "ID": "order103",
+      "Product": [
+        {
+          "Details": {
+            "Dimensions": "300 x 200 x 210",
+            "Weight": 0.75
+          },
+          "SKU": 858383
+        },
+        {
+          "Details": {
+            "Dimensions": "300 x 200 x 210",
+            "Weight": 0.6
+          },
+          "SKU": 858236
+        }
+      ],
+      "Total Price": 90.57000000000001
+    },
+    {
+      "ID": "order104",
+      "Product": [
+        {
+          "Details": {
+            "Dimensions": "300 x 200 x 210",
+            "Weight": 0.75
+          },
+          "SKU": 858383
+        },
+        {
+          "Details": {
+            "Dimensions": "30 x 20 x 210",
+            "Weight": 2
+          },
+          "SKU": 345664
+        }
+      ],
+      "Total Price": 245.79000000000002
+    }
+  ]
+}
+-- case001.json --
+{
+  "dataset": "dataset18__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+
+        (
+          $tempReadings := $count(state.tempReadings) = 5 ?
+              [state.tempReadings[[1..4]], event.t] :
+              [state.tempReadings, event.t];
+
+          {
+            "tempReadings": $tempReadings,
+            "sumTemperatures": $sum($tempReadings),
+            "avgTemperature": $average($tempReadings) ~> $round(2),
+            "maxTemperature": $max($tempReadings),
+            "minTemperature": $min($tempReadings)
+          }
+        )
+-- case001_expected.json --
+{
+  "avgTemperature": 28.38,
+  "maxTemperature": 28.9,
+  "minTemperature": 28,
+  "sumTemperatures": 141.9,
+  "tempReadings": [
+    28.9,
+    28,
+    28.2,
+    28.4,
+    28.4
+  ]
+}
+-- case002.json --
+{
+  "dataset": "dataset19__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+$
+-- case002_expected.json --
+{
+  "output": {
+    "is": {
+      "same": {
+        "as": "input"
+      }
+    }
+  }
+}
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+foo
+-- case003_expected.json --
+{
+  "bar": 42
+}
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+baz
+-- case004_expected.json --
+{
+  "gar": 50
+}
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+Foo
+-- case005_expected.json --
+{
+  "mama": 45
+}
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+food
+-- case006_expected.json --
+{
+  "wa": "hume"
+}
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+maz.rar
+-- case007_expected.json --
+42
+-- case008.json --
+{
+  "dataset": "dataset20__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+jee.par.waa
+-- case008_expected.json --
+{
+  "bar": 87
+}
+-- case009.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case009.JSONATA",
+  "undefinedResult": true
+}
+-- case009.JSONATA --
+foo
+-- case009_expected.json --
+null
+-- case010.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case010.JSONATA",
+  "undefinedResult": true
+}
+-- case010.JSONATA --
+foo.bar
+-- case010_expected.json --
+null
+-- case011.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+$
+-- case011_expected.json --
+"foo"
+-- case012.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+bar
+-- case012_expected.json --
+"foo"
+-- case013.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+$
+-- case013_expected.json --
+6754322
+-- case014.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+$
+-- case014_expected.json --
+0
+-- case015.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+$
+-- case015_expected.json --
+-24
+-- case016.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+bar
+-- case016_expected.json --
+6.54
+-- case017.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case017.JSONATA"
+}
+-- case017.JSONATA --
+$
+-- case017_expected.json --
+true
+-- case018.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case018.JSONATA"
+}
+-- case018.JSONATA --
+bar
+-- case018_expected.json --
+false
+-- case019.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case019.JSONATA"
+}
+-- case019.JSONATA --
+$
+-- case019_expected.json --
+null
+-- case020.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case020.JSONATA"
+}
+-- case020.JSONATA --
+bar
+-- case020_expected.json --
+null
+-- case021.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case021.JSONATA",
+  "undefinedResult": true
+}
+-- case021.JSONATA --
+bar
+-- case021_expected.json --
+null
+-- case022.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case022.JSONATA",
+  "undefinedResult": true
+}
+-- case022.JSONATA --
+$
+-- case022_expected.json --
+null
+-- case023.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case023.JSONATA"
+}
+-- case023.JSONATA --
+bar
+-- case023_expected.json --
+"\"Hello\""
+-- case024.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case024.JSONATA"
+}
+-- case024.JSONATA --
+$
+-- case024_expected.json --
+"\"Hello\""
+-- case025.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case025.JSONATA"
+}
+-- case025.JSONATA --
+bar
+-- case025_expected.json --
+"'Hello'"
+-- case026.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case026.JSONATA"
+}
+-- case026.JSONATA --
+$
+-- case026_expected.json --
+"'Hello'"
+-- case027.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case027.JSONATA"
+}
+-- case027.JSONATA --
+$lowercase(Salutation)
+-- case027_expected.json --
+"mr"
+-- case028.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case028.JSONATA"
+}
+-- case028.JSONATA --
+$lowercase(敷)
+-- case028_expected.json --
+"steve"
+-- case029.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case029.JSONATA"
+}
+-- case029.JSONATA --
+$lowercase(Español)
+-- case029_expected.json --
+"/ˈspænɪʃ/"
+-- case030.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case030.JSONATA"
+}
+-- case030.JSONATA --
+$lowercase($."NI.Number")
+-- case030_expected.json --
+"no10furbzness"
+-- case031.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case031.JSONATA"
+}
+-- case031.JSONATA --
+$lowercase("COMPENSATION IS : " & Employment."Executive.Compensation")
+-- case031_expected.json --
+"compensation is : 1400000"
+-- case032.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case032.JSONATA"
+}
+-- case032.JSONATA --
+"Hello"
+-- case032_expected.json --
+"Hello"
+-- case033.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case033.JSONATA"
+}
+-- case033.JSONATA --
+$uppercase(Salutation)
+-- case033_expected.json --
+"MR"
+-- case034.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case034.JSONATA"
+}
+-- case034.JSONATA --
+$uppercase("Hello World")
+-- case034_expected.json --
+"HELLO WORLD"
+-- case035.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case035.JSONATA"
+}
+-- case035.JSONATA --
+$uppercase("鯵噂ソ竹")
+-- case035_expected.json --
+"鯵噂ソ竹"
+-- case036.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case036.JSONATA"
+}
+-- case036.JSONATA --
+Employment.Name & " is happy"
+-- case036_expected.json --
+"IBM UK is happy"
+-- case037.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case037.JSONATA"
+}
+-- case037.JSONATA --
+Employment.Name & " is pleased to employ " & Salutation & " " & Surname
+-- case037_expected.json --
+"IBM UK is pleased to employ Mr Smith"
+-- case038.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case038.JSONATA"
+}
+-- case038.JSONATA --
+$uppercase("Hello " & Salutation & " " & Surname)
+-- case038_expected.json --
+"HELLO MR SMITH"
+-- case039.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case039.JSONATA"
+}
+-- case039.JSONATA --
+$uppercase(Salutation & " " & Surname & " - has " & Cars & " registered cars")
+-- case039_expected.json --
+"MR SMITH - HAS 3 REGISTERED CARS"
+-- case040.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case040.JSONATA"
+}
+-- case040.JSONATA --
+$uppercase(Employment.ContractType)
+-- case040_expected.json --
+"PERMANENT"
+-- case041.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case041.JSONATA"
+}
+-- case041.JSONATA --
+$substringBefore("Hola", "l")
+-- case041_expected.json --
+"Ho"
+-- case042.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case042.JSONATA"
+}
+-- case042.JSONATA --
+$substringBefore("Hola", 'l')
+-- case042_expected.json --
+"Ho"
+-- case043.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case043.JSONATA"
+}
+-- case043.JSONATA --
+$substringBefore("Hola", "Q")
+-- case043_expected.json --
+"Hola"
+-- case044.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case044.JSONATA"
+}
+-- case044.JSONATA --
+$substringBefore("Hola", "")
+-- case044_expected.json --
+""
+-- case045.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case045.JSONATA"
+}
+-- case045.JSONATA --
+$substringBefore("鯵噂ソ竹", "ソ")
+-- case045_expected.json --
+"鯵噂"
+-- case046.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case046.JSONATA"
+}
+-- case046.JSONATA --
+$substringAfter("Coca" & "Cola", "ca")
+-- case046_expected.json --
+"Cola"
+-- case047.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case047.JSONATA"
+}
+-- case047.JSONATA --
+$substringAfter(Salutation & " " & MiddleName &" " & Surname, MiddleName)
+-- case047_expected.json --
+" Smith"
+-- case048.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case048.JSONATA"
+}
+-- case048.JSONATA --
+$substringAfter(Salutation & " " & Employment.Role, Salutation)
+-- case048_expected.json --
+" Senior Physician"
+-- case049.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case049.JSONATA"
+}
+-- case049.JSONATA --
+$substringAfter("Hola", 'l')
+-- case049_expected.json --
+"a"
+-- case050.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case050.JSONATA"
+}
+-- case050.JSONATA --
+$substringAfter("Hola", "Q")
+-- case050_expected.json --
+"Hola"
+-- case051.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case051.JSONATA"
+}
+-- case051.JSONATA --
+$lowercase(Employment.Role) & " (" & Employment.Role & ")"
+-- case051_expected.json --
+"senior physician (Senior Physician)"
+-- case052.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case052.JSONATA"
+}
+-- case052.JSONATA --
+Employment.Years & " years of employment"
+-- case052_expected.json --
+"12 years of employment"
+-- case053.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case053.JSONATA"
+}
+-- case053.JSONATA --
+$uppercase(Salutation & " " & Surname & " - has " & Employment.Years & " years of employment")
+-- case053_expected.json --
+"MR SMITH - HAS 12 YEARS OF EMPLOYMENT"
+-- case054.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case054.JSONATA"
+}
+-- case054.JSONATA --
+$substring(Employment.Role, 7,4)
+-- case054_expected.json --
+"Phys"
+-- case055.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case055.JSONATA"
+}
+-- case055.JSONATA --
+$substring(Employment.Role, -4,4)
+-- case055_expected.json --
+"cian"
+-- case056.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case056.JSONATA"
+}
+-- case056.JSONATA --
+$substring("Hello World",Cars,5)
+-- case056_expected.json --
+"lo Wo"
+-- case057.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case057.JSONATA"
+}
+-- case057.JSONATA --
+$lowercase("Missing close brackets"
+-- case057_expected.json --
+null
+-- case058.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case058.JSONATA"
+}
+-- case058.JSONATA --
+$unknown(Salutation)
+-- case058_expected.json --
+null
+-- case059.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case059.JSONATA"
+}
+-- case059.JSONATA --
+$decrypt(Salutation)
+-- case059_expected.json --
+null
+-- case060.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case060.JSONATA"
+}
+-- case060.JSONATA --
+Employment.authentication(Salutation)
+-- case060_expected.json --
+null
+-- case061.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case061.JSONATA",
+  "undefinedResult": true
+}
+-- case061.JSONATA --
+$uppercase(Invalid)
+-- case061_expected.json --
+null
+-- case062.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case062.JSONATA",
+  "undefinedResult": true
+}
+-- case062.JSONATA --
+$uppercase(Employment.Invalid)
+-- case062_expected.json --
+null
+-- case063.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case063.JSONATA"
+}
+-- case063.JSONATA --
+$lowercase("Coca", "Cola")
+-- case063_expected.json --
+null
+-- case064.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case064.JSONATA"
+}
+-- case064.JSONATA --
+$lowercase(Salary)
+-- case064_expected.json --
+null
+-- case065.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case065.JSONATA"
+}
+-- case065.JSONATA --
+$lowercase(20)
+-- case065_expected.json --
+null
+-- case066.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case066.JSONATA"
+}
+-- case066.JSONATA --
+$lowercase(20.55)
+-- case066_expected.json --
+null
+-- case067.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case067.JSONATA"
+}
+-- case067.JSONATA --
+$lowercase(Employment)
+-- case067_expected.json --
+null
+-- case068.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case068.JSONATA"
+}
+-- case068.JSONATA --
+$lowercase(Qualifications)
+-- case068_expected.json --
+null
+-- case069.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case069.JSONATA"
+}
+-- case069.JSONATA --
+$uppercase("Coca", "Cola")
+-- case069_expected.json --
+null
+-- case070.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case070.JSONATA"
+}
+-- case070.JSONATA --
+$uppercase(Salary)
+-- case070_expected.json --
+null
+-- case071.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case071.JSONATA"
+}
+-- case071.JSONATA --
+$uppercase(28)
+-- case071_expected.json --
+null
+-- case072.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case072.JSONATA"
+}
+-- case072.JSONATA --
+$uppercase(20.55)
+-- case072_expected.json --
+null
+-- case073.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case073.JSONATA"
+}
+-- case073.JSONATA --
+$uppercase(Cars)
+-- case073_expected.json --
+null
+-- case074.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case074.JSONATA"
+}
+-- case074.JSONATA --
+$uppercase(Employment)
+-- case074_expected.json --
+null
+-- case075.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case075.JSONATA"
+}
+-- case075.JSONATA --
+$uppercase(Qualifications)
+-- case075_expected.json --
+null
+-- case076.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case076.JSONATA"
+}
+-- case076.JSONATA --
+$substringBefore("Coca" & "ca")
+-- case076_expected.json --
+null
+-- case077.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case077.JSONATA"
+}
+-- case077.JSONATA --
+$substringBefore(Salary,"xx")
+-- case077_expected.json --
+null
+-- case078.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case078.JSONATA"
+}
+-- case078.JSONATA --
+$substringBefore(22,"xx")
+-- case078_expected.json --
+null
+-- case079.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case079.JSONATA"
+}
+-- case079.JSONATA --
+$substringBefore(22.55,"xx")
+-- case079_expected.json --
+null
+-- case080.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case080.JSONATA"
+}
+-- case080.JSONATA --
+$substringBefore("22",2)
+-- case080_expected.json --
+null
+-- case081.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case081.JSONATA"
+}
+-- case081.JSONATA --
+$substringBefore("22.55",5)
+-- case081_expected.json --
+null
+-- case082.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case082.JSONATA"
+}
+-- case082.JSONATA --
+$substringBefore(Employment,"xx")
+-- case082_expected.json --
+null
+-- case083.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case083.JSONATA"
+}
+-- case083.JSONATA --
+$substringBefore(Qualifications,"xx")
+-- case083_expected.json --
+null
+-- case084.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case084.JSONATA"
+}
+-- case084.JSONATA --
+$substringAfter("Coca" & "ca")
+-- case084_expected.json --
+null
+-- case085.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case085.JSONATA"
+}
+-- case085.JSONATA --
+$substringAfter(Salary,"xx")
+-- case085_expected.json --
+null
+-- case086.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case086.JSONATA"
+}
+-- case086.JSONATA --
+$substringAfter(22,"xx")
+-- case086_expected.json --
+null
+-- case087.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case087.JSONATA"
+}
+-- case087.JSONATA --
+$substringAfter(22.55,"xx")
+-- case087_expected.json --
+null
+-- case088.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case088.JSONATA"
+}
+-- case088.JSONATA --
+$substringAfter("22",2)
+-- case088_expected.json --
+null
+-- case089.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case089.JSONATA"
+}
+-- case089.JSONATA --
+$substringAfter("22.55",5)
+-- case089_expected.json --
+null
+-- case090.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case090.JSONATA"
+}
+-- case090.JSONATA --
+$substringAfter(Employment,"xx")
+-- case090_expected.json --
+null
+-- case091.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case091.JSONATA"
+}
+-- case091.JSONATA --
+$substringAfter(Qualifications,"xx")
+-- case091_expected.json --
+null
+-- case092.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case092.JSONATA"
+}
+-- case092.JSONATA --
+$substring("Coca" & "ca", 2, 4, 5)
+-- case092_expected.json --
+null
+-- case093.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case093.JSONATA"
+}
+-- case093.JSONATA --
+$substring("Coca", "Mr", 4)
+-- case093_expected.json --
+null
+-- case094.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case094.JSONATA"
+}
+-- case094.JSONATA --
+$substring("Coca", 3, "Whoops")
+-- case094_expected.json --
+null
+-- case095.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case095.JSONATA"
+}
+-- case095.JSONATA --
+$substring(Salary,2,4)
+-- case095_expected.json --
+null
+-- case096.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case096.JSONATA"
+}
+-- case096.JSONATA --
+$substring("Hello","World",5)
+-- case096_expected.json --
+null
+-- case097.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case097.JSONATA"
+}
+-- case097.JSONATA --
+$substring("Hello",5,"World")
+-- case097_expected.json --
+null
+-- case098.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case098.JSONATA"
+}
+-- case098.JSONATA --
+$substring("Hello World",5.5,5)
+-- case098_expected.json --
+" Worl"
+-- case099.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case099.JSONATA"
+}
+-- case099.JSONATA --
+$substring(Employment,"xx")
+-- case099_expected.json --
+null
+-- case100.json --
+{
+  "dataset": "dataset21__INPUT",
+  "bindings": {},
+  "exprFile": "case100.JSONATA"
+}
+-- case100.JSONATA --
+$substring(Qualifications,6,5)
+-- case100_expected.json --
+null
+-- case101.json --
+{
+  "dataset": "dataset22__INPUT",
+  "bindings": {},
+  "exprFile": "case101.JSONATA"
+}
+-- case101.JSONATA --
+detail.contents
+-- case101_expected.json --
+"stuff"
+-- case102.json --
+{
+  "dataset": "dataset23__INPUT",
+  "bindings": {},
+  "exprFile": "case102.JSONATA"
+}
+-- case102.JSONATA --
+detail.meta
+-- case102_expected.json --
+"boo"
+-- case103.json --
+{
+  "dataset": "dataset22__INPUT",
+  "bindings": {},
+  "exprFile": "case103.JSONATA"
+}
+-- case103.JSONATA --
+detail.meta
+-- case103_expected.json --
+5

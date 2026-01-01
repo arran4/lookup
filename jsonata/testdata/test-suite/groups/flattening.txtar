@@ -1,0 +1,951 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+Account.Order.[Product.Price]
+-- case000_expected.json --
+[
+  [
+    34.45,
+    21.67
+  ],
+  [
+    34.45,
+    107.99
+  ]
+]
+-- case001.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$.nest0
+-- case001_expected.json --
+[
+  1,
+  2,
+  3,
+  4
+]
+-- case002.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+nest0
+-- case002_expected.json --
+[
+  1,
+  2,
+  3,
+  4
+]
+-- case003.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$[0]
+-- case003_expected.json --
+{
+  "nest0": [
+    1,
+    2
+  ]
+}
+-- case004.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+$[1]
+-- case004_expected.json --
+{
+  "nest0": [
+    3,
+    4
+  ]
+}
+-- case005.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+$[-1]
+-- case005_expected.json --
+{
+  "nest0": [
+    3,
+    4
+  ]
+}
+-- case006.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+$[0].nest0
+-- case006_expected.json --
+[
+  1,
+  2
+]
+-- case007.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+$[1].nest0
+-- case007_expected.json --
+[
+  3,
+  4
+]
+-- case008.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+$[0].nest0[0]
+-- case008_expected.json --
+1
+-- case009.json --
+{
+  "dataset": "dataset8__INPUT",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+nest0.[nest1.[nest2.[nest3]]]
+-- case009_expected.json --
+[
+  [
+    [
+      [
+        1
+      ],
+      [
+        2
+      ]
+    ],
+    [
+      [
+        3
+      ],
+      [
+        4
+      ]
+    ]
+  ],
+  [
+    [
+      [
+        5
+      ],
+      [
+        6
+      ]
+    ],
+    [
+      [
+        7
+      ],
+      [
+        8
+      ]
+    ]
+  ]
+]
+-- case010.json --
+{
+  "dataset": "dataset8__INPUT",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+nest0.nest1.[nest2.[nest3]]
+-- case010_expected.json --
+[
+  [
+    [
+      1
+    ],
+    [
+      2
+    ]
+  ],
+  [
+    [
+      3
+    ],
+    [
+      4
+    ]
+  ],
+  [
+    [
+      5
+    ],
+    [
+      6
+    ]
+  ],
+  [
+    [
+      7
+    ],
+    [
+      8
+    ]
+  ]
+]
+-- case011.json --
+{
+  "dataset": "dataset8__INPUT",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+nest0.[nest1.nest2.[nest3]]
+-- case011_expected.json --
+[
+  [
+    [
+      1
+    ],
+    [
+      2
+    ],
+    [
+      3
+    ],
+    [
+      4
+    ]
+  ],
+  [
+    [
+      5
+    ],
+    [
+      6
+    ],
+    [
+      7
+    ],
+    [
+      8
+    ]
+  ]
+]
+-- case012.json --
+{
+  "dataset": "dataset8__INPUT",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+nest0.[nest1.[nest2.nest3]]
+-- case012_expected.json --
+[
+  [
+    [
+      1,
+      2
+    ],
+    [
+      3,
+      4
+    ]
+  ],
+  [
+    [
+      5,
+      6
+    ],
+    [
+      7,
+      8
+    ]
+  ]
+]
+-- case013.json --
+{
+  "dataset": "dataset8__INPUT",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+nest0.[nest1.nest2.nest3]
+-- case013_expected.json --
+[
+  [
+    1,
+    2,
+    3,
+    4
+  ],
+  [
+    5,
+    6,
+    7,
+    8
+  ]
+]
+-- case014.json --
+{
+  "dataset": "dataset8__INPUT",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+nest0.nest1.[nest2.nest3]
+-- case014_expected.json --
+[
+  [
+    1,
+    2
+  ],
+  [
+    3,
+    4
+  ],
+  [
+    5,
+    6
+  ],
+  [
+    7,
+    8
+  ]
+]
+-- case015.json --
+{
+  "dataset": "dataset8__INPUT",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+nest0.nest1.nest2.[nest3]
+-- case015_expected.json --
+[
+  [
+    1
+  ],
+  [
+    2
+  ],
+  [
+    3
+  ],
+  [
+    4
+  ],
+  [
+    5
+  ],
+  [
+    6
+  ],
+  [
+    7
+  ],
+  [
+    8
+  ]
+]
+-- case016.json --
+{
+  "dataset": "dataset8__INPUT",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+nest0.nest1.nest2.nest3
+-- case016_expected.json --
+[
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8
+]
+-- case017.json --
+{
+  "dataset": "dataset24__INPUT",
+  "bindings": {},
+  "exprFile": "case017.JSONATA"
+}
+-- case017.JSONATA --
+nest0.[nest1.[nest2.[nest3]]]
+-- case017_expected.json --
+[
+  [
+    [
+      [
+        1
+      ],
+      [
+        2
+      ]
+    ],
+    [
+      [
+        3
+      ],
+      [
+        4
+      ]
+    ]
+  ],
+  [
+    [
+      [
+        5
+      ],
+      [
+        6
+      ]
+    ],
+    [
+      [
+        7
+      ],
+      [
+        8
+      ]
+    ]
+  ]
+]
+-- case018.json --
+{
+  "dataset": "dataset24__INPUT",
+  "bindings": {},
+  "exprFile": "case018.JSONATA"
+}
+-- case018.JSONATA --
+nest0.nest1.[nest2.[nest3]]
+-- case018_expected.json --
+[
+  [
+    [
+      1
+    ],
+    [
+      2
+    ]
+  ],
+  [
+    [
+      3
+    ],
+    [
+      4
+    ]
+  ],
+  [
+    [
+      5
+    ],
+    [
+      6
+    ]
+  ],
+  [
+    [
+      7
+    ],
+    [
+      8
+    ]
+  ]
+]
+-- case019.json --
+{
+  "dataset": "dataset24__INPUT",
+  "bindings": {},
+  "exprFile": "case019.JSONATA"
+}
+-- case019.JSONATA --
+nest0.[nest1.nest2.[nest3]]
+-- case019_expected.json --
+[
+  [
+    [
+      1
+    ],
+    [
+      2
+    ],
+    [
+      3
+    ],
+    [
+      4
+    ]
+  ],
+  [
+    [
+      5
+    ],
+    [
+      6
+    ],
+    [
+      7
+    ],
+    [
+      8
+    ]
+  ]
+]
+-- case020.json --
+{
+  "dataset": "dataset24__INPUT",
+  "bindings": {},
+  "exprFile": "case020.JSONATA"
+}
+-- case020.JSONATA --
+nest0.[nest1.[nest2.nest3]]
+-- case020_expected.json --
+[
+  [
+    [
+      1,
+      2
+    ],
+    [
+      3,
+      4
+    ]
+  ],
+  [
+    [
+      5,
+      6
+    ],
+    [
+      7,
+      8
+    ]
+  ]
+]
+-- case021.json --
+{
+  "dataset": "dataset24__INPUT",
+  "bindings": {},
+  "exprFile": "case021.JSONATA"
+}
+-- case021.JSONATA --
+nest0.[nest1.nest2.nest3]
+-- case021_expected.json --
+[
+  [
+    1,
+    2,
+    3,
+    4
+  ],
+  [
+    5,
+    6,
+    7,
+    8
+  ]
+]
+-- case022.json --
+{
+  "dataset": "dataset24__INPUT",
+  "bindings": {},
+  "exprFile": "case022.JSONATA"
+}
+-- case022.JSONATA --
+nest0.nest1.[nest2.nest3]
+-- case022_expected.json --
+[
+  [
+    1,
+    2
+  ],
+  [
+    3,
+    4
+  ],
+  [
+    5,
+    6
+  ],
+  [
+    7,
+    8
+  ]
+]
+-- case023.json --
+{
+  "dataset": "dataset24__INPUT",
+  "bindings": {},
+  "exprFile": "case023.JSONATA"
+}
+-- case023.JSONATA --
+nest0.nest1.nest2.[nest3]
+-- case023_expected.json --
+[
+  [
+    1
+  ],
+  [
+    2
+  ],
+  [
+    3
+  ],
+  [
+    4
+  ],
+  [
+    5
+  ],
+  [
+    6
+  ],
+  [
+    7
+  ],
+  [
+    8
+  ]
+]
+-- case024.json --
+{
+  "dataset": "dataset24__INPUT",
+  "bindings": {},
+  "exprFile": "case024.JSONATA"
+}
+-- case024.JSONATA --
+nest0.nest1.nest2.nest3
+-- case024_expected.json --
+[
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8
+]
+-- case025.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case025.JSONATA"
+}
+-- case025.JSONATA --
+{"a": 1 }.a
+-- case025_expected.json --
+1
+-- case026.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case026.JSONATA"
+}
+-- case026.JSONATA --
+a
+-- case026_expected.json --
+1
+-- case027.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case027.JSONATA"
+}
+-- case027.JSONATA --
+{"a": [1] }.a
+-- case027_expected.json --
+[
+  1
+]
+-- case028.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case028.JSONATA"
+}
+-- case028.JSONATA --
+a
+-- case028_expected.json --
+[
+  1
+]
+-- case029.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case029.JSONATA"
+}
+-- case029.JSONATA --
+{"a": [[1]] }.a
+-- case029_expected.json --
+[
+  [
+    1
+  ]
+]
+-- case030.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case030.JSONATA"
+}
+-- case030.JSONATA --
+a
+-- case030_expected.json --
+[
+  [
+    1
+  ]
+]
+-- case031.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case031.JSONATA"
+}
+-- case031.JSONATA --
+[{"a":[1,2]}, {"a":[3]}].a
+-- case031_expected.json --
+[
+  1,
+  2,
+  3
+]
+-- case032.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case032.JSONATA"
+}
+-- case032.JSONATA --
+a
+-- case032_expected.json --
+[
+  1,
+  2,
+  3
+]
+-- case033.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case033.JSONATA"
+}
+-- case033.JSONATA --
+[{"a":[{"b":[1]}, {"b":[2]}]}, {"a":[{"b":[3]}, {"b":[4]}]}].a[0].b
+-- case033_expected.json --
+[
+  1,
+  3
+]
+-- case034.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case034.JSONATA"
+}
+-- case034.JSONATA --
+a[0].b
+-- case034_expected.json --
+[
+  1
+]
+-- case034a.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case034a.JSONATA"
+}
+-- case034a.JSONATA --
+$.a[0].b
+-- case034a_expected.json --
+[
+  1,
+  3
+]
+-- case035.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case035.JSONATA"
+}
+-- case035.JSONATA --
+a.b[0]
+-- case035_expected.json --
+[
+  1,
+  2,
+  3,
+  4
+]
+-- case036.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case036.JSONATA"
+}
+-- case036.JSONATA --
+Phone[type="mobile"].number
+-- case036_expected.json --
+"077 7700 1234"
+-- case037.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case037.JSONATA"
+}
+-- case037.JSONATA --
+Phone[type="mobile"][].number
+-- case037_expected.json --
+[
+  "077 7700 1234"
+]
+-- case038.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case038.JSONATA"
+}
+-- case038.JSONATA --
+Phone[][type="mobile"].number
+-- case038_expected.json --
+[
+  "077 7700 1234"
+]
+-- case039.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case039.JSONATA"
+}
+-- case039.JSONATA --
+Phone[type="office"][].number
+-- case039_expected.json --
+[
+  "01962 001234",
+  "01962 001235"
+]
+-- case040.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case040.JSONATA"
+}
+-- case040.JSONATA --
+Phone{type: number}
+-- case040_expected.json --
+{
+  "home": "0203 544 1234",
+  "mobile": "077 7700 1234",
+  "office": [
+    "01962 001234",
+    "01962 001235"
+  ]
+}
+-- case041.json --
+{
+  "dataset": "dataset1__INPUT",
+  "bindings": {},
+  "exprFile": "case041.JSONATA"
+}
+-- case041.JSONATA --
+Phone{type: number[]}
+-- case041_expected.json --
+{
+  "home": [
+    "0203 544 1234"
+  ],
+  "mobile": [
+    "077 7700 1234"
+  ],
+  "office": [
+    "01962 001234",
+    "01962 001235"
+  ]
+}
+-- case042.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case042.JSONATA"
+}
+-- case042.JSONATA --
+$[type='command'][]
+-- case042_expected.json --
+[
+  {
+    "type": "command"
+  }
+]
+-- case043.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case043.JSONATA"
+}
+-- case043.JSONATA --
+$[][type='command']
+-- case043_expected.json --
+[
+  {
+    "type": "command"
+  }
+]
+-- case044.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case044.JSONATA"
+}
+-- case044.JSONATA --
+$filter($, function($e) { $e != 0 })[]
+-- case044_expected.json --
+[
+  5
+]
+-- case045.json --
+{
+  "dataset": "",
+  "bindings": null,
+  "exprFile": "case045.JSONATA"
+}
+-- case045.JSONATA --
+$.tags[title='example'][]
+-- case045_expected.json --
+[
+  {
+    "description": "Hello",
+    "title": "example"
+  }
+]

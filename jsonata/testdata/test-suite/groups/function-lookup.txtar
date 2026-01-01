@@ -1,0 +1,46 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+$lookup(Account, "Account Name")
+-- case000_expected.json --
+"Firefly"
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+$lookup(Account.Order.Product, "Product Name")
+-- case001_expected.json --
+[
+  "Bowler Hat",
+  "Trilby hat",
+  "Bowler Hat",
+  "Cloak"
+]
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA",
+  "undefinedResult": true
+}
+-- case002.JSONATA --
+$lookup(Account.Order.Product.ProductID, "Product Name")
+-- case002_expected.json --
+null
+-- case003.json --
+{
+  "dataset": "dataset9__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+$lookup($$, "gust")
+-- case003_expected.json --
+null

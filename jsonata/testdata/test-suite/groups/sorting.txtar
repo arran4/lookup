@@ -1,0 +1,293 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+Account.Order.Product.Price^($)
+-- case000_expected.json --
+[
+  21.67,
+  34.45,
+  34.45,
+  107.99
+]
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+Account.Order.Product.Price^(<$)
+-- case001_expected.json --
+[
+  21.67,
+  34.45,
+  34.45,
+  107.99
+]
+-- case002.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case002.JSONATA"
+}
+-- case002.JSONATA --
+Account.Order.Product.Price^(>$)
+-- case002_expected.json --
+[
+  107.99,
+  34.45,
+  34.45,
+  21.67
+]
+-- case003.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case003.JSONATA"
+}
+-- case003.JSONATA --
+Account.Order.Product^(Price).Description.Colour
+-- case003_expected.json --
+[
+  "Orange",
+  "Purple",
+  "Purple",
+  "Black"
+]
+-- case004.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case004.JSONATA"
+}
+-- case004.JSONATA --
+Account.Order.Product^(Price).SKU
+-- case004_expected.json --
+[
+  "0406634348",
+  "0406654608",
+  "040657863",
+  "0406654603"
+]
+-- case005.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case005.JSONATA"
+}
+-- case005.JSONATA --
+Account.Order.Product^(Price * Quantity).Description.Colour
+-- case005_expected.json --
+[
+  "Orange",
+  "Purple",
+  "Black",
+  "Purple"
+]
+-- case006.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case006.JSONATA"
+}
+-- case006.JSONATA --
+Account.Order.Product^(Quantity, Description.Colour).Description.Colour
+-- case006_expected.json --
+[
+  "Black",
+  "Orange",
+  "Purple",
+  "Purple"
+]
+-- case007.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case007.JSONATA"
+}
+-- case007.JSONATA --
+Account.Order.Product^(Quantity, >Description.Colour).Description.Colour
+-- case007_expected.json --
+[
+  "Orange",
+  "Black",
+  "Purple",
+  "Purple"
+]
+-- case008.json --
+{
+  "dataset": "dataset12__INPUT",
+  "bindings": {},
+  "exprFile": "case008.JSONATA"
+}
+-- case008.JSONATA --
+Account.Order.Product^(Price).SKU
+-- case008_expected.json --
+[
+  "0406634348",
+  "040657863",
+  "0406654603",
+  "0406654608"
+]
+-- case009.json --
+{
+  "dataset": "dataset13__INPUT",
+  "bindings": {},
+  "exprFile": "case009.JSONATA"
+}
+-- case009.JSONATA --
+Account.Order.Product^(Price).SKU
+-- case009_expected.json --
+[
+  "0406654608",
+  "040657863",
+  "0406654603",
+  "0406634348"
+]
+-- case010.json --
+{
+  "dataset": "dataset14__INPUT",
+  "bindings": {},
+  "exprFile": "case010.JSONATA"
+}
+-- case010.JSONATA --
+Account.Order.Product^(Price).SKU
+-- case010_expected.json --
+[
+  "040657863",
+  "0406654603",
+  "0406654608",
+  "0406634348"
+]
+-- case011.json --
+{
+  "dataset": "dataset15__INPUT",
+  "bindings": {},
+  "exprFile": "case011.JSONATA"
+}
+-- case011.JSONATA --
+Account.Order.Product^(Price).SKU
+-- case011_expected.json --
+null
+-- case012.json --
+{
+  "dataset": "dataset16__INPUT",
+  "bindings": {},
+  "exprFile": "case012.JSONATA"
+}
+-- case012.JSONATA --
+Account.Order.Product^(Price).SKU
+-- case012_expected.json --
+null
+-- case013.json --
+{
+  "dataset": "dataset17__INPUT",
+  "bindings": {},
+  "exprFile": "case013.JSONATA"
+}
+-- case013.JSONATA --
+Account.Order.Product^(Price).SKU
+-- case013_expected.json --
+null
+-- case014.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case014.JSONATA"
+}
+-- case014.JSONATA --
+$^(age).name
+-- case014_expected.json --
+[
+  "Sally",
+  "Bill",
+  "Jim"
+]
+-- case015.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case015.JSONATA"
+}
+-- case015.JSONATA --
+($^(age)).name
+-- case015_expected.json --
+[
+  "Sally",
+  "Bill",
+  "Jim"
+]
+-- case016.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case016.JSONATA"
+}
+-- case016.JSONATA --
+$^(age)[0].name
+-- case016_expected.json --
+"Sally"
+-- case017.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case017.JSONATA"
+}
+-- case017.JSONATA --
+($^(age))[0].name
+-- case017_expected.json --
+"Sally"
+-- case018.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case018.JSONATA"
+}
+-- case018.JSONATA --
+($^(age)[0]).name
+-- case018_expected.json --
+"Sally"
+-- case019.json --
+{
+  "dataset": "",
+  "bindings": {},
+  "exprFile": "case019.JSONATA"
+}
+-- case019.JSONATA --
+$[0]^(age)
+-- case019_expected.json --
+{
+  "age": 35,
+  "name": "Bill"
+}
+-- case020.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case020.JSONATA"
+}
+-- case020.JSONATA --
+Account.Order#$o.Product^(ProductID).{ 'Product': `Product Name`, 'Order Index': $o }
+-- case020_expected.json --
+[
+  {
+    "Order Index": 1,
+    "Product": "Cloak"
+  },
+  {
+    "Order Index": 0,
+    "Product": "Trilby hat"
+  },
+  {
+    "Order Index": 0,
+    "Product": "Bowler Hat"
+  },
+  {
+    "Order Index": 1,
+    "Product": "Bowler Hat"
+  }
+]

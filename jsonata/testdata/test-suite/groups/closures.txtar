@@ -1,0 +1,28 @@
+-- case000.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case000.JSONATA"
+}
+-- case000.JSONATA --
+Account.(  $AccName := function() { $."Account Name" };  Order[OrderID = "order104"].Product{    "Account": $AccName(),    "SKU-" & $string(ProductID): $."Product Name"  } )
+-- case000_expected.json --
+{
+  "Account": "Firefly",
+  "SKU-345664": "Cloak",
+  "SKU-858383": "Bowler Hat"
+}
+-- case001.json --
+{
+  "dataset": "dataset5__INPUT",
+  "bindings": {},
+  "exprFile": "case001.JSONATA"
+}
+-- case001.JSONATA --
+Account.(  $AccName := function() { `Account Name` };  Order[OrderID = "order104"].Product{    "Account": $AccName(),    "SKU-" & $string(ProductID): `Product Name`  } )
+-- case001_expected.json --
+{
+  "Account": "Firefly",
+  "SKU-345664": "Cloak",
+  "SKU-858383": "Bowler Hat"
+}
