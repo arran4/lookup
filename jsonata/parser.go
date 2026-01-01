@@ -3,7 +3,6 @@ package jsonata
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // Parse converts a JSONata expression into an AST.
@@ -191,14 +190,6 @@ func (p *parser) peek() byte {
 		return 0
 	}
 	return p.s[p.i]
-}
-
-func (p *parser) readUntil(ch byte) string {
-	start := p.i
-	for p.i < len(p.s) && p.s[p.i] != ch {
-		p.i++
-	}
-	return strings.TrimSpace(p.s[start:p.i])
 }
 
 func isDigit(b byte) bool {
