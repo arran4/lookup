@@ -393,3 +393,107 @@ The core API is stable but still evolving. Feedback and contributions are encour
 ### Where can I get help?
 
 Open an issue on GitHub if you have questions or run into problems.
+
+## JSONata Feature Compatibility Matrix
+
+Test results generated from `go test ./jsonata`. Status indicates how many test cases passed vs total test cases in each feature group.
+
+| Feature Group | Passed | Failed | Status |
+|---|---|---|---|
+| array-constructor | 0 | 21 | Partial |
+| blocks | 0 | 7 | Partial |
+| boolean-expresssions | 0 | 31 | Partial |
+| closures | 0 | 2 | Partial |
+| coalescing-operator | 0 | 13 | Partial |
+| comments | 0 | 4 | Partial |
+| comparison-operators | 0 | 29 | Partial |
+| conditionals | 0 | 9 | Partial |
+| context | 0 | 4 | Partial |
+| default-operator | 0 | 14 | Partial |
+| descendent-operator | 0 | 17 | Partial |
+| encoding | 0 | 4 | Partial |
+| errors | 0 | 27 | Partial |
+| fields | 3 | 5 | Partial |
+| flattening | 0 | 47 | Partial |
+| function-abs | 0 | 4 | Partial |
+| function-append | 0 | 6 | Partial |
+| function-applications | 0 | 22 | Partial |
+| function-assert | 0 | 8 | Partial |
+| function-average | 0 | 13 | Partial |
+| function-boolean | 0 | 24 | Partial |
+| function-ceil | 0 | 4 | Partial |
+| function-contains | 0 | 7 | Partial |
+| function-count | 0 | 14 | Partial |
+| function-decodeUrl | 0 | 3 | Partial |
+| function-decodeUrlComponent | 0 | 3 | Partial |
+| function-each | 0 | 3 | Partial |
+| function-encodeUrl | 0 | 3 | Partial |
+| function-encodeUrlComponent | 0 | 3 | Partial |
+| function-error | 0 | 11 | Partial |
+| function-eval | 0 | 8 | Partial |
+| function-exists | 0 | 25 | Partial |
+| function-floor | 0 | 4 | Partial |
+| function-formatBase | 0 | 9 | Partial |
+| function-formatNumber | 0 | 37 | Partial |
+| function-fromMillis | 0 | 3 | Partial |
+| function-join | 0 | 12 | Partial |
+| function-keys | 0 | 7 | Partial |
+| function-length | 0 | 17 | Partial |
+| function-lookup | 0 | 4 | Partial |
+| function-lowercase | 0 | 2 | Partial |
+| function-max | 0 | 27 | Partial |
+| function-merge | 0 | 5 | Partial |
+| function-number | 0 | 34 | Partial |
+| function-pad | 0 | 13 | Partial |
+| function-power | 0 | 7 | Partial |
+| function-replace | 0 | 12 | Partial |
+| function-reverse | 0 | 4 | Partial |
+| function-round | 0 | 18 | Partial |
+| function-shuffle | 0 | 4 | Partial |
+| function-sift | 0 | 5 | Partial |
+| function-signatures | 0 | 35 | Partial |
+| function-sort | 0 | 11 | Partial |
+| function-split | 0 | 19 | Partial |
+| function-spread | 0 | 4 | Partial |
+| function-sqrt | 0 | 4 | Partial |
+| function-string | 0 | 31 | Partial |
+| function-substring | 0 | 19 | Partial |
+| function-substringAfter | 0 | 5 | Partial |
+| function-substringBefore | 0 | 5 | Partial |
+| function-sum | 0 | 7 | Partial |
+| function-tomillis | 0 | 13 | Partial |
+| function-trim | 0 | 3 | Partial |
+| function-typeOf | 0 | 13 | Partial |
+| function-uppercase | 0 | 2 | Partial |
+| function-zip | 0 | 6 | Partial |
+| higher-order-functions | 0 | 3 | Partial |
+| hof-filter | 0 | 4 | Partial |
+| hof-map | 0 | 12 | Partial |
+| hof-reduce | 0 | 11 | Partial |
+| hof-single | 0 | 11 | Partial |
+| hof-zip-map | 0 | 4 | Partial |
+| inclusion-operator | 0 | 9 | Partial |
+| lambdas | 0 | 14 | Partial |
+| literals | 0 | 20 | Partial |
+| matchers | 0 | 2 | Partial |
+| missing-paths | 4 | 2 | Partial |
+| multiple-array-selectors | 0 | 3 | Partial |
+| null | 1 | 6 | Partial |
+| numeric-operators | 0 | 19 | Partial |
+| object-constructor | 0 | 27 | Partial |
+| parentheses | 0 | 8 | Partial |
+| partial-application | 0 | 5 | Partial |
+| performance | 0 | 2 | Partial |
+| predicates | 0 | 4 | Partial |
+| quoted-selectors | 0 | 8 | Partial |
+| range-operator | 0 | 25 | Partial |
+| regex | 0 | 39 | Partial |
+| simple-array-selectors | 4 | 19 | Partial |
+| sorting | 0 | 21 | Partial |
+| string-concat | 0 | 12 | Partial |
+| tail-recursion | 0 | 10 | Partial |
+| token-conversion | 0 | 4 | Partial |
+| transform | 10 | 94 | Partial |
+| transforms | 0 | 15 | Partial |
+| variables | 0 | 13 | Partial |
+| wildcards | 0 | 10 | Partial |

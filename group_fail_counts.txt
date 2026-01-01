@@ -1,0 +1,194 @@
+     21 array-constructor
+      1 array-constructor (0.00s)
+      7 blocks
+      1 blocks (0.00s)
+     31 boolean-expresssions
+      1 boolean-expresssions (0.00s)
+      2 closures
+      1 closures (0.00s)
+     13 coalescing-operator
+      1 coalescing-operator (0.00s)
+      4 comments
+      1 comments (0.00s)
+     29 comparison-operators
+      1 comparison-operators (0.00s)
+      9 conditionals
+      1 conditionals (0.00s)
+      4 context
+      1 context (0.00s)
+     14 default-operator
+      1 default-operator (0.00s)
+     17 descendent-operator
+      1 descendent-operator (0.00s)
+      4 encoding
+      1 encoding (0.00s)
+     27 errors
+      1 errors (0.00s)
+      5 fields
+      1 fields (0.00s)
+     47 flattening
+      1 flattening (0.01s)
+      4 function-abs
+      1 function-abs (0.00s)
+      6 function-append
+      1 function-append (0.00s)
+     22 function-applications
+      1 function-applications (0.00s)
+      8 function-assert
+      1 function-assert (0.00s)
+     13 function-average
+      1 function-average (0.00s)
+     24 function-boolean
+      1 function-boolean (0.00s)
+      4 function-ceil
+      1 function-ceil (0.00s)
+      7 function-contains
+      1 function-contains (0.00s)
+     14 function-count
+      1 function-count (0.00s)
+      3 function-decodeUrl
+      1 function-decodeUrl (0.00s)
+      3 function-decodeUrlComponent
+      1 function-decodeUrlComponent (0.00s)
+      3 function-each
+      1 function-each (0.00s)
+      3 function-encodeUrl
+      1 function-encodeUrl (0.00s)
+      3 function-encodeUrlComponent
+      1 function-encodeUrlComponent (0.00s)
+     11 function-error
+      1 function-error (0.00s)
+      8 function-eval
+      1 function-eval (0.00s)
+     25 function-exists
+      1 function-exists (0.00s)
+      4 function-floor
+      1 function-floor (0.00s)
+      9 function-formatBase
+      1 function-formatBase (0.00s)
+     37 function-formatNumber
+      1 function-formatNumber (0.00s)
+      3 function-fromMillis
+      1 function-fromMillis (0.00s)
+     12 function-join
+      1 function-join (0.00s)
+      7 function-keys
+      1 function-keys (0.00s)
+     17 function-length
+      1 function-length (0.00s)
+      4 function-lookup
+      1 function-lookup (0.00s)
+      2 function-lowercase
+      1 function-lowercase (0.00s)
+     27 function-max
+      1 function-max (0.00s)
+      5 function-merge
+      1 function-merge (0.00s)
+     34 function-number
+      1 function-number (0.00s)
+     13 function-pad
+      1 function-pad (0.00s)
+      7 function-power
+      1 function-power (0.00s)
+     12 function-replace
+      1 function-replace (0.00s)
+      4 function-reverse
+      1 function-reverse (0.00s)
+     18 function-round
+      1 function-round (0.00s)
+      4 function-shuffle
+      1 function-shuffle (0.00s)
+      5 function-sift
+      1 function-sift (0.00s)
+     35 function-signatures
+      1 function-signatures (0.00s)
+     11 function-sort
+      1 function-sort (0.00s)
+     19 function-split
+      1 function-split (0.00s)
+      4 function-spread
+      1 function-spread (0.00s)
+      4 function-sqrt
+      1 function-sqrt (0.00s)
+     31 function-string
+      1 function-string (0.00s)
+     19 function-substring
+      1 function-substring (0.00s)
+      5 function-substringAfter
+      1 function-substringAfter (0.00s)
+      5 function-substringBefore
+      1 function-substringBefore (0.00s)
+      7 function-sum
+      1 function-sum (0.00s)
+     13 function-tomillis
+      1 function-tomillis (0.00s)
+      3 function-trim
+      1 function-trim (0.00s)
+     13 function-typeOf
+      1 function-typeOf (0.00s)
+      2 function-uppercase
+      1 function-uppercase (0.00s)
+      6 function-zip
+      1 function-zip (0.00s)
+      3 higher-order-functions
+      1 higher-order-functions (0.00s)
+      4 hof-filter
+      1 hof-filter (0.00s)
+     12 hof-map
+      1 hof-map (0.00s)
+     11 hof-reduce
+      1 hof-reduce (0.00s)
+     11 hof-single
+      1 hof-single (0.00s)
+      4 hof-zip-map
+      1 hof-zip-map (0.00s)
+      9 inclusion-operator
+      1 inclusion-operator (0.00s)
+     14 lambdas
+      1 lambdas (0.00s)
+     20 literals
+      1 literals (0.00s)
+      2 matchers
+      1 matchers (0.00s)
+      2 missing-paths
+      1 missing-paths (0.00s)
+      3 multiple-array-selectors
+      1 multiple-array-selectors (0.00s)
+      6 null
+      1 null (0.00s)
+     19 numeric-operators
+      1 numeric-operators (0.00s)
+     27 object-constructor
+      1 object-constructor (0.00s)
+      8 parentheses
+      1 parentheses (0.00s)
+      5 partial-application
+      1 partial-application (0.00s)
+      2 performance
+      1 performance (0.00s)
+      4 predicates
+      1 predicates (0.00s)
+      8 quoted-selectors
+      1 quoted-selectors (0.00s)
+     25 range-operator
+      1 range-operator (0.00s)
+     39 regex
+      1 regex (0.00s)
+     19 simple-array-selectors
+      1 simple-array-selectors (0.00s)
+     21 sorting
+      1 sorting (0.00s)
+     12 string-concat
+      1 string-concat (0.00s)
+     10 tail-recursion
+      1 tail-recursion (0.00s)
+      4 token-conversion
+      1 token-conversion (0.00s)
+     94 transform
+      1 transform (0.01s)
+     15 transforms
+      1 transforms (0.00s)
+     13 variables
+      1 variables (0.00s)
+     10 wildcards
+      1 wildcards (0.00s)
