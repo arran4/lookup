@@ -393,3 +393,107 @@ The core API is stable but still evolving. Feedback and contributions are encour
 ### Where can I get help?
 
 Open an issue on GitHub if you have questions or run into problems.
+
+## JSONata Feature Compatibility Matrix
+
+Test results generated from `go test ./jsonata`.
+
+| Feature Group | Passed | Failed |
+|---|---|---|
+| array-constructor | 0 | 21 |
+| blocks | 0 | 7 |
+| boolean-expresssions | 0 | 31 |
+| closures | 0 | 2 |
+| coalescing-operator | 0 | 13 |
+| comments | 0 | 4 |
+| comparison-operators | 0 | 29 |
+| conditionals | 0 | 9 |
+| context | 0 | 4 |
+| default-operator | 0 | 14 |
+| descendent-operator | 0 | 17 |
+| encoding | 0 | 4 |
+| errors | 0 | 27 |
+| fields | 3 | 5 |
+| flattening | 0 | 47 |
+| function-abs | 0 | 4 |
+| function-append | 0 | 6 |
+| function-applications | 0 | 22 |
+| function-assert | 0 | 8 |
+| function-average | 0 | 13 |
+| function-boolean | 0 | 24 |
+| function-ceil | 0 | 4 |
+| function-contains | 0 | 7 |
+| function-count | 0 | 14 |
+| function-decodeUrl | 0 | 3 |
+| function-decodeUrlComponent | 0 | 3 |
+| function-each | 0 | 3 |
+| function-encodeUrl | 0 | 3 |
+| function-encodeUrlComponent | 0 | 3 |
+| function-error | 0 | 11 |
+| function-eval | 0 | 8 |
+| function-exists | 0 | 25 |
+| function-floor | 0 | 4 |
+| function-formatBase | 0 | 9 |
+| function-formatNumber | 0 | 37 |
+| function-fromMillis | 0 | 3 |
+| function-join | 0 | 12 |
+| function-keys | 0 | 7 |
+| function-length | 0 | 17 |
+| function-lookup | 0 | 4 |
+| function-lowercase | 0 | 2 |
+| function-max | 0 | 27 |
+| function-merge | 0 | 5 |
+| function-number | 0 | 34 |
+| function-pad | 0 | 13 |
+| function-power | 0 | 7 |
+| function-replace | 0 | 12 |
+| function-reverse | 0 | 4 |
+| function-round | 0 | 18 |
+| function-shuffle | 0 | 4 |
+| function-sift | 0 | 5 |
+| function-signatures | 0 | 35 |
+| function-sort | 0 | 11 |
+| function-split | 0 | 19 |
+| function-spread | 0 | 4 |
+| function-sqrt | 0 | 4 |
+| function-string | 0 | 31 |
+| function-substring | 0 | 19 |
+| function-substringAfter | 0 | 5 |
+| function-substringBefore | 0 | 5 |
+| function-sum | 0 | 7 |
+| function-tomillis | 0 | 13 |
+| function-trim | 0 | 3 |
+| function-typeOf | 0 | 13 |
+| function-uppercase | 0 | 2 |
+| function-zip | 0 | 6 |
+| higher-order-functions | 0 | 3 |
+| hof-filter | 0 | 4 |
+| hof-map | 0 | 12 |
+| hof-reduce | 0 | 11 |
+| hof-single | 0 | 11 |
+| hof-zip-map | 0 | 4 |
+| inclusion-operator | 0 | 9 |
+| lambdas | 0 | 14 |
+| literals | 0 | 20 |
+| matchers | 0 | 2 |
+| missing-paths | 4 | 2 |
+| multiple-array-selectors | 0 | 3 |
+| null | 1 | 6 |
+| numeric-operators | 0 | 19 |
+| object-constructor | 0 | 27 |
+| parentheses | 0 | 8 |
+| partial-application | 0 | 5 |
+| performance | 0 | 2 |
+| predicates | 0 | 4 |
+| quoted-selectors | 0 | 8 |
+| range-operator | 0 | 25 |
+| regex | 0 | 39 |
+| simple-array-selectors | 4 | 19 |
+| sorting | 0 | 21 |
+| string-concat | 0 | 12 |
+| tail-recursion | 0 | 10 |
+| token-conversion | 0 | 4 |
+| transform | 10 | 94 |
+| transforms | 0 | 15 |
+| variables | 0 | 13 |
+| wildcards | 0 | 10 |
