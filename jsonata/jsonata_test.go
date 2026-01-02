@@ -51,5 +51,5 @@ func TestJSONQueries(t *testing.T) {
 		t.Fatalf("failed to unmarshal json: %v", err)
 	}
 
-	assert.Equal(t, []int{7}, runQuery(t, v, "Users[Name='sam'].Age"))
+	assert.Equal(t, 7, runQuery(t, v, "Users[Name='sam'].Age"))
 }
