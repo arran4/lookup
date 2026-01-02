@@ -116,7 +116,7 @@ var groupStatus = map[string]bool{
 	"regex":                       true,
 	"simple-array-selectors":      true,
 	"sorting":                     true,
-	// "string-concat":               true,
+	// "string-concat":               true, // Fixed, running in strict mode
 	"tail-recursion":              true,
 	"token-conversion":            true,
 	"transform":                   true,

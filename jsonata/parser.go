@@ -25,41 +25,67 @@ type parser struct {
 	i int
 }
 
+// Precedence levels:
+// 1. Expression ( & )
+// 2. Additive ( + )
+// 3. Term ( path, literal, parens )
+
 func (p *parser) parseExpression() (Node, error) {
+	// Level 1: &
+	lhs, err := p.parseAdditive()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.consumeWhitespace(); err != nil {
+		return lhs, nil
+	}
+
+	// Left-associative: loop
+	for p.peek() == '&' {
+		p.i++ // consume '&'
+		rhs, err := p.parseAdditive()
+		if err != nil {
+			return nil, err
+		}
+		lhs = &BinaryNode{
+			Operator: "&",
+			Left:     lhs,
+			Right:    rhs,
+		}
+		if err := p.consumeWhitespace(); err != nil {
+			break
+		}
+	}
+
+	return lhs, nil
+}
+
+func (p *parser) parseAdditive() (Node, error) {
+	// Level 2: + (and - later)
 	lhs, err := p.parseTerm()
 	if err != nil {
 		return nil, err
 	}
 
 	if err := p.consumeWhitespace(); err != nil {
-		return lhs, nil // End of string is fine
+		return lhs, nil
 	}
 
-	// Check for binary operators
-	if p.peek() == '&' {
-		p.i++ // consume '&'
-		rhs, err := p.parseExpression()
+	for p.peek() == '+' {
+		p.i++ // consume '+'
+		rhs, err := p.parseTerm()
 		if err != nil {
 			return nil, err
 		}
-		return &BinaryNode{
-			Operator: "&",
-			Left:     lhs,
-			Right:    rhs,
-		}, nil
-	}
-
-	if p.peek() == '+' {
-		p.i++
-		rhs, err := p.parseExpression()
-		if err != nil {
-			return nil, err
-		}
-		return &BinaryNode{
+		lhs = &BinaryNode{
 			Operator: "+",
 			Left:     lhs,
 			Right:    rhs,
-		}, nil
+		}
+		if err := p.consumeWhitespace(); err != nil {
+			break
+		}
 	}
 
 	return lhs, nil
@@ -84,24 +110,6 @@ func (p *parser) parseTerm() (Node, error) {
 			return nil, fmt.Errorf("expected )")
 		}
 		p.i++ // consume ')'
-
-		// Check for following path components (e.g. `(expr).foo` or `(expr)[0]`)
-		// We can handle this by treating the parenthesized expr as the "start" of a path?
-		// But `parsePath` constructs a `PathNode` with a list of steps.
-		// If we return `expr` node, we can't append steps to it easily if it's not a PathNode.
-
-		// If next char is `.` or `[`, we are continuing a path.
-		// `parsePath` logic usually starts with Ident.
-		// But here we have an arbitrary Node as start.
-
-		// If I encounter `.` or `[` after a term, I should probably wrap the term in a structure that allows further navigation?
-		// Or maybe `parsePath` should accept an optional "start node"?
-		// No, `PathNode` contains steps. First step can be implicit context?
-
-		// Let's defer this complexity. The failing tests are `foo.(...)`.
-		// `foo` is parsed as PathNode.
-		// `.` is handled in `parsePath`.
-		// `(...)` needs to be handled in `parsePath` as a Step.
 
 		return expr, nil
 	}
@@ -131,7 +139,6 @@ func (p *parser) parseTerm() (Node, error) {
 		p.i++ // consume [
 		// Try to parse as list of expressions (literals for now as per previous attempt)
 		var litItems []interface{}
-		allLiterals := true
 
 		for {
 			if err := p.consumeWhitespace(); err != nil {
@@ -151,7 +158,6 @@ func (p *parser) parseTerm() (Node, error) {
 			if lit, ok := item.(*LiteralNode); ok {
 				litItems = append(litItems, lit.Value)
 			} else {
-				allLiterals = false
 				return nil, fmt.Errorf("complex array constructors not supported yet")
 			}
 
@@ -165,9 +171,7 @@ func (p *parser) parseTerm() (Node, error) {
 			}
 		}
 
-		if allLiterals {
-			return &LiteralNode{Value: litItems}, nil
-		}
+		return &LiteralNode{Value: litItems}, nil
 	}
 
 	// Path
