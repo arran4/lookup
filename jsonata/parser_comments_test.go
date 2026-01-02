@@ -30,14 +30,14 @@ func TestComments(t *testing.T) {
 			expr: "/* \n comment \n */ foo",
 		},
 		{
-			name: "Unclosed comment",
-			expr: "/* unclosed comment",
+			name:    "Unclosed comment",
+			expr:    "/* unclosed comment",
 			wantErr: true,
 			errMsg:  "unclosed comment",
 		},
 		{
-			name: "Unclosed comment with content",
-			expr: "foo /* unclosed",
+			name:    "Unclosed comment with content",
+			expr:    "foo /* unclosed",
 			wantErr: true,
 			errMsg:  "unclosed comment",
 		},

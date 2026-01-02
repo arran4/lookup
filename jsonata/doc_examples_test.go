@@ -67,7 +67,7 @@ func TestDocExampleEqualityFilter(t *testing.T) {
 	skipIf(t, testFeatureEqualityFilter, "equality filter")
 	data := loadSample(t)
 	out := run(t, data, "foo.blah[bazz='gotcha'].bazz")
-	assert.Equal(t, []string{"gotcha"}, out)
+	assert.Equal(t, "gotcha", out)
 }
 
 // TestDocExampleFunctionSum shows calling a function within an
