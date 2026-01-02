@@ -63,10 +63,10 @@ func (j *Jsonor) IsNil() bool       { return j.ensure().IsNil() }
 func (j *Jsonor) IsPtr() bool       { return j.ensure().IsPtr() }
 func (j *Jsonor) IsInterface() bool { return j.ensure().IsInterface() }
 
-func (j *Jsonor) AsString() (string, error)              { return j.ensure().AsString() }
-func (j *Jsonor) AsInt() (int64, error)                  { return j.ensure().AsInt() }
-func (j *Jsonor) AsBool() (bool, error)                  { return j.ensure().AsBool() }
-func (j *Jsonor) AsFloat() (float64, error)              { return j.ensure().AsFloat() }
-func (j *Jsonor) AsSlice() ([]interface{}, error)        { return j.ensure().AsSlice() }
+func (j *Jsonor) AsString() (string, error)             { return j.ensure().AsString() }
+func (j *Jsonor) AsInt() (int64, error)                 { return j.ensure().AsInt() }
+func (j *Jsonor) AsBool() (bool, error)                 { return j.ensure().AsBool() }
+func (j *Jsonor) AsFloat() (float64, error)             { return j.ensure().AsFloat() }
+func (j *Jsonor) AsSlice() ([]interface{}, error)       { return j.ensure().AsSlice() }
 func (j *Jsonor) AsMap() (map[string]interface{}, error) { return j.ensure().AsMap() }
-func (j *Jsonor) AsPtr() (interface{}, error)            { return j.ensure().AsPtr() }
+func (j *Jsonor) AsPtr() (interface{}, error)           { return j.ensure().AsPtr() }

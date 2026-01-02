@@ -64,10 +64,10 @@ func (y *Yamlor) IsNil() bool       { return y.ensure().IsNil() }
 func (y *Yamlor) IsPtr() bool       { return y.ensure().IsPtr() }
 func (y *Yamlor) IsInterface() bool { return y.ensure().IsInterface() }
 
-func (y *Yamlor) AsString() (string, error)              { return y.ensure().AsString() }
-func (y *Yamlor) AsInt() (int64, error)                  { return y.ensure().AsInt() }
-func (y *Yamlor) AsBool() (bool, error)                  { return y.ensure().AsBool() }
-func (y *Yamlor) AsFloat() (float64, error)              { return y.ensure().AsFloat() }
-func (y *Yamlor) AsSlice() ([]interface{}, error)        { return y.ensure().AsSlice() }
+func (y *Yamlor) AsString() (string, error)             { return y.ensure().AsString() }
+func (y *Yamlor) AsInt() (int64, error)                 { return y.ensure().AsInt() }
+func (y *Yamlor) AsBool() (bool, error)                 { return y.ensure().AsBool() }
+func (y *Yamlor) AsFloat() (float64, error)             { return y.ensure().AsFloat() }
+func (y *Yamlor) AsSlice() ([]interface{}, error)       { return y.ensure().AsSlice() }
 func (y *Yamlor) AsMap() (map[string]interface{}, error) { return y.ensure().AsMap() }
-func (y *Yamlor) AsPtr() (interface{}, error)            { return y.ensure().AsPtr() }
+func (y *Yamlor) AsPtr() (interface{}, error)           { return y.ensure().AsPtr() }

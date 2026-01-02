@@ -1,4 +1,0 @@
-# github.com/arran4/lookup/jsonata [github.com/arran4/lookup/jsonata.test]
-jsonata/compile.go:63:17: fieldRunner.Find undefined (type lookup.Runner has no field or method Find)
-FAIL	github.com/arran4/lookup/jsonata [build failed]
-FAIL
