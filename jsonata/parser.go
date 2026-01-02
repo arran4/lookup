@@ -6,18 +6,18 @@ import (
 )
 
 // Parse converts a JSONata expression into an AST.
-// It supports a very small subset of the language:
-//   - dot separated field names
-//   - array indexes like [0] or [-1]
-//   - equality filters like [field="value"]
-//   - basic operators like +, >
 func Parse(expr string) (*AST, error) {
 	p := &parser{s: expr}
-	ast, err := p.parse()
+	node, err := p.parseExpression()
 	if err != nil {
 		return nil, err
 	}
-	return ast, nil
+
+	if err := p.consumeWhitespace(); err == nil && p.i < len(p.s) {
+		return nil, fmt.Errorf("unexpected token at position %d: %c", p.i, p.s[p.i])
+	}
+
+	return &AST{Node: node}, nil
 }
 
 type parser struct {
@@ -25,144 +25,267 @@ type parser struct {
 	i int
 }
 
-func (p *parser) parse() (*AST, error) {
-	ast := &AST{}
+// Precedence levels:
+// 1. Expression ( & )
+// 2. Additive ( + )
+// 3. Term ( path, literal, parens )
+
+func (p *parser) parseExpression() (Node, error) {
+	// Level 1: &
+	lhs, err := p.parseAdditive()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.consumeWhitespace(); err != nil {
+		return lhs, nil
+	}
+
+	// Left-associative: loop
+	for p.peek() == '&' {
+		p.i++ // consume '&'
+		rhs, err := p.parseAdditive()
+		if err != nil {
+			return nil, err
+		}
+		lhs = &BinaryNode{
+			Operator: "&",
+			Left:     lhs,
+			Right:    rhs,
+		}
+		if err := p.consumeWhitespace(); err != nil {
+			break
+		}
+	}
+
+	return lhs, nil
+}
+
+func (p *parser) parseAdditive() (Node, error) {
+	// Level 2: + (and - later)
+	lhs, err := p.parseTerm()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.consumeWhitespace(); err != nil {
+		return lhs, nil
+	}
+
+	for p.peek() == '+' {
+		p.i++ // consume '+'
+		rhs, err := p.parseTerm()
+		if err != nil {
+			return nil, err
+		}
+		lhs = &BinaryNode{
+			Operator: "+",
+			Left:     lhs,
+			Right:    rhs,
+		}
+		if err := p.consumeWhitespace(); err != nil {
+			break
+		}
+	}
+
+	return lhs, nil
+}
+
+func (p *parser) parseTerm() (Node, error) {
 	if err := p.consumeWhitespace(); err != nil {
 		return nil, err
 	}
-	for {
-		name, err := p.parseIdent()
+
+	// Parentheses
+	if p.peek() == '(' {
+		p.i++ // consume '('
+		expr, err := p.parseExpression()
 		if err != nil {
 			return nil, err
 		}
 		if err := p.consumeWhitespace(); err != nil {
 			return nil, err
 		}
-		step := Step{Name: name}
-		// zero or more brackets
-		for p.peek() == '[' {
-			p.i++ // consume '['
+		if p.peek() != ')' {
+			return nil, fmt.Errorf("expected )")
+		}
+		p.i++ // consume ')'
+
+		return expr, nil
+	}
+
+	// Literal: String
+	if p.peek() == '"' || p.peek() == '\'' {
+		val, err := p.parseValue()
+		if err != nil {
+			return nil, err
+		}
+		return &LiteralNode{Value: val}, nil
+	}
+
+	// Literal: Number
+	if isDigit(p.peek()) || p.peek() == '-' {
+		val, err := p.parseValue()
+		if err == nil {
+			if f, err := strconv.ParseFloat(val, 64); err == nil {
+				return &LiteralNode{Value: f}, nil
+			}
+			return &LiteralNode{Value: val}, nil
+		}
+	}
+
+	// Array Constructor `[...]`
+	if p.peek() == '[' {
+		p.i++ // consume [
+		// Try to parse as list of expressions (literals for now as per previous attempt)
+		var litItems []interface{}
+
+		for {
 			if err := p.consumeWhitespace(); err != nil {
 				return nil, err
 			}
 			if p.peek() == ']' {
-				return nil, fmt.Errorf("empty brackets")
-			}
-			if isDigit(p.peek()) || p.peek() == '-' {
-				// index
-				start := p.i
-				if p.peek() == '-' {
-					p.i++
-				}
-				for isDigit(p.peek()) {
-					p.i++
-				}
-				numStr := p.s[start:p.i]
-
-				if err := p.consumeWhitespace(); err != nil {
-					return nil, err
-				}
-				if p.peek() != ']' {
-					return nil, fmt.Errorf("expected closing bracket after index")
-				}
-				p.i++ // consume closing
-				if err := p.consumeWhitespace(); err != nil {
-					return nil, err
-				}
-
-				num, err := strconv.Atoi(numStr)
-				if err != nil {
-					return nil, fmt.Errorf("invalid index %s", numStr)
-				}
-				step.Index = &num
-			} else {
-				field, err := p.parseIdent()
-				if err != nil {
-					return nil, err
-				}
-				if err := p.consumeWhitespace(); err != nil {
-					return nil, err
-				}
-
-				// Parse operator
-				var operator string
-				switch p.peek() {
-				case '=', '>', '<', '!':
-					operator = string(p.peek())
-					p.i++
-					if p.peek() == '=' { // >=, <=, !=
-						operator += string(p.peek())
-						p.i++
-					}
-				default:
-					return nil, fmt.Errorf("expected operator after %s", field)
-				}
-
-				if err := p.consumeWhitespace(); err != nil {
-					return nil, err
-				}
-				val, err := p.parseValue()
-				if err != nil {
-					return nil, err
-				}
-				if err := p.consumeWhitespace(); err != nil {
-					return nil, err
-				}
-				if p.peek() != ']' {
-					return nil, fmt.Errorf("expected closing bracket")
-				}
 				p.i++
-				if err := p.consumeWhitespace(); err != nil {
-					return nil, err
-				}
-				step.Filter = &Predicate{Field: field, Operator: operator, Value: val}
+				break
+			}
+
+			// Recursive parse
+			item, err := p.parseExpression()
+			if err != nil {
+				return nil, err
+			}
+
+			if lit, ok := item.(*LiteralNode); ok {
+				litItems = append(litItems, lit.Value)
+			} else {
+				return nil, fmt.Errorf("complex array constructors not supported yet")
+			}
+
+			if err := p.consumeWhitespace(); err != nil {
+				return nil, err
+			}
+			if p.peek() == ',' {
+				p.i++
+			} else if p.peek() != ']' {
+				return nil, fmt.Errorf("expected , or ]")
 			}
 		}
-		ast.Steps = append(ast.Steps, step)
-		if p.i >= len(p.s) {
+
+		return &LiteralNode{Value: litItems}, nil
+	}
+
+	// Path
+	return p.parsePath()
+}
+
+func (p *parser) parsePath() (Node, error) {
+	var steps []Step
+
+	for {
+		if err := p.consumeWhitespace(); err != nil {
+			if len(steps) > 0 { break }
+			return nil, err
+		}
+
+		// Refactored Loop Body:
+		var step Step
+		var hasStep bool
+
+		// Try Ident
+		ident, err := p.parseIdent()
+		if err == nil {
+			step = Step{Name: ident}
+			hasStep = true
+		} else {
+			// Try SubExpr
+			if p.peek() == '(' {
+				p.i++
+				sub, err := p.parseExpression()
+				if err != nil { return nil, err }
+				if err := p.consumeWhitespace(); err != nil { return nil, err }
+				if p.peek() != ')' { return nil, fmt.Errorf("expected )") }
+				p.i++
+				step = Step{SubExpr: sub}
+				hasStep = true
+			}
+		}
+
+		if !hasStep {
+			if len(steps) > 0 { break }
+			return nil, fmt.Errorf("expected identifier or (")
+		}
+
+		// Parse Brackets
+		if err := p.consumeWhitespace(); err != nil {
+			steps = append(steps, step)
 			break
 		}
 
-		// Check for operators (like +) or dot
-		if p.s[p.i] == '.' {
+		for p.peek() == '[' {
 			p.i++
-			if err := p.consumeWhitespace(); err != nil {
-				return nil, err
-			}
-		} else if p.s[p.i] == '+' {
-			p.i++
-			if err := p.consumeWhitespace(); err != nil {
-				return nil, err
-			}
-			val, err := p.parseValue()
-			if err == nil {
-				litStep := Step{Value: val, IsLiteral: true, Operator: "+"}
-				ast.Steps = append(ast.Steps, litStep)
-				if err := p.consumeWhitespace(); err != nil {
-					return nil, err
-				}
-				if p.i >= len(p.s) {
-					break
-				}
-				if p.s[p.i] == '.' {
-					p.i++
-					if err := p.consumeWhitespace(); err != nil {
-						return nil, err
-					}
-					continue
-				} else {
-					// Assume end or another operator (not handled yet)
-					break
-				}
+			if err := p.consumeWhitespace(); err != nil { return nil, err }
+			if p.peek() == ']' { return nil, fmt.Errorf("empty brackets") }
+
+			if isDigit(p.peek()) || p.peek() == '-' {
+				// Index
+				start := p.i
+				if p.peek() == '-' { p.i++ }
+				for isDigit(p.peek()) { p.i++ }
+				numStr := p.s[start:p.i]
+				if err := p.consumeWhitespace(); err != nil { return nil, err }
+				if p.peek() != ']' { return nil, fmt.Errorf("expected ]") }
+				p.i++
+
+				num, err := strconv.Atoi(numStr)
+				if err != nil { return nil, err }
+				step.Index = &num
 			} else {
-				continue
+				// Filter
+				field, err := p.parseIdent()
+				if err != nil { return nil, err }
+				if err := p.consumeWhitespace(); err != nil { return nil, err }
+
+				var op string
+				switch p.peek() {
+				case '=', '>', '<', '!':
+					op = string(p.peek())
+					p.i++
+					if p.peek() == '=' {
+						op += string(p.peek())
+						p.i++
+					}
+				default:
+					return nil, fmt.Errorf("expected operator")
+				}
+
+				if err := p.consumeWhitespace(); err != nil { return nil, err }
+				val, err := p.parseValue()
+				if err != nil { return nil, err }
+				if err := p.consumeWhitespace(); err != nil { return nil, err }
+				if p.peek() != ']' { return nil, fmt.Errorf("expected ]") }
+				p.i++
+
+				step.Filter = &Predicate{Field: field, Operator: op, Value: val}
 			}
+			if err := p.consumeWhitespace(); err != nil { break }
+		}
+
+		steps = append(steps, step)
+
+		if p.i >= len(p.s) { break }
+
+		if p.peek() == '.' {
+			p.i++
+			// Continue to next step
 		} else {
-			return nil, fmt.Errorf("expected '.' or operator at position %d, got %c", p.i, p.s[p.i])
+			// Not a dot, break (could be & or other operator handled by caller)
+			break
 		}
 	}
-	return ast, nil
+
+	return &PathNode{Steps: steps}, nil
 }
+
 
 func (p *parser) consumeWhitespace() error {
 	for p.i < len(p.s) {
@@ -219,7 +342,7 @@ func (p *parser) parseValue() (string, error) {
 		return val, nil
 	}
 	start := p.i
-	for p.i < len(p.s) && (isDigit(p.s[p.i]) || p.s[p.i] == '-') {
+	for p.i < len(p.s) && (isDigit(p.s[p.i]) || p.s[p.i] == '.') {
 		p.i++
 	}
 	if start == p.i {

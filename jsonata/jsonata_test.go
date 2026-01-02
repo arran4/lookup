@@ -8,11 +8,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type Node struct {
+type TestNode struct {
 	Name     string
 	Size     int
 	Tags     []string
-	Children []*Node
+	Children []*TestNode
 }
 
 func runQuery(t *testing.T, data interface{}, q string) interface{} {
@@ -25,10 +25,10 @@ func runQuery(t *testing.T, data interface{}, q string) interface{} {
 }
 
 func TestStructQueries(t *testing.T) {
-	root := &Node{
+	root := &TestNode{
 		Name: "root",
 		Size: 3,
-		Children: []*Node{
+		Children: []*TestNode{
 			{Name: "child1", Size: 1},
 			{Name: "child2", Size: 2},
 		},
