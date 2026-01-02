@@ -28,6 +28,8 @@ jobs:
             ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Vet
+        run: go vet ./...
       - name: Test
         run: go test -coverprofile coverage.txt ./...
       - name: Archive code coverage results
