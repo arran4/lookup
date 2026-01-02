@@ -68,7 +68,11 @@ func runCase(c suiteCase, expr string) (interface{}, error) {
 	}
 	q := Compile(ast)
 	root := lookup.Reflect(data)
-	return q.Run(lookup.NewScope(root, root)).Raw(), nil
+	res := q.Run(lookup.NewScope(root, root))
+	if res == nil {
+		return nil, nil
+	}
+	return res.Raw(), nil
 }
 
 func TestGroups(t *testing.T) {

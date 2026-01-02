@@ -1,6 +1,8 @@
 package jsonata
 
 import (
+	"fmt"
+	"reflect"
 	"github.com/arran4/lookup"
 )
 
@@ -10,8 +12,8 @@ type jsonataRunner struct {
 
 func (r *jsonataRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	res := r.inner.Run(scope)
-	if res == nil {
-		return nil
+	if isNilOrNilPointer(res) {
+		return lookup.NewInvalidor("", fmt.Errorf("result is nil"))
 	}
 
 	// Singleton unwrapping: JSONata unwraps single-element arrays resulting from path expressions.
@@ -44,7 +46,10 @@ type jsonataMapRunner struct {
 func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	curr := scope.Current
 
-	if curr == nil || curr.IsNil() {
+	if isNilOrNilPointer(curr) {
+		return lookup.NewInvalidor(r.name, fmt.Errorf("current context is nil"))
+	}
+	if curr.IsNil() {
 		return curr
 	}
 
@@ -63,7 +68,7 @@ func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 
 			res := r.stepRunner.Run(subScope)
 
-			if res != nil {
+			if !isNilOrNilPointer(res) {
 				if _, ok := res.(*lookup.Invalidor); ok {
 					continue
 				}
@@ -80,18 +85,18 @@ func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 			}
 		}
 		if len(results) == 0 {
-			// For map/filter operations, empty result is often undefined in JSONata
-			return nil
+			return lookup.NewInvalidor(r.name, fmt.Errorf("nothing found"))
 		}
 		return lookup.Reflect(results)
 	}
 
 	// Not a slice.
 	res := r.stepRunner.Run(scope)
-	if res != nil {
-		if _, ok := res.(*lookup.Invalidor); ok {
-			return nil
-		}
+	if isNilOrNilPointer(res) {
+		return lookup.NewInvalidor(r.name, fmt.Errorf("nothing found"))
+	}
+	if _, ok := res.(*lookup.Invalidor); ok {
+		return res
 	}
 	return res
 }
@@ -106,8 +111,8 @@ type jsonataChain struct {
 func (c *jsonataChain) Run(scope *lookup.Scope) lookup.Pathor {
 	res := c.first.Run(scope)
 
-	if res == nil {
-		return nil
+	if isNilOrNilPointer(res) {
+		return lookup.NewInvalidor("", fmt.Errorf("chain broken"))
 	}
 	if _, ok := res.(*lookup.Invalidor); ok {
 		return res
@@ -124,7 +129,10 @@ type jsonataSingletonRunner struct {
 
 func (r *jsonataSingletonRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	curr := scope.Current
-	if curr == nil || curr.IsNil() {
+	if isNilOrNilPointer(curr) {
+		return r.inner.Run(scope)
+	}
+	if curr.IsNil() {
 		return r.inner.Run(scope)
 	}
 
@@ -137,4 +145,15 @@ func (r *jsonataSingletonRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	}
 
 	return r.inner.Run(scope)
+}
+
+func isNilOrNilPointer(i interface{}) bool {
+	if i == nil {
+		return true
+	}
+	v := reflect.ValueOf(i)
+	if v.Kind() == reflect.Ptr && v.IsNil() {
+		return true
+	}
+	return false
 }

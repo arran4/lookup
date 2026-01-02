@@ -36,7 +36,7 @@ func TestStructQueries(t *testing.T) {
 
 	assert.Equal(t, "root", runQuery(t, root, "Name"))
 	assert.Equal(t, "child2", runQuery(t, root, "Children[1].Name"))
-	assert.Equal(t, []int{2}, runQuery(t, root, "Children[Name='child2'].Size"))
+	assert.Equal(t, 2, runQuery(t, root, "Children[Name='child2'].Size"))
 }
 
 func TestJSONQueries(t *testing.T) {
