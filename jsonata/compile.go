@@ -6,21 +6,39 @@ import (
 
 // Compile converts the AST into a lookup.Runner.
 func Compile(ast *AST) lookup.Runner {
-	return &jsonataRunner{inner: compileInternal(ast)}
+	return &jsonataRunner{inner: compileNode(ast.Node)}
 }
 
-func compileInternal(ast *AST) lookup.Runner {
-	var r lookup.Runner = lookup.NewRelator()
-	for _, step := range ast.Steps {
-		if step.IsLiteral {
-			if step.Operator == "+" {
-				r = lookup.Add(r, lookup.Constant(step.Value))
-			}
-			continue
-		}
+func compileNode(node Node) lookup.Runner {
+	switch n := node.(type) {
+	case *PathNode:
+		return compilePath(n)
+	case *BinaryNode:
+		return compileBinary(n)
+	case *LiteralNode:
+		return lookup.Constant(n.Value)
+	}
+	return lookup.Error(nil) // Should not happen
+}
 
+func compileBinary(n *BinaryNode) lookup.Runner {
+	left := compileNode(n.Left)
+	right := compileNode(n.Right)
+
+	switch n.Operator {
+	case "&":
+		return lookup.StringConcat(left, right)
+	case "+":
+		return lookup.Add(left, right)
+	}
+	// Fallback/TODO
+	return lookup.Error(nil)
+}
+
+func compilePath(n *PathNode) lookup.Runner {
+	var r lookup.Runner = lookup.NewRelator()
+	for _, step := range n.Steps {
 		// Prepare opts (Filters and Indices)
-		// We wrap them in jsonataSingletonRunner to ensure they treat scalars as singleton arrays.
 		opts := []lookup.Runner{}
 		if step.Index != nil {
 			opts = append(opts, &jsonataSingletonRunner{inner: lookup.Index(*step.Index)})
@@ -51,21 +69,52 @@ func compileInternal(ast *AST) lookup.Runner {
 			} else {
 				fieldRunner = lookup.This(field)
 			}
-
-			// Filter runner expects list input. Wrap in singleton runner.
 			filterRunner := lookup.Filter(fieldRunner.Find("", op))
 			opts = append(opts, &jsonataSingletonRunner{inner: filterRunner})
 		}
 
-		if step.Name == "$" {
+		// Helper to apply opts
+		applyOpts := func(base lookup.Runner) lookup.Runner {
+			if len(opts) == 0 {
+				return base
+			}
+			// Use Find("", opts...) which chains runners on the result of base.
+			// But base needs to be linked.
+			// If base is This("name"), Find("", opts) works on that result.
+			// But here we return a Runner.
+
+			// We can chain base + Find("", opts...).
+			return &jsonataChain{
+				first: base,
+				second: lookup.Find("", opts...),
+			}
+		}
+
+		if step.SubExpr != nil {
+			// SubExpression step: (expr).
+			// We evaluate expr in the current context.
+			// For each item in current context?
+			// `foo.(a & b)`. For each `foo`, evaluate `a & b`.
+			// So we wrap in MapRunner.
+
+			subRunner := compileNode(step.SubExpr)
+			// Apply opts to the result of subExpr? `(expr)[0]`. Yes.
+
+			// Combine subRunner + opts
+			stepRunner := applyOpts(subRunner)
+
+			// Wrap in MapRunner to ensure iteration over current context
+			// We don't have a "Name" for this step, it's just a mapping.
+			// But MapRunner logic relies on nesting.
+			mapRunner := &jsonataMapRunner{
+				stepRunner: stepRunner,
+				name:       "", // Anonymous step
+			}
+
+			r = &jsonataChain{first: r, second: mapRunner}
+
+		} else if step.Name == "$" {
 			// $ refers to the query root.
-
-			// We need to apply opts (predicates) to the root value.
-			// Root can be scalar or array. Predicates expect array.
-			// We use a chain step that Gets Root, then applies Opts (wrapped in Singleton logic).
-
-			// Note: If opts are empty, lookup.Find("", opts...) does nothing (returns Current).
-
 			chainStep := &jsonataChain{
 				first: &rootRunner{},
 				second: lookup.Find("", opts...),
@@ -80,41 +129,8 @@ func compileInternal(ast *AST) lookup.Runner {
 			}
 
 		} else {
-			// Construct the runner for ONE item:
-			// Finds name, then applies opts.
-			// Note: opts are already wrapped in jsonataSingletonRunner.
-
-			// If step.Name is empty (e.g. `(expr)[0]`), lookup.This("") is identity.
-			// But wait, if step.Name is empty, we might not want mapRunner?
-			// If we have `(expr)[0]`. `expr` returns `[a,b]`.
-			// If we run `mapRunner` with `This("")`.
-			// `mapRunner` iterates `[a,b]`.
-			// Item a. `This("")` -> a. `Index(0)` -> a.
-			// Item b. `This("")` -> b. `Index(0)` -> b.
-			// Result `[a,b]`.
-			// BUT `[0]` on `[a,b]` should be `a`.
-
-			// So if step.Name is empty, we should SKIP mapRunner?
-			// But parser might set Name to ""?
-			// If Name is provided, we use mapRunner to navigate/flatten.
-			// If Name is empty, it's just Predicates on current context.
-			// Predicates on a sequence should apply to the sequence!
-			// Predicates on a scalar (treated as singleton) apply to singleton.
-
-			// So: If Name is present, we wrap in mapRunner (to navigate and flatten).
-			// If Name is empty, we apply opts DIRECTLY to current context (via SingletonWrap).
-
 			if step.Name == "" {
-				// Just apply opts.
-				// Since we have multiple opts, we can chain them or use Find("", opts...)
-				// Opts are already SingletonWrapped.
-				// But wait, Find applies opts sequentially.
-				// If we have `[0][1]`.
-				// `Find("", Index0, Index1)`.
-				// Index0 runs. Result passed to Index1.
-				// Correct.
-
-				// We attach to `r`.
+				// Just apply opts to current context.
 				r = &jsonataChain{
 					first: r,
 					second: lookup.Find("", opts...),
@@ -122,13 +138,10 @@ func compileInternal(ast *AST) lookup.Runner {
 			} else {
 				stepRunner := lookup.This(step.Name).Find("", opts...)
 
-				// Wrap in jsonataMapRunner to handle sequence input.
 				mapRunner := &jsonataMapRunner{
 					stepRunner: stepRunner,
 					name: step.Name,
 				}
-
-				// Chain it to previous result using our Custom Chain (Nest based)
 				r = &jsonataChain{first: r, second: mapRunner}
 			}
 		}
