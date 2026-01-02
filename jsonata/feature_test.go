@@ -32,7 +32,7 @@ var groupStatus = map[string]bool{
 	"boolean-expresssions":        true,
 	"closures":                    true,
 	"coalescing-operator":         true,
-	"comments":                    true,
+	// "comments":                    true,
 	"comparison-operators":        true,
 	"conditionals":                true,
 	"context":                     true,

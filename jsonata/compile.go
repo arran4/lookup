@@ -17,8 +17,18 @@ func compileNode(node Node) lookup.Runner {
 		return compileBinary(n)
 	case *LiteralNode:
 		return lookup.Constant(n.Value)
+	case *FunctionCallNode:
+		return compileFunctionCall(n)
 	}
 	return lookup.Error(nil) // Should not happen
+}
+
+func compileFunctionCall(n *FunctionCallNode) lookup.Runner {
+	var args []lookup.Runner
+	for _, arg := range n.Args {
+		args = append(args, compileNode(arg))
+	}
+	return &jsonataFunctionRunner{Name: n.Name, Args: args}
 }
 
 func compileBinary(n *BinaryNode) lookup.Runner {
@@ -90,7 +100,25 @@ func compilePath(n *PathNode) lookup.Runner {
 			}
 		}
 
-		if step.SubExpr != nil {
+		if step.FunctionCall != nil {
+			// Function Call Step
+			funcRunner := compileFunctionCall(step.FunctionCall)
+			stepRunner := applyOpts(funcRunner)
+
+			// If the function call is part of a path (e.g. foo.bar()),
+			// the function is executed.
+			// NOTE: In JSONata, functions like $substring are usually global or defined in scope,
+			// not methods on objects (unless purely method call syntax which JSONata is loose about).
+			// If the step name is empty, it means just apply logic.
+
+			// We should probably treat it similar to SubExpr or simple name but with execution.
+			// But wait, step.FunctionCall.Args are expressions evaluated in current scope.
+
+			// If this is part of a path chain, the previous result is current scope.
+
+			r = &jsonataChain{first: r, second: stepRunner}
+
+		} else if step.SubExpr != nil {
 			// SubExpression step: (expr).
 			// We evaluate expr in the current context.
 			// For each item in current context?

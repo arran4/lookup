@@ -13,7 +13,10 @@ func Parse(expr string) (*AST, error) {
 		return nil, err
 	}
 
-	if err := p.consumeWhitespace(); err == nil && p.i < len(p.s) {
+	if err := p.consumeWhitespace(); err != nil {
+		return nil, err
+	}
+	if p.i < len(p.s) {
 		return nil, fmt.Errorf("unexpected token at position %d: %c", p.i, p.s[p.i])
 	}
 
@@ -38,7 +41,7 @@ func (p *parser) parseExpression() (Node, error) {
 	}
 
 	if err := p.consumeWhitespace(); err != nil {
-		return lhs, nil
+		return nil, err
 	}
 
 	// Left-associative: loop
@@ -54,7 +57,7 @@ func (p *parser) parseExpression() (Node, error) {
 			Right:    rhs,
 		}
 		if err := p.consumeWhitespace(); err != nil {
-			break
+			return nil, err
 		}
 	}
 
@@ -69,7 +72,7 @@ func (p *parser) parseAdditive() (Node, error) {
 	}
 
 	if err := p.consumeWhitespace(); err != nil {
-		return lhs, nil
+		return nil, err
 	}
 
 	for p.peek() == '+' {
@@ -84,7 +87,7 @@ func (p *parser) parseAdditive() (Node, error) {
 			Right:    rhs,
 		}
 		if err := p.consumeWhitespace(); err != nil {
-			break
+			return nil, err
 		}
 	}
 
@@ -183,7 +186,6 @@ func (p *parser) parsePath() (Node, error) {
 
 	for {
 		if err := p.consumeWhitespace(); err != nil {
-			if len(steps) > 0 { break }
 			return nil, err
 		}
 
@@ -194,7 +196,27 @@ func (p *parser) parsePath() (Node, error) {
 		// Try Ident
 		ident, err := p.parseIdent()
 		if err == nil {
-			step = Step{Name: ident}
+			// Check for function call
+			if p.peek() == '(' {
+				p.i++ // consume '('
+				var args []Node
+				if p.peek() != ')' {
+					for {
+						if err := p.consumeWhitespace(); err != nil { return nil, err }
+						arg, err := p.parseExpression()
+						if err != nil { return nil, err }
+						args = append(args, arg)
+						if err := p.consumeWhitespace(); err != nil { return nil, err }
+						if p.peek() == ')' { break }
+						if p.peek() != ',' { return nil, fmt.Errorf("expected , or )") }
+						p.i++ // consume ','
+					}
+				}
+				p.i++ // consume ')'
+				step = Step{FunctionCall: &FunctionCallNode{Name: ident, Args: args}}
+			} else {
+				step = Step{Name: ident}
+			}
 			hasStep = true
 		} else {
 			// Try SubExpr
@@ -217,8 +239,7 @@ func (p *parser) parsePath() (Node, error) {
 
 		// Parse Brackets
 		if err := p.consumeWhitespace(); err != nil {
-			steps = append(steps, step)
-			break
+			return nil, err
 		}
 
 		for p.peek() == '[' {
@@ -267,7 +288,7 @@ func (p *parser) parsePath() (Node, error) {
 
 				step.Filter = &Predicate{Field: field, Operator: op, Value: val}
 			}
-			if err := p.consumeWhitespace(); err != nil { break }
+			if err := p.consumeWhitespace(); err != nil { return nil, err }
 		}
 
 		steps = append(steps, step)
