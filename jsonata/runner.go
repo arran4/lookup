@@ -147,6 +147,98 @@ func (r *jsonataSingletonRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	return r.inner.Run(scope)
 }
 
+type jsonataFunctionRunner struct {
+	Name string
+	Args []lookup.Runner
+}
+
+func (r *jsonataFunctionRunner) Run(scope *lookup.Scope) lookup.Pathor {
+	switch r.Name {
+	case "$substring":
+		return r.substring(scope)
+	}
+	return lookup.NewInvalidor("", fmt.Errorf("function %s not implemented", r.Name))
+}
+
+func (r *jsonataFunctionRunner) substring(scope *lookup.Scope) lookup.Pathor {
+	if len(r.Args) < 2 {
+		return lookup.NewInvalidor("", fmt.Errorf("expected at least 2 arguments"))
+	}
+	strRes := r.Args[0].Run(scope)
+	startRes := r.Args[1].Run(scope)
+
+	if strRes.IsNil() || startRes.IsNil() {
+		return lookup.NewInvalidor("", fmt.Errorf("arguments cannot be nil"))
+	}
+
+	str, err := strRes.AsString()
+	if err != nil {
+		return lookup.NewInvalidor("", err)
+	}
+	start64, err := startRes.AsInt()
+	if err != nil {
+		// Try float
+		f, err2 := startRes.AsFloat()
+		if err2 != nil {
+			return lookup.NewInvalidor("", err)
+		}
+		start64 = int64(f)
+	}
+	start := int(start64)
+
+	length := -1
+	if len(r.Args) > 2 {
+		lenRes := r.Args[2].Run(scope)
+		if !lenRes.IsNil() {
+			l, err := lenRes.AsInt()
+			if err == nil {
+				length = int(l)
+			} else {
+				f, err := lenRes.AsFloat()
+				if err == nil {
+					length = int(f)
+				}
+			}
+		}
+	}
+
+	// Adjust logic to match JSONata substring
+	// JSONata string indices are likely 0-based, but need to check spec.
+	// JSONata spec:
+	// - string: The string to be substringed.
+	// - start: The position within string of the first character to be returned.
+	// - length (optional): The number of characters to be returned.
+	//
+	// Examples:
+	// $substring("Hello World", 0, 5) => "Hello"
+	// $substring("Hello World", 6) => "World"
+
+	runes := []rune(str)
+	if start < 0 {
+		start = len(runes) + start
+	}
+	if start < 0 {
+		start = 0
+	}
+	if start >= len(runes) {
+		return lookup.Reflect("")
+	}
+
+	end := len(runes)
+	if length != -1 {
+		end = start + length
+		if end > len(runes) {
+			end = len(runes)
+		}
+	}
+
+	if start > end {
+		return lookup.Reflect("")
+	}
+
+	return lookup.Reflect(string(runes[start:end]))
+}
+
 func isNilOrNilPointer(i interface{}) bool {
 	if i == nil {
 		return true
