@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
       - name: Cache-Go
@@ -28,11 +28,6 @@ jobs:
             ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Checkout go-evaluator
-        uses: actions/checkout@v4
-        with:
-          repository: arran4/go-evaluator
-          path: ../go-evaluator
       - name: Vet
         run: go vet ./...
       - name: Test
