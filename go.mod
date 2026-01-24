@@ -1,6 +1,6 @@
 module github.com/arran4/lookup
 
-go 1.24.3
+go 1.25.3
 
 require (
 	github.com/arran4/go-evaluator v0.0.0-20260124070445-20e3558f4186
