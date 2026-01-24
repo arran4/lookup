@@ -17,14 +17,6 @@ import (
 //go:embed testdata
 var testData embed.FS
 
-type suiteCase struct {
-	ExprFile  string                 `json:"exprFile"`
-	Dataset   string                 `json:"dataset"`
-	Data      interface{}            `json:"data"`
-	Bindings  map[string]interface{} `json:"bindings"`
-	Undefined bool                   `json:"undefinedResult"`
-}
-
 func loadDataset(name string) (interface{}, error) {
 	filename := path.Join("testdata", "test-suite", "datasets", name+".json")
 	data, err := fs.ReadFile(testData, filename)

@@ -28,6 +28,11 @@ jobs:
             ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Checkout go-evaluator
+        uses: actions/checkout@v4
+        with:
+          repository: arran4/go-evaluator
+          path: ../go-evaluator
       - name: Vet
         run: go vet ./...
       - name: Test
