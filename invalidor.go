@@ -72,15 +72,15 @@ func (i *Invalidor) Find(path string, opts ...Runner) Pathor {
 	}
 }
 
-func (i *Invalidor) IsString() bool { return false }
-func (i *Invalidor) IsInt() bool    { return false }
-func (i *Invalidor) IsBool() bool   { return false }
-func (i *Invalidor) IsFloat() bool  { return false }
-func (i *Invalidor) IsSlice() bool  { return false }
-func (i *Invalidor) IsMap() bool    { return false }
-func (i *Invalidor) IsStruct() bool { return false }
-func (i *Invalidor) IsNil() bool    { return false } // Invalid is not nil, it's error state.
-func (i *Invalidor) IsPtr() bool    { return false }
+func (i *Invalidor) IsString() bool    { return false }
+func (i *Invalidor) IsInt() bool       { return false }
+func (i *Invalidor) IsBool() bool      { return false }
+func (i *Invalidor) IsFloat() bool     { return false }
+func (i *Invalidor) IsSlice() bool     { return false }
+func (i *Invalidor) IsMap() bool       { return false }
+func (i *Invalidor) IsStruct() bool    { return false }
+func (i *Invalidor) IsNil() bool       { return false } // Invalid is not nil, it's error state.
+func (i *Invalidor) IsPtr() bool       { return false }
 func (i *Invalidor) IsInterface() bool { return false }
 
 func (i *Invalidor) AsString() (string, error) {

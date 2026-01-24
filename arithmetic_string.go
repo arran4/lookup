@@ -28,7 +28,7 @@ func (sf *stringConcatFunc) Run(scope *Scope) Pathor {
 	s1 := convertToString(leftRes)
 	s2 := convertToString(rightRes)
 
-	return NewConstantor(scope.Path(), s1 + s2)
+	return NewConstantor(scope.Path(), s1+s2)
 }
 
 func convertToString(p Pathor) string {
@@ -80,7 +80,6 @@ func convertToString(p Pathor) string {
 	// Fallback
 	return fmt.Sprintf("%v", v)
 }
-
 
 func StringConcat(left, right Runner) *stringConcatFunc {
 	return &stringConcatFunc{

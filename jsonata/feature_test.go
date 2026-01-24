@@ -27,11 +27,11 @@ const (
 // If a group is missing, it runs in "strict" mode (failures break the build).
 // Eventually, this map should be empty as all groups are fixed.
 var groupStatus = map[string]bool{
-	"array-constructor":           true,
-	"blocks":                      true,
-	"boolean-expresssions":        true,
-	"closures":                    true,
-	"coalescing-operator":         true,
+	"array-constructor":    true,
+	"blocks":               true,
+	"boolean-expresssions": true,
+	"closures":             true,
+	"coalescing-operator":  true,
 	// "comments":                    true,
 	"comparison-operators":        true,
 	"conditionals":                true,
@@ -117,12 +117,12 @@ var groupStatus = map[string]bool{
 	"simple-array-selectors":      true,
 	"sorting":                     true,
 	// "string-concat":               true, // Fixed, running in strict mode
-	"tail-recursion":              true,
-	"token-conversion":            true,
-	"transform":                   true,
-	"transforms":                  true,
-	"variables":                   true,
-	"wildcards":                   true,
+	"tail-recursion":   true,
+	"token-conversion": true,
+	"transform":        true,
+	"transforms":       true,
+	"variables":        true,
+	"wildcards":        true,
 	// "missing-paths": true, // Not present means STRICT PASS
 }
 

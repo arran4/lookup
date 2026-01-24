@@ -2,8 +2,8 @@ package jsonata
 
 import (
 	"fmt"
-	"reflect"
 	"github.com/arran4/lookup"
+	"reflect"
 )
 
 type jsonataRunner struct {

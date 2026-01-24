@@ -95,7 +95,7 @@ func compilePath(n *PathNode) lookup.Runner {
 
 			// We can chain base + Find("", opts...).
 			return &jsonataChain{
-				first: base,
+				first:  base,
 				second: lookup.Find("", opts...),
 			}
 		}
@@ -144,7 +144,7 @@ func compilePath(n *PathNode) lookup.Runner {
 		} else if step.Name == "$" {
 			// $ refers to the query root.
 			chainStep := &jsonataChain{
-				first: &rootRunner{},
+				first:  &rootRunner{},
 				second: lookup.Find("", opts...),
 			}
 
@@ -152,7 +152,7 @@ func compilePath(n *PathNode) lookup.Runner {
 				first: r,
 				second: &jsonataMapRunner{
 					stepRunner: chainStep,
-					name: "$",
+					name:       "$",
 				},
 			}
 
@@ -160,7 +160,7 @@ func compilePath(n *PathNode) lookup.Runner {
 			if step.Name == "" {
 				// Just apply opts to current context.
 				r = &jsonataChain{
-					first: r,
+					first:  r,
 					second: lookup.Find("", opts...),
 				}
 			} else {
@@ -168,7 +168,7 @@ func compilePath(n *PathNode) lookup.Runner {
 
 				mapRunner := &jsonataMapRunner{
 					stepRunner: stepRunner,
-					name: step.Name,
+					name:       step.Name,
 				}
 				r = &jsonataChain{first: r, second: mapRunner}
 			}
