@@ -28,7 +28,20 @@ func compileFunctionCall(n *FunctionCallNode) lookup.Runner {
 	for _, arg := range n.Args {
 		args = append(args, compileNode(arg))
 	}
-	return &jsonataFunctionRunner{Name: n.Name, Args: args}
+
+	fn, ok := Functions[n.Name]
+	if !ok {
+		// Return a runner that will fail at runtime, or fail here?
+		// User might define functions later? But we decided "Parse-time Binding".
+		// But here is "Compile time".
+		// Let's allow nil Func and let Runner handle error as "not implemented".
+		// Or better, return an Error runner immediately?
+		// Existing behavior was runtime error.
+		// Let's keeping runtime error for consistency if not found, OR we can restrict it.
+		// But wait, the previous code had a hardcoded switch in Runner.
+		// Now Runner checks for nil Func.
+	}
+	return &jsonataFunctionRunner{Name: n.Name, Func: fn, Args: args}
 }
 
 func compileBinary(n *BinaryNode) lookup.Runner {

@@ -81,3 +81,40 @@ func interfaceToFloat(i interface{}) (float64, error) {
 	}
 	return 0, fmt.Errorf("not a number")
 }
+
+func ToInt(i interface{}) (int64, bool) {
+	if i == nil {
+		return 0, false
+	}
+	switch v := i.(type) {
+	case int:
+		return int64(v), true
+	case int8:
+		return int64(v), true
+	case int16:
+		return int64(v), true
+	case int32:
+		return int64(v), true
+	case int64:
+		return int64(v), true
+	case uint:
+		return int64(v), true
+	case uint8:
+		return int64(v), true
+	case uint16:
+		return int64(v), true
+	case uint32:
+		return int64(v), true
+	case uint64:
+		return int64(v), true
+	case float32:
+		return int64(v), true
+	case float64:
+		return int64(v), true
+	case reflect.Value:
+		if v.CanInterface() {
+			return ToInt(v.Interface())
+		}
+	}
+	return 0, false
+}
