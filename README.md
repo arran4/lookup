@@ -40,6 +40,49 @@ go get github.com/arran4/lookup
 | **Invalidor** | Represents an invalid path while still implementing `Pathor`. |
 | **Relator** | Stores relative lookups used by modifiers such as `This`, `Parent` and `Result`. |
 
+## JSONata Support
+
+`lookup` includes a parsing engine for [JSONata](https://jsonata.org/), a lightweight query and transformation language.
+
+### Basic Usage
+
+```go
+import "github.com/arran4/lookup/jsonata"
+
+// 1. Compile expression
+ast, err := jsonata.Parse("Account.Orders[0].Product")
+if err != nil {
+    log.Fatal(err)
+}
+q := jsonata.Compile(ast)
+
+// 2. Run against data
+result := q.Run(&lookup.Scope{
+    Current: lookup.Reflect(data),
+})
+
+fmt.Println(result.Raw())
+```
+
+### Custom Functions
+
+You can extend JSONata by registering custom functions. This leverages `github.com/arran4/go-evaluator`'s `Function` interface.
+
+```go
+// 1. Define function
+type GreetFunc struct{}
+func (g *GreetFunc) Call(args ...interface{}) (interface{}, error) {
+    return "Hello " + args[0].(string), nil
+}
+
+// 2. Register
+jsonata.Functions["$greet"] = &GreetFunc{}
+
+// 3. Use in query
+ast, _ := jsonata.Parse("$greet(Name)")
+q := jsonata.Compile(ast)
+```
+
 ## Quick Start
 
 The following short program demonstrates navigating a struct. You can run it with `go run examples/basic_example.go`.
@@ -163,6 +206,7 @@ See `expression.go` and `collections.go` for the full list of helpers.
 | Append(?) | Collections | Combine two results with duplicates | | |
 | If(?, ?, ?) | Expression | Conditional | | |
 | Error(?) | Invalidor | Returns an invalid / failed result | | |
+
 ## Basic Lookup Behaviour
 
 The library works by calling `Find` with field names. Arrays are expanded automatically so subsequent lookups act as map operations over the elements. Each field navigation can be followed by modifiers. For example, `Index` selects a specific element:
