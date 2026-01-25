@@ -18,7 +18,7 @@ func (ef *evaluatorComparisonFunc) Run(scope *Scope) Pathor {
 		Operation: ef.op,
 	}
 
-	result := expr.Evaluate(scope.Position.Raw())
+	result, _ := expr.Evaluate(scope.Position.Raw())
 	if result {
 		return True(scope.Path())
 	}

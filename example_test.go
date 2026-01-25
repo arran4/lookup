@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/arran4/go-evaluator"
 	"github.com/arran4/lookup"
 	"github.com/arran4/lookup/jsonata"
 )
@@ -35,10 +36,13 @@ func Example_jsonata() {
 }
 
 func Example_jsonataCustomFunction() {
-	// 1. Register custom function
-	// In a real app, you might want a thread-safe way or init block.
-	// For this example, we modify the global registry directly (careful in concurrent apps!)
-	jsonata.Functions["$greet"] = &GreetFunc{}
+	// 1. Create a Context with standard functions and register custom one
+	// Thread-safe!
+	funcs := jsonata.GetStandardFunctions()
+	funcs["$greet"] = &GreetFunc{}
+	ctx := &evaluator.Context{
+		Functions: funcs,
+	}
 
 	// 2. Data
 	data := map[string]interface{}{
@@ -52,15 +56,10 @@ func Example_jsonataCustomFunction() {
 	}
 	q := jsonata.Compile(ast)
 
-	// 4. Run
-	result := q.Run(&lookup.Scope{
-		Current: lookup.Reflect(data),
-	})
+	// 4. Run with Context
+	result := q.Run(lookup.NewScopeWithContext(nil, lookup.Reflect(data), ctx))
 
 	fmt.Println(result.Raw())
-
-	// Clean up
-	delete(jsonata.Functions, "$greet")
 
 	// Output: Hello, Alice!
 }

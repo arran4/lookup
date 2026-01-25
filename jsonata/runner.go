@@ -151,12 +151,15 @@ func (r *jsonataSingletonRunner) Run(scope *lookup.Scope) lookup.Pathor {
 
 type jsonataFunctionRunner struct {
 	Name string
-	Func evaluator.Function
 	Args []lookup.Runner
 }
 
 func (r *jsonataFunctionRunner) Run(scope *lookup.Scope) lookup.Pathor {
-	if r.Func == nil {
+	var fn evaluator.Function
+	if scope.Context != nil && scope.Context.Functions != nil {
+		fn = scope.Context.Functions[r.Name]
+	}
+	if fn == nil {
 		return lookup.NewInvalidor("", fmt.Errorf("function %s not implemented", r.Name))
 	}
 
@@ -177,7 +180,7 @@ func (r *jsonataFunctionRunner) Run(scope *lookup.Scope) lookup.Pathor {
 		}
 	}
 
-	res, err := r.Func.Call(args...)
+	res, err := fn.Call(args...)
 	if err != nil {
 		return lookup.NewInvalidor("", err)
 	}

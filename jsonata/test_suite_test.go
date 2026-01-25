@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/arran4/go-evaluator"
 	"github.com/arran4/lookup"
 	"github.com/stretchr/testify/assert"
 )
@@ -60,7 +61,10 @@ func runCase(c suiteCase, expr string) (interface{}, error) {
 	}
 	q := Compile(ast)
 	root := lookup.Reflect(data)
-	res := q.Run(lookup.NewScope(root, root))
+	ctx := &evaluator.Context{
+		Functions: GetStandardFunctions(),
+	}
+	res := q.Run(lookup.NewScopeWithContext(nil, root, ctx))
 	if res == nil {
 		return nil, nil
 	}

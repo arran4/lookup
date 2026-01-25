@@ -7,8 +7,10 @@ import (
 	"github.com/arran4/lookup"
 )
 
-var Functions = map[string]evaluator.Function{
-	"$substring": &substringFunc{},
+func GetStandardFunctions() map[string]evaluator.Function {
+	return map[string]evaluator.Function{
+		"$substring": &substringFunc{},
+	}
 }
 
 type substringFunc struct{}

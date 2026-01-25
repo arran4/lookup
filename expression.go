@@ -120,7 +120,7 @@ func equals(scope *Scope, result Pathor) Pathor {
 		RHS:       evaluator.Constant{Value: scope.Position.Raw()},
 		Operation: "eq",
 	}
-	if expr.Evaluate(nil) {
+	if v, _ := expr.Evaluate(nil); v {
 		return True(scope.Path())
 	} else {
 		return False(scope.Path())
