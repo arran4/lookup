@@ -42,6 +42,14 @@ func compileBinary(n *BinaryNode) lookup.Runner {
 		return lookup.StringConcat(left, right)
 	case "+":
 		return lookup.Add(left, right)
+	case "-":
+		return lookup.Subtract(left, right)
+	case "*":
+		return lookup.Multiply(left, right)
+	case "/":
+		return lookup.Divide(left, right)
+	case "%":
+		return lookup.Modulo(left, right)
 	}
 	// Fallback/TODO
 	return lookup.Error(nil)

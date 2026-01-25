@@ -82,6 +82,11 @@ func interfaceToFloat(i interface{}) (float64, error) {
 	return 0, fmt.Errorf("not a number")
 }
 
+func ToFloat(i interface{}) (float64, bool) {
+	f, err := interfaceToFloat(i)
+	return f, err == nil
+}
+
 func ToInt(i interface{}) (int64, bool) {
 	if i == nil {
 		return 0, false
