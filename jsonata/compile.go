@@ -28,6 +28,8 @@ func compileFunctionCall(n *FunctionCallNode) lookup.Runner {
 	for _, arg := range n.Args {
 		args = append(args, compileNode(arg))
 	}
+
+	// Function resolution is done at runtime via Scope/Context
 	return &jsonataFunctionRunner{Name: n.Name, Args: args}
 }
 
@@ -40,6 +42,14 @@ func compileBinary(n *BinaryNode) lookup.Runner {
 		return lookup.StringConcat(left, right)
 	case "+":
 		return lookup.Add(left, right)
+	case "-":
+		return lookup.Subtract(left, right)
+	case "*":
+		return lookup.Multiply(left, right)
+	case "/":
+		return lookup.Divide(left, right)
+	case "%":
+		return lookup.Modulo(left, right)
 	}
 	// Fallback/TODO
 	return lookup.Error(nil)
@@ -95,7 +105,7 @@ func compilePath(n *PathNode) lookup.Runner {
 
 			// We can chain base + Find("", opts...).
 			return &jsonataChain{
-				first: base,
+				first:  base,
 				second: lookup.Find("", opts...),
 			}
 		}
@@ -144,7 +154,7 @@ func compilePath(n *PathNode) lookup.Runner {
 		} else if step.Name == "$" {
 			// $ refers to the query root.
 			chainStep := &jsonataChain{
-				first: &rootRunner{},
+				first:  &rootRunner{},
 				second: lookup.Find("", opts...),
 			}
 
@@ -152,7 +162,7 @@ func compilePath(n *PathNode) lookup.Runner {
 				first: r,
 				second: &jsonataMapRunner{
 					stepRunner: chainStep,
-					name: "$",
+					name:       "$",
 				},
 			}
 
@@ -160,7 +170,7 @@ func compilePath(n *PathNode) lookup.Runner {
 			if step.Name == "" {
 				// Just apply opts to current context.
 				r = &jsonataChain{
-					first: r,
+					first:  r,
 					second: lookup.Find("", opts...),
 				}
 			} else {
@@ -168,7 +178,7 @@ func compilePath(n *PathNode) lookup.Runner {
 
 				mapRunner := &jsonataMapRunner{
 					stepRunner: stepRunner,
-					name: step.Name,
+					name:       step.Name,
 				}
 				r = &jsonataChain{first: r, second: mapRunner}
 			}

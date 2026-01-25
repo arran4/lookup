@@ -202,13 +202,23 @@ func (p *parser) parsePath() (Node, error) {
 				var args []Node
 				if p.peek() != ')' {
 					for {
-						if err := p.consumeWhitespace(); err != nil { return nil, err }
+						if err := p.consumeWhitespace(); err != nil {
+							return nil, err
+						}
 						arg, err := p.parseExpression()
-						if err != nil { return nil, err }
+						if err != nil {
+							return nil, err
+						}
 						args = append(args, arg)
-						if err := p.consumeWhitespace(); err != nil { return nil, err }
-						if p.peek() == ')' { break }
-						if p.peek() != ',' { return nil, fmt.Errorf("expected , or )") }
+						if err := p.consumeWhitespace(); err != nil {
+							return nil, err
+						}
+						if p.peek() == ')' {
+							break
+						}
+						if p.peek() != ',' {
+							return nil, fmt.Errorf("expected , or )")
+						}
 						p.i++ // consume ','
 					}
 				}
@@ -223,9 +233,15 @@ func (p *parser) parsePath() (Node, error) {
 			if p.peek() == '(' {
 				p.i++
 				sub, err := p.parseExpression()
-				if err != nil { return nil, err }
-				if err := p.consumeWhitespace(); err != nil { return nil, err }
-				if p.peek() != ')' { return nil, fmt.Errorf("expected )") }
+				if err != nil {
+					return nil, err
+				}
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
+				if p.peek() != ')' {
+					return nil, fmt.Errorf("expected )")
+				}
 				p.i++
 				step = Step{SubExpr: sub}
 				hasStep = true
@@ -233,7 +249,9 @@ func (p *parser) parsePath() (Node, error) {
 		}
 
 		if !hasStep {
-			if len(steps) > 0 { break }
+			if len(steps) > 0 {
+				break
+			}
 			return nil, fmt.Errorf("expected identifier or (")
 		}
 
@@ -244,27 +262,45 @@ func (p *parser) parsePath() (Node, error) {
 
 		for p.peek() == '[' {
 			p.i++
-			if err := p.consumeWhitespace(); err != nil { return nil, err }
-			if p.peek() == ']' { return nil, fmt.Errorf("empty brackets") }
+			if err := p.consumeWhitespace(); err != nil {
+				return nil, err
+			}
+			if p.peek() == ']' {
+				return nil, fmt.Errorf("empty brackets")
+			}
 
 			if isDigit(p.peek()) || p.peek() == '-' {
 				// Index
 				start := p.i
-				if p.peek() == '-' { p.i++ }
-				for isDigit(p.peek()) { p.i++ }
+				if p.peek() == '-' {
+					p.i++
+				}
+				for isDigit(p.peek()) {
+					p.i++
+				}
 				numStr := p.s[start:p.i]
-				if err := p.consumeWhitespace(); err != nil { return nil, err }
-				if p.peek() != ']' { return nil, fmt.Errorf("expected ]") }
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
+				if p.peek() != ']' {
+					return nil, fmt.Errorf("expected ]")
+				}
 				p.i++
 
 				num, err := strconv.Atoi(numStr)
-				if err != nil { return nil, err }
+				if err != nil {
+					return nil, err
+				}
 				step.Index = &num
 			} else {
 				// Filter
 				field, err := p.parseIdent()
-				if err != nil { return nil, err }
-				if err := p.consumeWhitespace(); err != nil { return nil, err }
+				if err != nil {
+					return nil, err
+				}
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
 
 				var op string
 				switch p.peek() {
@@ -279,21 +315,33 @@ func (p *parser) parsePath() (Node, error) {
 					return nil, fmt.Errorf("expected operator")
 				}
 
-				if err := p.consumeWhitespace(); err != nil { return nil, err }
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
 				val, err := p.parseValue()
-				if err != nil { return nil, err }
-				if err := p.consumeWhitespace(); err != nil { return nil, err }
-				if p.peek() != ']' { return nil, fmt.Errorf("expected ]") }
+				if err != nil {
+					return nil, err
+				}
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
+				if p.peek() != ']' {
+					return nil, fmt.Errorf("expected ]")
+				}
 				p.i++
 
 				step.Filter = &Predicate{Field: field, Operator: op, Value: val}
 			}
-			if err := p.consumeWhitespace(); err != nil { return nil, err }
+			if err := p.consumeWhitespace(); err != nil {
+				return nil, err
+			}
 		}
 
 		steps = append(steps, step)
 
-		if p.i >= len(p.s) { break }
+		if p.i >= len(p.s) {
+			break
+		}
 
 		if p.peek() == '.' {
 			p.i++
@@ -307,7 +355,6 @@ func (p *parser) parsePath() (Node, error) {
 	return &PathNode{Steps: steps}, nil
 }
 
-
 func (p *parser) consumeWhitespace() error {
 	for p.i < len(p.s) {
 		c := p.s[p.i]
@@ -317,7 +364,7 @@ func (p *parser) consumeWhitespace() error {
 		}
 		if c == '/' && p.i+1 < len(p.s) && p.s[p.i+1] == '*' {
 			p.i += 2
-			for p.i+1 < len(p.s) && !(p.s[p.i] == '*' && p.s[p.i+1] == '/') {
+			for p.i+1 < len(p.s) && (p.s[p.i] != '*' || p.s[p.i+1] != '/') {
 				p.i++
 			}
 			if p.i+1 >= len(p.s) {

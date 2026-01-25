@@ -10,20 +10,13 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/arran4/go-evaluator"
 	"github.com/arran4/lookup"
 	"github.com/stretchr/testify/assert"
 )
 
 //go:embed testdata
 var testData embed.FS
-
-type suiteCase struct {
-	ExprFile  string                 `json:"exprFile"`
-	Dataset   string                 `json:"dataset"`
-	Data      interface{}            `json:"data"`
-	Bindings  map[string]interface{} `json:"bindings"`
-	Undefined bool                   `json:"undefinedResult"`
-}
 
 func loadDataset(name string) (interface{}, error) {
 	filename := path.Join("testdata", "test-suite", "datasets", name+".json")
@@ -68,7 +61,10 @@ func runCase(c suiteCase, expr string) (interface{}, error) {
 	}
 	q := Compile(ast)
 	root := lookup.Reflect(data)
-	res := q.Run(lookup.NewScope(root, root))
+	ctx := &evaluator.Context{
+		Functions: GetStandardFunctions(),
+	}
+	res := q.Run(lookup.NewScopeWithContext(nil, root, ctx))
 	if res == nil {
 		return nil, nil
 	}

@@ -15,6 +15,14 @@ type txtarCase struct {
 	Expected string
 }
 
+type suiteCase struct {
+	ExprFile  string                 `json:"exprFile"`
+	Dataset   string                 `json:"dataset"`
+	Data      interface{}            `json:"data"`
+	Bindings  map[string]interface{} `json:"bindings"`
+	Undefined bool                   `json:"undefinedResult"`
+}
+
 func parseTxtar(data []byte) ([]txtarCase, error) {
 	archive := txtar.Parse(data)
 	var cases []txtarCase

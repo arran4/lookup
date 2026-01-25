@@ -2,6 +2,8 @@ package lookup
 
 import (
 	"reflect"
+
+	"github.com/arran4/go-evaluator"
 )
 
 type Runner interface {
@@ -14,34 +16,50 @@ type Scope struct {
 	v        reflect.Value
 	path     *string
 	Position Pathor
+	Context  *evaluator.Context
 }
 
 func NewScope(parent Pathor, position Pathor) *Scope {
+	return NewScopeWithContext(parent, position, nil)
+}
+
+func NewScopeWithContext(parent Pathor, position Pathor, ctx *evaluator.Context) *Scope {
 	var parentScope *Scope
 	if parent != nil {
-		parentScope = NewScope(nil, parent)
+		parentScope = NewScopeWithContext(nil, parent, ctx)
 	}
 	return &Scope{
 		Current:  position,
 		Parent:   parentScope,
 		Position: position,
+		Context:  ctx,
 	}
 }
 
 func (s *Scope) Copy() *Scope {
+	var ctx *evaluator.Context
+	if s != nil {
+		ctx = s.Context
+	}
 	return &Scope{
 		Current: s.Current,
 		Parent:  s.Parent,
 		v:       s.v,
 		path:    s.path,
+		Context: ctx,
 	}
 }
 
 func (s *Scope) Nest(new Pathor) *Scope {
+	var ctx *evaluator.Context
+	if s != nil {
+		ctx = s.Context
+	}
 	return &Scope{
 		Current:  new,
 		Parent:   s,
 		Position: new,
+		Context:  ctx,
 	}
 }
 
