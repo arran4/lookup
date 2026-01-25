@@ -1,6 +1,10 @@
 package lookup
 
-import "reflect"
+import (
+	"reflect"
+
+	"github.com/arran4/go-evaluator"
+)
 
 type matchFunc struct {
 	expressions []Runner
@@ -19,9 +23,13 @@ func (ef *matchFunc) Run(scope *Scope) Pathor {
 		case *Invalidor:
 			return result
 		}
-		if v, err := interfaceToBoolOrParse(result.Raw()); err != nil {
 
-		} else if v {
+		expr := evaluator.BoolType{Term: evaluator.Constant{Value: result.Raw()}}
+		v, err := expr.Evaluate(nil)
+
+		if err != nil {
+
+		} else if b, ok := v.(bool); ok && b {
 			continue
 		} else {
 			return NewInvalidor(ExtractPath(scope.Position), ErrMatchFail)
@@ -50,11 +58,13 @@ func (s *toBoolFunc) Run(scope *Scope) Pathor {
 	} else {
 		result = scope.Position
 	}
-	b, err := interfaceToBoolOrParse(result.Raw())
+
+	expr := evaluator.BoolType{Term: evaluator.Constant{Value: result.Raw()}}
+	v, err := expr.Evaluate(nil)
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
 	}
-	return NewConstantor(scope.Path(), b)
+	return NewConstantor(scope.Path(), v)
 }
 
 func Truthy(expression Runner) *truthyFunc {
@@ -82,8 +92,11 @@ func truthy(scope *Scope, result Pathor) Pathor {
 	case *Invalidor:
 		return result
 	}
-	v, err := interfaceToBoolOrParse(result.Raw())
-	if !v && err == nil {
+
+	expr := evaluator.BoolType{Term: evaluator.Constant{Value: result.Raw()}}
+	v, err := expr.Evaluate(nil)
+
+	if b, ok := v.(bool); ok && !b && err == nil {
 		return NewInvalidor(scope.Path(), ErrFalse)
 	}
 	if result.Value().IsZero() {
@@ -102,7 +115,12 @@ func (ef *equalsFunc) Run(scope *Scope) Pathor {
 }
 
 func equals(scope *Scope, result Pathor) Pathor {
-	if reflect.DeepEqual(result.Raw(), scope.Position.Raw()) {
+	expr := evaluator.ComparisonExpression{
+		LHS:       evaluator.Constant{Value: result.Raw()},
+		RHS:       evaluator.Constant{Value: scope.Position.Raw()},
+		Operation: "eq",
+	}
+	if expr.Evaluate(nil) {
 		return True(scope.Path())
 	} else {
 		return False(scope.Path())
@@ -121,11 +139,14 @@ type notFunc struct {
 
 func (ef *notFunc) Run(scope *Scope) Pathor {
 	result := ef.expression.Run(scope)
-	v, err := interfaceToBoolOrParse(result.Raw())
+
+	expr := evaluator.BoolType{Term: evaluator.Constant{Value: result.Raw()}}
+	v, err := expr.Evaluate(nil)
+
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
 	}
-	if !v {
+	if b, ok := v.(bool); ok && !b {
 		return True(scope.Path())
 	} else {
 		return False(scope.Path())
@@ -208,11 +229,14 @@ func (ef *ifFunc) Run(scope *Scope) Pathor {
 	if invalid, ok := c.(*Invalidor); ok {
 		return invalid
 	}
-	b, err := interfaceToBoolOrParse(c.Raw())
+
+	expr := evaluator.BoolType{Term: evaluator.Constant{Value: c.Raw()}}
+	v, err := expr.Evaluate(nil)
+
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
 	}
-	if b {
+	if b, ok := v.(bool); ok && b {
 		if ef.then != nil {
 			return ef.then.Run(scope)
 		}

@@ -1,111 +1,46 @@
 package lookup
 
 import (
-	"reflect"
-
 	"github.com/arran4/go-evaluator"
 )
 
-type greaterThanFunc struct {
-	expression Runner
+type evaluatorComparisonFunc struct {
+	op  string
+	rhs Runner
 }
 
-func (ef *greaterThanFunc) Run(scope *Scope) Pathor {
-	result := ef.expression.Run(scope)
-	return greaterThan(scope, result)
-}
+func (ef *evaluatorComparisonFunc) Run(scope *Scope) Pathor {
+	rhsResult := ef.rhs.Run(scope)
 
-func greaterThan(scope *Scope, result Pathor) Pathor {
-	v1 := scope.Position.Raw()
-	v2 := result.Raw()
+	expr := evaluator.ComparisonExpression{
+		LHS:       evaluator.Self{},
+		RHS:       evaluator.Constant{Value: rhsResult.Raw()},
+		Operation: ef.op,
+	}
 
-	if c, _ := evaluator.Compare(v1, v2); c > 0 {
+	result := expr.Evaluate(scope.Position.Raw())
+	if result {
 		return True(scope.Path())
 	}
 	return False(scope.Path())
 }
 
-func GreaterThan(e Runner) *greaterThanFunc {
-	return &greaterThanFunc{
-		expression: e,
-	}
+func GreaterThan(e Runner) *evaluatorComparisonFunc {
+	return &evaluatorComparisonFunc{op: "gt", rhs: e}
 }
 
-type lessThanFunc struct {
-	expression Runner
+func LessThan(e Runner) *evaluatorComparisonFunc {
+	return &evaluatorComparisonFunc{op: "lt", rhs: e}
 }
 
-func (ef *lessThanFunc) Run(scope *Scope) Pathor {
-	result := ef.expression.Run(scope)
-	return lessThan(scope, result)
+func GreaterThanOrEqual(e Runner) *evaluatorComparisonFunc {
+	return &evaluatorComparisonFunc{op: "gte", rhs: e}
 }
 
-func lessThan(scope *Scope, result Pathor) Pathor {
-	v1 := scope.Position.Raw()
-	v2 := result.Raw()
-
-	if c, _ := evaluator.Compare(v1, v2); c < 0 {
-		return True(scope.Path())
-	}
-	return False(scope.Path())
+func LessThanOrEqual(e Runner) *evaluatorComparisonFunc {
+	return &evaluatorComparisonFunc{op: "lte", rhs: e}
 }
 
-func LessThan(e Runner) *lessThanFunc {
-	return &lessThanFunc{
-		expression: e,
-	}
-}
-
-type greaterThanOrEqualFunc struct {
-	expression Runner
-}
-
-func (ef *greaterThanOrEqualFunc) Run(scope *Scope) Pathor {
-	result := ef.expression.Run(scope)
-	v1 := scope.Position.Raw()
-	v2 := result.Raw()
-
-	if c, _ := evaluator.Compare(v1, v2); c >= 0 {
-		return True(scope.Path())
-	}
-	return False(scope.Path())
-}
-
-func GreaterThanOrEqual(e Runner) *greaterThanOrEqualFunc {
-	return &greaterThanOrEqualFunc{expression: e}
-}
-
-type lessThanOrEqualFunc struct {
-	expression Runner
-}
-
-func (ef *lessThanOrEqualFunc) Run(scope *Scope) Pathor {
-	result := ef.expression.Run(scope)
-	v1 := scope.Position.Raw()
-	v2 := result.Raw()
-
-	if c, _ := evaluator.Compare(v1, v2); c <= 0 {
-		return True(scope.Path())
-	}
-	return False(scope.Path())
-}
-
-func LessThanOrEqual(e Runner) *lessThanOrEqualFunc {
-	return &lessThanOrEqualFunc{expression: e}
-}
-
-type notEqualsFunc struct {
-	expression Runner
-}
-
-func (ef *notEqualsFunc) Run(scope *Scope) Pathor {
-	result := ef.expression.Run(scope)
-	if !reflect.DeepEqual(result.Raw(), scope.Position.Raw()) {
-		return True(scope.Path())
-	}
-	return False(scope.Path())
-}
-
-func NotEquals(e Runner) *notEqualsFunc {
-	return &notEqualsFunc{expression: e}
+func NotEquals(e Runner) *evaluatorComparisonFunc {
+	return &evaluatorComparisonFunc{op: "neq", rhs: e}
 }
