@@ -66,6 +66,16 @@ func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.
 	if path == "" {
 		return r
 	}
+	if pv != nil && pv.IsValid() && pv.CanInterface() {
+		if f, ok := pv.Interface().(Finder); ok {
+			return f.Find(path)
+		}
+	}
+	if v.IsValid() && v.CanInterface() {
+		if f, ok := v.Interface().(Finder); ok {
+			return f.Find(path)
+		}
+	}
 	var result Pathor
 	switch v.Kind() {
 	case reflect.Ptr:
