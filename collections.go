@@ -132,12 +132,47 @@ func Index(i interface{}) *indexFunc {
 }
 
 func (i *indexFunc) Run(scope *Scope) Pathor {
-	switch scope.Position.Value().Kind() {
+	v := scope.Position.Value()
+	switch v.Kind() {
 	case reflect.Array, reflect.Slice:
 		return evaluateType(scope, scope.Position, i.i)
 	default:
+		// Attempt to treat single item as array of length 1 ?
+		// Only if index is 0
+		if iIsZero(i.i) {
+			// Return the item itself?
+			// The path should update to include [0]
+			// We can use arrayOrSlicePath logic but applied to single item?
+			// Or just return scope.Position (the item)?
+			// If we return scope.Position, the path doesn't change?
+			// But Index("0") usually implies selecting the 0th element.
+			// If Raw() is struct, [0] fails.
+			// If we allow it, it should act like it picked the item.
+			// But we might need to wrap it in Reflector with updated path?
+			p := ExtractPath(scope.Position) + "[0]"
+			// Handle if it's already a Pathor
+			return &Reflector{
+				path: p,
+				v:    v,
+			}
+		}
+
 		return NewInvalidor(ExtractPath(scope.Position), ErrIndexOfNotArray)
 	}
+}
+
+func iIsZero(i interface{}) bool {
+	switch v := i.(type) {
+	case int:
+		return v == 0
+	case string:
+		return v == "0"
+	case int64:
+		return v == 0
+	}
+	// Add other types if needed or use interfaceToInt
+	val, err := interfaceToInt(i)
+	return err == nil && val == 0
 }
 
 func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
