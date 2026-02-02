@@ -20,7 +20,7 @@ func arrayOrSliceForEachPath(prefix string, paths []string, v reflect.Value, run
 	}
 	result := make([]*Pair, 0, v.Len())
 	for i := 0; i < v.Len(); i++ {
-		p := prefix + fmt.Sprintf("[%d]", i)
+		p := prefix + "[" + strconv.Itoa(i) + "]"
 		vi := v.Index(i)
 		var boxed Pathor
 		// Check if the element itself implements Finder/Pathor
