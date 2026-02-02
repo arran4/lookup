@@ -65,7 +65,7 @@ func forEach(scope *Scope, v reflect.Value, ef func(pathor Pathor) error) Pathor
 		}
 		for i := 0; i < v.Len(); i++ {
 			f := v.Index(i)
-			p := scope.Path() + fmt.Sprintf("[%d]", i)
+			p := scope.Path() + "[" + strconv.Itoa(i) + "]"
 			if err := ef(&Reflector{
 				path: p,
 				v:    f,

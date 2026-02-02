@@ -137,3 +137,21 @@ func BenchmarkInterfaceorNested(b *testing.B) {
 		root.Find("B").Find("D").Raw()
 	}
 }
+
+func BenchmarkForEach(b *testing.B) {
+	// Create a large slice
+	size := 1000
+	data := make([]int, size)
+	for i := 0; i < size; i++ {
+		data[i] = i
+	}
+
+	r := Reflect(data)
+	// Every(This()) iterates over the slice using forEach in collections.go
+	runner := Every(This())
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		r.Find("", runner).Raw()
+	}
+}
