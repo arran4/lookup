@@ -7,6 +7,8 @@ import (
 	"strconv"
 )
 
+var simpleIntRegex = regexp.MustCompile(`^-?\d+$`)
+
 type subFilterFunc struct {
 	expression Runner
 }
@@ -187,11 +189,7 @@ func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
 		}
 		return arrayOrSlicePath(fmt.Sprintf("%s[%d]", ExtractPath(pathor), ip), ip, pathor.Value())
 	case reflect.String:
-		simpleValue, err := regexp.Compile(`^-?\d+$`)
-		if err != nil {
-			return NewInvalidor(ExtractPath(pathor), err)
-		}
-		if simpleValue.MatchString(i.(string)) {
+		if simpleIntRegex.MatchString(i.(string)) {
 			ii, err := strconv.ParseInt(i.(string), 10, 64)
 			if err != nil {
 				return NewInvalidor(fmt.Sprintf("%s[%s]", ExtractPath(pathor), i.(string)), err)
