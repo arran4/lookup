@@ -27,7 +27,6 @@ func arrayOrSliceForEachPath(prefix string, paths []string, v reflect.Value, run
 		if vi.CanInterface() {
 			if f, ok := vi.Interface().(Finder); ok {
 				// It's already a Finder/Pathor (most likely Interfaceor or Reflector)
-				// We need to wrap it or use it?
 				// If it is a Finder, we can just call Find on it.
 				// But we need a Pathor for 'Boxed'. Pathor includes Finder.
 				if parthor, ok := f.(Pathor); ok {
