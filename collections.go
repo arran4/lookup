@@ -325,23 +325,61 @@ func (i *intersectionFunc) Run(scope *Scope) Pathor {
 	leftVals := valueToSlice(scope.Position.Value())
 	rightVals := valueToSlice(other.Value())
 	result := []interface{}{}
+
+	lookupMap := make(map[interface{}]struct{})
+	var fallbackRight []reflect.Value
+
+	for _, rv := range rightVals {
+		if rv.IsValid() && isSafeForMap(rv.Kind()) {
+			lookupMap[rv.Interface()] = struct{}{}
+		} else {
+			fallbackRight = append(fallbackRight, rv)
+		}
+	}
+
+	resultSeen := make(map[interface{}]struct{})
+
 	for _, lv := range leftVals {
-		for _, rv := range rightVals {
-			if reflect.DeepEqual(lv.Interface(), rv.Interface()) {
-				// ensure not already added
+		matched := false
+		lVi := lv.Interface()
+		isComparable := lv.IsValid() && isSafeForMap(lv.Kind())
+
+		if isComparable {
+			if _, ok := lookupMap[lVi]; ok {
+				matched = true
+			}
+		}
+
+		if !matched {
+			for _, rv := range fallbackRight {
+				if reflect.DeepEqual(lVi, rv.Interface()) {
+					matched = true
+					break
+				}
+			}
+		}
+
+		if matched {
+			if isComparable {
+				if _, ok := resultSeen[lVi]; !ok {
+					result = append(result, lVi)
+					resultSeen[lVi] = struct{}{}
+				}
+			} else {
 				exists := false
 				for _, existing := range result {
-					if reflect.DeepEqual(existing, lv.Interface()) {
+					if reflect.DeepEqual(existing, lVi) {
 						exists = true
 						break
 					}
 				}
 				if !exists {
-					result = append(result, lv.Interface())
+					result = append(result, lVi)
 				}
 			}
 		}
 	}
+
 	if len(result) == 0 {
 		return &Invalidor{err: ErrNoMatchesForQuery, path: scope.Path()}
 	}
@@ -476,6 +514,19 @@ func valueToSlice(v reflect.Value) []reflect.Value {
 		return res
 	default:
 		return []reflect.Value{v}
+	}
+}
+
+func isSafeForMap(k reflect.Kind) bool {
+	switch k {
+	case reflect.Bool,
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+		reflect.Uintptr,
+		reflect.String:
+		return true
+	default:
+		return false
 	}
 }
 
