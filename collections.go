@@ -324,7 +324,7 @@ func (i *intersectionFunc) Run(scope *Scope) Pathor {
 	}
 	leftVals := valueToSlice(scope.Position.Value())
 	rightVals := valueToSlice(other.Value())
-	result := []interface{}{}
+	result := make([]interface{}, 0, min(len(leftVals), len(rightVals)))
 	for _, lv := range leftVals {
 		for _, rv := range rightVals {
 			if reflect.DeepEqual(lv.Interface(), rv.Interface()) {
