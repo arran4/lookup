@@ -278,3 +278,69 @@ func (ef *fallbackPathsFunc) Run(scope *Scope) Pathor {
 
 	return scope.Position
 }
+
+type andFunc struct {
+	left  Runner
+	right Runner
+}
+
+func And(left, right Runner) *andFunc {
+	return &andFunc{left: left, right: right}
+}
+
+func (a *andFunc) Run(scope *Scope) Pathor {
+	leftRes := a.left.Run(scope)
+	if _, ok := leftRes.(*Invalidor); ok {
+		return leftRes
+	}
+
+	isTrue := false
+	expr := evaluator.BoolType{Term: evaluator.Constant{Value: leftRes.Raw()}}
+	v, err := expr.Evaluate(nil)
+	if err == nil {
+		if b, ok := v.(bool); ok && b {
+			isTrue = true
+		}
+	}
+	if leftRes.Value().IsValid() && leftRes.Value().IsZero() {
+		isTrue = false
+	}
+
+	if isTrue {
+		return a.right.Run(scope)
+	}
+	return leftRes
+}
+
+type orFunc struct {
+	left  Runner
+	right Runner
+}
+
+func Or(left, right Runner) *orFunc {
+	return &orFunc{left: left, right: right}
+}
+
+func (o *orFunc) Run(scope *Scope) Pathor {
+	leftRes := o.left.Run(scope)
+	if _, ok := leftRes.(*Invalidor); ok {
+		return leftRes
+	}
+
+	isTrue := false
+	expr := evaluator.BoolType{Term: evaluator.Constant{Value: leftRes.Raw()}}
+	v, err := expr.Evaluate(nil)
+	if err == nil {
+		if b, ok := v.(bool); ok && b {
+			isTrue = true
+		}
+	}
+	if leftRes.Value().IsValid() && leftRes.Value().IsZero() {
+		isTrue = false
+	}
+
+	if isTrue {
+		return leftRes
+	}
+	return o.right.Run(scope)
+}

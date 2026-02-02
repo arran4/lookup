@@ -507,3 +507,46 @@ func evalIndex(scope *Scope, val interface{}, def int) (int, error) {
 	}
 	return 0, ErrIndexValueNotValid
 }
+
+type sequenceFunc struct {
+	start Runner
+	end   Runner
+}
+
+func Sequence(start, end Runner) *sequenceFunc {
+	return &sequenceFunc{start: start, end: end}
+}
+
+func (s *sequenceFunc) Run(scope *Scope) Pathor {
+	startRes := s.start.Run(scope)
+	if _, ok := startRes.(*Invalidor); ok {
+		return startRes
+	}
+	endRes := s.end.Run(scope)
+	if _, ok := endRes.(*Invalidor); ok {
+		return endRes
+	}
+
+	start, ok1 := ToInt(startRes.Raw())
+	end, ok2 := ToInt(endRes.Raw())
+
+	if !ok1 || !ok2 {
+		return NewInvalidor(scope.Path(), fmt.Errorf("range operands must be integers"))
+	}
+
+	if end < start {
+		return &Reflector{path: scope.Path(), v: reflect.ValueOf([]interface{}{})}
+	}
+
+	size := end - start + 1
+	if size > 10000000 {
+		return NewInvalidor(scope.Path(), fmt.Errorf("range size too large"))
+	}
+
+	result := make([]interface{}, int(size))
+	for i := int64(0); i < size; i++ {
+		result[int(i)] = start + i
+	}
+
+	return &Reflector{path: scope.Path(), v: reflect.ValueOf(result)}
+}
