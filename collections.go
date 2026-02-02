@@ -65,7 +65,7 @@ func forEach(scope *Scope, v reflect.Value, ef func(pathor Pathor) error) Pathor
 		}
 		for i := 0; i < v.Len(); i++ {
 			f := v.Index(i)
-			p := scope.Path() + fmt.Sprintf("[%d]", i)
+			p := scope.Path() + "[" + strconv.Itoa(i) + "]"
 			if err := ef(&Reflector{
 				path: p,
 				v:    f,
@@ -391,7 +391,7 @@ func (f *firstFunc) Run(scope *Scope) Pathor {
 		return NewInvalidor(scope.Path(), fmt.Errorf("nil element"))
 	}
 	for i := 0; i < v.Len(); i++ {
-		p := &Reflector{path: fmt.Sprintf("%s[%d]", scope.Path(), i), v: v.Index(i)}
+		p := &Reflector{path: scope.Path() + "[" + strconv.Itoa(i) + "]", v: v.Index(i)}
 		r := f.expression.Run(scope.Next(p))
 		b, err := interfaceToBoolOrParse(r.Raw())
 		if err == nil && b {
@@ -416,7 +416,7 @@ func (l *lastFunc) Run(scope *Scope) Pathor {
 		return NewInvalidor(scope.Path(), fmt.Errorf("nil element"))
 	}
 	for i := v.Len() - 1; i >= 0; i-- {
-		p := &Reflector{path: fmt.Sprintf("%s[%d]", scope.Path(), i), v: v.Index(i)}
+		p := &Reflector{path: scope.Path() + "[" + strconv.Itoa(i) + "]", v: v.Index(i)}
 		r := l.expression.Run(scope.Next(p))
 		b, err := interfaceToBoolOrParse(r.Raw())
 		if err == nil && b {
