@@ -22,11 +22,28 @@ func arrayOrSliceForEachPath(prefix string, paths []string, v reflect.Value, run
 	for i := 0; i < v.Len(); i++ {
 		p := prefix + fmt.Sprintf("[%d]", i)
 		vi := v.Index(i)
-		vipath := &Pair{
-			Boxed: &Reflector{
+		var boxed Pathor
+		// Check if the element itself implements Finder/Pathor
+		if vi.CanInterface() {
+			if f, ok := vi.Interface().(Finder); ok {
+				// It's already a Finder/Pathor (most likely Interfaceor or Reflector)
+				// If it is a Finder, we can just call Find on it.
+				// But we need a Pathor for 'Boxed'. Pathor includes Finder.
+				if parthor, ok := f.(Pathor); ok {
+					boxed = parthor
+				}
+			}
+		}
+
+		if boxed == nil {
+			boxed = &Reflector{
 				path: p,
 				v:    vi,
-			},
+			}
+		}
+
+		vipath := &Pair{
+			Boxed: boxed,
 		}
 		for _, path := range paths {
 			vipath.Boxed = vipath.Boxed.Find(path)
@@ -35,7 +52,13 @@ func arrayOrSliceForEachPath(prefix string, paths []string, v reflect.Value, run
 			continue
 		}
 		skip := false
-		myScope := scope.Nest(vipath.Boxed)
+		var myScope *Scope
+		if scope != nil {
+			myScope = scope.Nest(vipath.Boxed)
+		} else {
+			myScope = NewScope(nil, vipath.Boxed)
+		}
+
 		for _, e := range runners {
 			ee := e.Run(myScope.Next(vipath.Boxed))
 			if _, ok := ee.(*Invalidor); ok {
