@@ -1,6 +1,10 @@
 package lookup
 
-import "testing"
+import (
+	"reflect"
+	"strconv"
+	"testing"
+)
 
 type benchTreeNode struct {
 	Name          string
@@ -135,5 +139,55 @@ func BenchmarkInterfaceorNested(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		root.Find("B").Find("D").Raw()
+	}
+}
+
+func BenchmarkContainsInt(b *testing.B) {
+	size := 10000
+	data := make([]int, size)
+	for i := 0; i < size; i++ {
+		data[i] = i
+	}
+	target := size - 1 // Worst case
+
+	scope := NewScope(nil, Reflect(data))
+	runner := Contains(Constant(target))
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		runner.Run(scope)
+	}
+}
+
+func BenchmarkContainsString(b *testing.B) {
+	size := 10000
+	data := make([]string, size)
+	for i := 0; i < size; i++ {
+		data[i] = strconv.Itoa(i)
+	}
+	target := strconv.Itoa(size - 1) // Worst case
+
+	scope := NewScope(nil, Reflect(data))
+	runner := Contains(Constant(target))
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		runner.Run(scope)
+	}
+}
+
+func BenchmarkElementOfInt(b *testing.B) {
+	size := 10000
+	data := make([]int, size)
+	for i := 0; i < size; i++ {
+		data[i] = i
+	}
+	target := size - 1
+	v := reflect.ValueOf(target)
+	in := reflect.ValueOf(data)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		elementOf(v, in, nil)
 	}
 }

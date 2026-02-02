@@ -506,6 +506,65 @@ func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
 	case reflect.Ptr:
 		return elementOf(v.Elem(), in.Elem(), &v)
 	case reflect.Slice:
+		switch in.Type().Elem().Kind() {
+		case reflect.Int:
+			if val, ok := in.Interface().([]int); ok {
+				if v.Kind() == reflect.Int && v.Type() == in.Type().Elem() {
+					vv := int(v.Int())
+					for _, x := range val {
+						if x == vv {
+							return true
+						}
+					}
+					return false
+				}
+			}
+		case reflect.Int64:
+			if val, ok := in.Interface().([]int64); ok {
+				if v.Kind() == reflect.Int64 && v.Type() == in.Type().Elem() {
+					vv := v.Int()
+					for _, x := range val {
+						if x == vv {
+							return true
+						}
+					}
+					return false
+				}
+			}
+		case reflect.String:
+			if val, ok := in.Interface().([]string); ok {
+				if v.Kind() == reflect.String && v.Type() == in.Type().Elem() {
+					vv := v.String()
+					for _, x := range val {
+						if x == vv {
+							return true
+						}
+					}
+					return false
+				}
+			}
+		case reflect.Interface:
+			if val, ok := in.Interface().([]interface{}); ok {
+				vv := v.Interface()
+				if v.Type().Comparable() {
+					kind := v.Kind()
+					if kind != reflect.Float32 && kind != reflect.Float64 && kind != reflect.Complex64 && kind != reflect.Complex128 {
+						for _, x := range val {
+							if vv == x {
+								return true
+							}
+						}
+						return false
+					}
+				}
+				for _, x := range val {
+					if reflect.DeepEqual(vv, x) {
+						return true
+					}
+				}
+				return false
+			}
+		}
 		for i := 0; i < in.Len(); i++ {
 			f := in.Index(i)
 			if reflect.DeepEqual(v.Interface(), f.Interface()) {
