@@ -291,14 +291,15 @@ func (u *unionFunc) Run(scope *Scope) Pathor {
 	}
 	leftVals := valueToSlice(scope.Position.Value())
 	rightVals := valueToSlice(other.Value())
-	result := []interface{}{}
+	result := make([]interface{}, 0, len(leftVals)+len(rightVals))
 	add := func(v reflect.Value) {
+		vi := v.Interface()
 		for _, existing := range result {
-			if reflect.DeepEqual(existing, v.Interface()) {
+			if reflect.DeepEqual(existing, vi) {
 				return
 			}
 		}
-		result = append(result, v.Interface())
+		result = append(result, vi)
 	}
 	for _, v := range leftVals {
 		add(v)

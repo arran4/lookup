@@ -137,3 +137,28 @@ func BenchmarkInterfaceorNested(b *testing.B) {
 		root.Find("B").Find("D").Raw()
 	}
 }
+
+func BenchmarkUnion(b *testing.B) {
+	size := 1000
+	left := make([]int, size)
+	right := make([]int, size)
+	for i := 0; i < size; i++ {
+		left[i] = i
+		right[i] = i + size/2 // Overlap by half
+	}
+
+	data := struct {
+		Left []int
+	}{
+		Left: left,
+	}
+
+	// Pre-create the runner to measure primarily the execution time of Union
+	r := Reflect(data)
+	rightRunner := NewConstantor("", right)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		r.Find("Left", Union(rightRunner))
+	}
+}
