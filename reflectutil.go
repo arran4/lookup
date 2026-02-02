@@ -506,6 +506,54 @@ func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
 	case reflect.Ptr:
 		return elementOf(v.Elem(), in.Elem(), &v)
 	case reflect.Slice:
+		if in.CanInterface() {
+			switch s := in.Interface().(type) {
+			case []string:
+				if val, ok := v.Interface().(string); ok {
+					for _, x := range s {
+						if x == val {
+							return true
+						}
+					}
+					return false
+				}
+			case []int:
+				if val, ok := v.Interface().(int); ok {
+					for _, x := range s {
+						if x == val {
+							return true
+						}
+					}
+					return false
+				}
+			case []int64:
+				if val, ok := v.Interface().(int64); ok {
+					for _, x := range s {
+						if x == val {
+							return true
+						}
+					}
+					return false
+				}
+			case []float64:
+				if val, ok := v.Interface().(float64); ok {
+					for _, x := range s {
+						if x == val {
+							return true
+						}
+					}
+					return false
+				}
+			case []interface{}:
+				val := v.Interface()
+				for _, x := range s {
+					if reflect.DeepEqual(val, x) {
+						return true
+					}
+				}
+				return false
+			}
+		}
 		for i := 0; i < in.Len(); i++ {
 			f := in.Index(i)
 			if reflect.DeepEqual(v.Interface(), f.Interface()) {

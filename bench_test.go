@@ -1,6 +1,10 @@
 package lookup
 
-import "testing"
+import (
+	"fmt"
+	"reflect"
+	"testing"
+)
 
 type benchTreeNode struct {
 	Name          string
@@ -135,5 +139,73 @@ func BenchmarkInterfaceorNested(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		root.Find("B").Find("D").Raw()
+	}
+}
+
+func BenchmarkElementOfSliceInt(b *testing.B) {
+	// Setup a large slice of ints
+	size := 10000
+	slice := make([]int, size)
+	for i := 0; i < size; i++ {
+		slice[i] = i
+	}
+	// We will look for an element that is at the end or not present to maximize scan time
+	target := size - 1
+
+	// Create reflect values
+	v := reflect.ValueOf(target)
+	in := reflect.ValueOf(slice)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if !elementOf(v, in, nil) {
+			b.Fatal("should have found element")
+		}
+	}
+}
+
+func BenchmarkElementOfSliceString(b *testing.B) {
+	// Setup a large slice of strings
+	size := 10000
+	slice := make([]string, size)
+	for i := 0; i < size; i++ {
+		slice[i] = fmt.Sprintf("val-%d", i)
+	}
+	// Look for last element
+	target := fmt.Sprintf("val-%d", size-1)
+
+	v := reflect.ValueOf(target)
+	in := reflect.ValueOf(slice)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if !elementOf(v, in, nil) {
+			b.Fatal("should have found element")
+		}
+	}
+}
+
+func BenchmarkElementOfSliceStruct(b *testing.B) {
+	type Item struct {
+		ID   int
+		Name string
+	}
+	// Setup a large slice of structs
+	size := 1000
+	slice := make([]Item, size)
+	for i := 0; i < size; i++ {
+		slice[i] = Item{ID: i, Name: fmt.Sprintf("item-%d", i)}
+	}
+
+	target := Item{ID: size - 1, Name: fmt.Sprintf("item-%d", size-1)}
+
+	v := reflect.ValueOf(target)
+	in := reflect.ValueOf(slice)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if !elementOf(v, in, nil) {
+			b.Fatal("should have found element")
+		}
 	}
 }
