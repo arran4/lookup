@@ -2,6 +2,7 @@ package jsonata
 
 import (
 	"fmt"
+	"unicode/utf8"
 
 	"github.com/arran4/go-evaluator"
 	"github.com/arran4/lookup"
@@ -43,30 +44,43 @@ func (s *substringFunc) Call(args ...interface{}) (interface{}, error) {
 		}
 	}
 
-	runes := []rune(str)
 	if start < 0 {
-		start = int64(len(runes)) + start
+		start = int64(utf8.RuneCountInString(str)) + start
 	}
 	if start < 0 {
 		start = 0
 	}
-	if int(start) >= len(runes) {
+
+	if length != -1 && length < 0 {
 		return "", nil
 	}
 
-	end := int64(len(runes))
+	targetStart := int(start)
+	targetEnd := -1
 	if length != -1 {
-		end = start + int64(length)
-		if end > int64(len(runes)) {
-			end = int64(len(runes))
-		}
+		targetEnd = targetStart + length
 	}
 
-	if start > end {
+	startByte := -1
+	endByte := len(str)
+	currentRune := 0
+
+	for i := range str {
+		if currentRune == targetStart {
+			startByte = i
+		}
+		if targetEnd != -1 && currentRune == targetEnd {
+			endByte = i
+			break
+		}
+		currentRune++
+	}
+
+	if startByte == -1 {
 		return "", nil
 	}
 
-	return string(runes[start:end]), nil
+	return str[startByte:endByte], nil
 }
 
 type sumFunc struct{}
