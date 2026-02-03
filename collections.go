@@ -66,9 +66,10 @@ func forEach(scope *Scope, v reflect.Value, ef func(pathor Pathor) error) Pathor
 				err: fmt.Errorf("nil element at simple path %s element was %s expected array,slice,map,struct", scope.Path(), "nil"),
 			}
 		}
+		basePath := scope.Path()
 		for i := 0; i < v.Len(); i++ {
 			f := v.Index(i)
-			p := scope.Path() + fmt.Sprintf("[%d]", i)
+			p := basePath + "[" + strconv.Itoa(i) + "]"
 			if err := ef(&Reflector{
 				path: p,
 				v:    f,
@@ -188,14 +189,14 @@ func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
 		if err != nil {
 			return NewInvalidor(ExtractPath(pathor), err)
 		}
-		return arrayOrSlicePath(fmt.Sprintf("%s[%d]", ExtractPath(pathor), ip), ip, pathor.Value())
+		return arrayOrSlicePath(ExtractPath(pathor)+"["+strconv.Itoa(ip)+"]", ip, pathor.Value())
 	case reflect.String:
 		if simpleIntRegex.MatchString(i.(string)) {
 			ii, err := strconv.ParseInt(i.(string), 10, 64)
 			if err != nil {
-				return NewInvalidor(fmt.Sprintf("%s[%s]", ExtractPath(pathor), i.(string)), err)
+				return NewInvalidor(ExtractPath(pathor)+"["+i.(string)+"]", err)
 			}
-			return arrayOrSlicePath(fmt.Sprintf("%s[%d]", ExtractPath(pathor), ii), ii, pathor.Value())
+			return arrayOrSlicePath(ExtractPath(pathor)+"["+strconv.FormatInt(ii, 10)+"]", ii, pathor.Value())
 		}
 	case reflect.Struct, reflect.Ptr:
 		switch ii := i.(type) {
@@ -208,9 +209,9 @@ func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
 			return NewInvalidor(ExtractPath(pathor), ErrIndexValueNotValid)
 		}
 	default:
-		return NewInvalidor(fmt.Sprintf("%s[]", ExtractPath(pathor)), ErrIndexValueNotValid)
+		return NewInvalidor(ExtractPath(pathor)+"[]", ErrIndexValueNotValid)
 	}
-	return NewInvalidor(fmt.Sprintf("%s[]", ExtractPath(pathor)), ErrUnknownIndexMode)
+	return NewInvalidor(ExtractPath(pathor)+"[]", ErrUnknownIndexMode)
 }
 
 func Every(e Runner) *everyFunc {
@@ -442,8 +443,9 @@ func (f *firstFunc) Run(scope *Scope) Pathor {
 	if v.IsNil() {
 		return NewInvalidor(scope.Path(), fmt.Errorf("nil element"))
 	}
+	basePath := scope.Path()
 	for i := 0; i < v.Len(); i++ {
-		p := &Reflector{path: fmt.Sprintf("%s[%d]", scope.Path(), i), v: v.Index(i)}
+		p := &Reflector{path: basePath + "[" + strconv.Itoa(i) + "]", v: v.Index(i)}
 		r := f.expression.Run(scope.Next(p))
 		b, err := interfaceToBoolOrParse(r.Raw())
 		if err == nil && b {
@@ -467,8 +469,9 @@ func (l *lastFunc) Run(scope *Scope) Pathor {
 	if v.IsNil() {
 		return NewInvalidor(scope.Path(), fmt.Errorf("nil element"))
 	}
+	basePath := scope.Path()
 	for i := v.Len() - 1; i >= 0; i-- {
-		p := &Reflector{path: fmt.Sprintf("%s[%d]", scope.Path(), i), v: v.Index(i)}
+		p := &Reflector{path: basePath + "[" + strconv.Itoa(i) + "]", v: v.Index(i)}
 		r := l.expression.Run(scope.Next(p))
 		b, err := interfaceToBoolOrParse(r.Raw())
 		if err == nil && b {
@@ -506,10 +509,10 @@ func (rf *rangeFunc) Run(scope *Scope) Pathor {
 		end += length
 	}
 	if start < 0 || start > length || end < 0 || end > length || start > end {
-		return NewInvalidor(fmt.Sprintf("%s[%d:%d]", scope.Path(), start, end), ErrIndexOutOfRange)
+		return NewInvalidor(scope.Path()+"["+strconv.Itoa(start)+":"+strconv.Itoa(end)+"]", ErrIndexOutOfRange)
 	}
 	slice := v.Slice(start, end)
-	return &Reflector{path: fmt.Sprintf("%s[%d:%d]", scope.Path(), start, end), v: slice}
+	return &Reflector{path: scope.Path() + "[" + strconv.Itoa(start) + ":" + strconv.Itoa(end) + "]", v: slice}
 }
 
 func valueToSlice(v reflect.Value) []reflect.Value {
