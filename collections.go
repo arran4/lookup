@@ -297,7 +297,7 @@ func (u *unionFunc) Run(scope *Scope) Pathor {
 
 	add := func(v reflect.Value) {
 		val := v.Interface()
-		if isSafeForMap(v) {
+		if isValueSafeForMap(v) {
 			if _, ok := seenMap[val]; ok {
 				return
 			}
@@ -339,12 +339,11 @@ func (i *intersectionFunc) Run(scope *Scope) Pathor {
 	rightVals := valueToSlice(other.Value())
 	result := []interface{}{}
 
-	// Fast path optimization
 	fastRight := make(map[interface{}]struct{})
 	var slowRight []interface{}
 
 	for _, rv := range rightVals {
-		if isSafeForMap(getKind(rv)) {
+		if isValueSafeForMap(rv) {
 			fastRight[rv.Interface()] = struct{}{}
 		} else {
 			slowRight = append(slowRight, rv.Interface())
@@ -356,10 +355,10 @@ func (i *intersectionFunc) Run(scope *Scope) Pathor {
 
 	for _, lv := range leftVals {
 		val := lv.Interface()
-		k := getKind(lv)
 		matched := false
+		isSafe := isValueSafeForMap(lv)
 
-		if isSafeForMap(k) {
+		if isSafe {
 			_, matched = fastRight[val]
 		} else {
 			for _, rv := range slowRight {
@@ -372,7 +371,7 @@ func (i *intersectionFunc) Run(scope *Scope) Pathor {
 
 		if matched {
 			alreadyAdded := false
-			if isSafeForMap(k) {
+			if isSafe {
 				_, alreadyAdded = seenFast[val]
 				if !alreadyAdded {
 					seenFast[val] = struct{}{}
@@ -399,30 +398,6 @@ func (i *intersectionFunc) Run(scope *Scope) Pathor {
 		return &Invalidor{err: ErrNoMatchesForQuery, path: scope.Path()}
 	}
 	return &Reflector{path: scope.Path(), v: reflect.ValueOf(result)}
-}
-
-func isSafeForMap(k reflect.Kind) bool {
-	switch k {
-	case reflect.Bool,
-		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-		reflect.String, reflect.Invalid:
-		return true
-	default:
-		return false
-	}
-}
-
-func getKind(v reflect.Value) reflect.Kind {
-	k := v.Kind()
-	if k == reflect.Interface {
-		elem := v.Elem()
-		if !elem.IsValid() {
-			return reflect.Invalid
-		}
-		return elem.Kind()
-	}
-	return k
 }
 
 type appendFunc struct {
@@ -585,7 +560,7 @@ func evalIndex(scope *Scope, val interface{}, def int) (int, error) {
 	return 0, ErrIndexValueNotValid
 }
 
-func isSafeForMap(v reflect.Value) bool {
+func isValueSafeForMap(v reflect.Value) bool {
 	if v.Kind() == reflect.Interface {
 		if v.IsNil() {
 			return true
