@@ -2,6 +2,7 @@ package lookup
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -292,13 +293,27 @@ func (u *unionFunc) Run(scope *Scope) Pathor {
 	leftVals := valueToSlice(scope.Position.Value())
 	rightVals := valueToSlice(other.Value())
 	result := []interface{}{}
+
+	seenMap := make(map[interface{}]struct{})
+	var seenNonComparable []interface{}
+
 	add := func(v reflect.Value) {
-		for _, existing := range result {
-			if reflect.DeepEqual(existing, v.Interface()) {
+		val := v.Interface()
+		if isSafeForMap(v) {
+			if _, ok := seenMap[val]; ok {
 				return
 			}
+			seenMap[val] = struct{}{}
+			result = append(result, val)
+		} else {
+			for _, existing := range seenNonComparable {
+				if reflect.DeepEqual(existing, val) {
+					return
+				}
+			}
+			seenNonComparable = append(seenNonComparable, val)
+			result = append(result, val)
 		}
-		result = append(result, v.Interface())
 	}
 	for _, v := range leftVals {
 		add(v)
@@ -325,27 +340,91 @@ func (i *intersectionFunc) Run(scope *Scope) Pathor {
 	leftVals := valueToSlice(scope.Position.Value())
 	rightVals := valueToSlice(other.Value())
 	result := []interface{}{}
+
+	// Fast path optimization
+	fastRight := make(map[interface{}]struct{})
+	var slowRight []interface{}
+
+	for _, rv := range rightVals {
+		if isSafeForMap(getKind(rv)) {
+			fastRight[rv.Interface()] = struct{}{}
+		} else {
+			slowRight = append(slowRight, rv.Interface())
+		}
+	}
+
+	seenFast := make(map[interface{}]struct{})
+	var seenSlow []interface{}
+
 	for _, lv := range leftVals {
-		for _, rv := range rightVals {
-			if reflect.DeepEqual(lv.Interface(), rv.Interface()) {
-				// ensure not already added
-				exists := false
-				for _, existing := range result {
-					if reflect.DeepEqual(existing, lv.Interface()) {
-						exists = true
-						break
-					}
-				}
-				if !exists {
-					result = append(result, lv.Interface())
+		val := lv.Interface()
+		k := getKind(lv)
+		matched := false
+
+		if isSafeForMap(k) {
+			_, matched = fastRight[val]
+		} else {
+			for _, rv := range slowRight {
+				if reflect.DeepEqual(val, rv) {
+					matched = true
+					break
 				}
 			}
 		}
+
+		if matched {
+			alreadyAdded := false
+			if isSafeForMap(k) {
+				_, alreadyAdded = seenFast[val]
+				if !alreadyAdded {
+					seenFast[val] = struct{}{}
+				}
+			} else {
+				for _, s := range seenSlow {
+					if reflect.DeepEqual(val, s) {
+						alreadyAdded = true
+						break
+					}
+				}
+				if !alreadyAdded {
+					seenSlow = append(seenSlow, val)
+				}
+			}
+
+			if !alreadyAdded {
+				result = append(result, val)
+			}
+		}
 	}
+
 	if len(result) == 0 {
 		return &Invalidor{err: ErrNoMatchesForQuery, path: scope.Path()}
 	}
 	return &Reflector{path: scope.Path(), v: reflect.ValueOf(result)}
+}
+
+func isSafeForMap(k reflect.Kind) bool {
+	switch k {
+	case reflect.Bool,
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+		reflect.String, reflect.Invalid:
+		return true
+	default:
+		return false
+	}
+}
+
+func getKind(v reflect.Value) reflect.Kind {
+	k := v.Kind()
+	if k == reflect.Interface {
+		elem := v.Elem()
+		if !elem.IsValid() {
+			return reflect.Invalid
+		}
+		return elem.Kind()
+	}
+	return k
 }
 
 type appendFunc struct {
@@ -506,4 +585,24 @@ func evalIndex(scope *Scope, val interface{}, def int) (int, error) {
 		}
 	}
 	return 0, ErrIndexValueNotValid
+}
+
+func isSafeForMap(v reflect.Value) bool {
+	if v.Kind() == reflect.Interface {
+		if v.IsNil() {
+			return true
+		}
+		v = v.Elem()
+	}
+	switch v.Kind() {
+	case reflect.Bool,
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+		reflect.String:
+		return true
+	case reflect.Float32, reflect.Float64:
+		return !math.IsNaN(v.Float())
+	default:
+		return false
+	}
 }
