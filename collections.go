@@ -442,7 +442,7 @@ func (u *appendFunc) Run(scope *Scope) Pathor {
 	}
 	leftVals := valueToSlice(scope.Position.Value())
 	rightVals := valueToSlice(other.Value())
-	result := []interface{}{}
+	result := make([]interface{}, 0, len(leftVals)+len(rightVals))
 	add := func(v reflect.Value) {
 		result = append(result, v.Interface())
 	}
