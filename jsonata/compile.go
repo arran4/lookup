@@ -1,6 +1,8 @@
 package jsonata
 
 import (
+	"fmt"
+
 	"github.com/arran4/lookup"
 )
 
@@ -50,9 +52,27 @@ func compileBinary(n *BinaryNode) lookup.Runner {
 		return lookup.Divide(left, right)
 	case "%":
 		return lookup.Modulo(left, right)
+	case "=":
+		return lookup.BinaryEquals(left, right)
+	case "!=":
+		return lookup.BinaryNotEquals(left, right)
+	case ">":
+		return lookup.BinaryGreaterThan(left, right)
+	case "<":
+		return lookup.BinaryLessThan(left, right)
+	case ">=":
+		return lookup.BinaryGreaterThanOrEqual(left, right)
+	case "<=":
+		return lookup.BinaryLessThanOrEqual(left, right)
+	case "in":
+		return lookup.BinaryIn(left, right)
+	case "and":
+		return lookup.BinaryAnd(left, right)
+	case "or":
+		return lookup.BinaryOr(left, right)
 	}
-	// Fallback/TODO
-	return lookup.Error(nil)
+	// Fallback
+	return lookup.Error(fmt.Errorf("unsupported binary operator: %s", n.Operator))
 }
 
 func compilePath(n *PathNode) lookup.Runner {

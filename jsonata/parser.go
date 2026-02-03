@@ -3,6 +3,7 @@ package jsonata
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // Parse converts a JSONata expression into an AST.
@@ -29,12 +30,123 @@ type parser struct {
 }
 
 // Precedence levels:
-// 1. Expression ( & )
-// 2. Additive ( + )
-// 3. Term ( path, literal, parens )
+// 1. Or
+// 2. And
+// 3. Comparison
+// 4. String Concat (&)
+// 5. Additive (+, -)
+// 6. Multiplicative (*, /, %)
+// 7. Term (path, literal, parens)
 
 func (p *parser) parseExpression() (Node, error) {
-	// Level 1: &
+	return p.parseOr()
+}
+
+func (p *parser) parseOr() (Node, error) {
+	lhs, err := p.parseAnd()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.consumeWhitespace(); err != nil {
+		return nil, err
+	}
+
+	for p.checkKeyword("or") {
+		p.i += 2
+		rhs, err := p.parseAnd()
+		if err != nil {
+			return nil, err
+		}
+		lhs = &BinaryNode{
+			Operator: "or",
+			Left:     lhs,
+			Right:    rhs,
+		}
+		if err := p.consumeWhitespace(); err != nil {
+			return nil, err
+		}
+	}
+	return lhs, nil
+}
+
+func (p *parser) parseAnd() (Node, error) {
+	lhs, err := p.parseComparison()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.consumeWhitespace(); err != nil {
+		return nil, err
+	}
+
+	for p.checkKeyword("and") {
+		p.i += 3
+		rhs, err := p.parseComparison()
+		if err != nil {
+			return nil, err
+		}
+		lhs = &BinaryNode{
+			Operator: "and",
+			Left:     lhs,
+			Right:    rhs,
+		}
+		if err := p.consumeWhitespace(); err != nil {
+			return nil, err
+		}
+	}
+	return lhs, nil
+}
+
+func (p *parser) parseComparison() (Node, error) {
+	lhs, err := p.parseStringConcat()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.consumeWhitespace(); err != nil {
+		return nil, err
+	}
+
+	op := ""
+	if p.checkStr("!=") {
+		op = "!="
+		p.i += 2
+	} else if p.checkStr(">=") {
+		op = ">="
+		p.i += 2
+	} else if p.checkStr("<=") {
+		op = "<="
+		p.i += 2
+	} else if p.checkStr("=") {
+		op = "="
+		p.i += 1
+	} else if p.checkStr(">") {
+		op = ">"
+		p.i += 1
+	} else if p.checkStr("<") {
+		op = "<"
+		p.i += 1
+	} else if p.checkKeyword("in") {
+		op = "in"
+		p.i += 2
+	}
+
+	if op != "" {
+		rhs, err := p.parseStringConcat()
+		if err != nil {
+			return nil, err
+		}
+		lhs = &BinaryNode{
+			Operator: op,
+			Left:     lhs,
+			Right:    rhs,
+		}
+	}
+	return lhs, nil
+}
+
+func (p *parser) parseStringConcat() (Node, error) {
 	lhs, err := p.parseAdditive()
 	if err != nil {
 		return nil, err
@@ -44,7 +156,6 @@ func (p *parser) parseExpression() (Node, error) {
 		return nil, err
 	}
 
-	// Left-associative: loop
 	for p.peek() == '&' {
 		p.i++ // consume '&'
 		rhs, err := p.parseAdditive()
@@ -65,7 +176,36 @@ func (p *parser) parseExpression() (Node, error) {
 }
 
 func (p *parser) parseAdditive() (Node, error) {
-	// Level 2: + (and - later)
+	lhs, err := p.parseMultiplicative()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.consumeWhitespace(); err != nil {
+		return nil, err
+	}
+
+	for p.peek() == '+' || p.peek() == '-' {
+		op := string(p.peek())
+		p.i++ // consume '+' or '-'
+		rhs, err := p.parseMultiplicative()
+		if err != nil {
+			return nil, err
+		}
+		lhs = &BinaryNode{
+			Operator: op,
+			Left:     lhs,
+			Right:    rhs,
+		}
+		if err := p.consumeWhitespace(); err != nil {
+			return nil, err
+		}
+	}
+
+	return lhs, nil
+}
+
+func (p *parser) parseMultiplicative() (Node, error) {
 	lhs, err := p.parseTerm()
 	if err != nil {
 		return nil, err
@@ -75,14 +215,15 @@ func (p *parser) parseAdditive() (Node, error) {
 		return nil, err
 	}
 
-	for p.peek() == '+' {
-		p.i++ // consume '+'
+	for p.peek() == '*' || p.peek() == '/' || p.peek() == '%' {
+		op := string(p.peek())
+		p.i++
 		rhs, err := p.parseTerm()
 		if err != nil {
 			return nil, err
 		}
 		lhs = &BinaryNode{
-			Operator: "+",
+			Operator: op,
 			Left:     lhs,
 			Right:    rhs,
 		}
@@ -97,6 +238,20 @@ func (p *parser) parseAdditive() (Node, error) {
 func (p *parser) parseTerm() (Node, error) {
 	if err := p.consumeWhitespace(); err != nil {
 		return nil, err
+	}
+
+	// Literals: true, false, null
+	if p.checkKeyword("true") {
+		p.i += 4
+		return &LiteralNode{Value: true}, nil
+	}
+	if p.checkKeyword("false") {
+		p.i += 5
+		return &LiteralNode{Value: false}, nil
+	}
+	if p.checkKeyword("null") {
+		p.i += 4
+		return &LiteralNode{Value: nil}, nil
 	}
 
 	// Parentheses
@@ -410,6 +565,11 @@ func (p *parser) parseValue() (string, error) {
 		return val, nil
 	}
 	start := p.i
+
+	if p.i < len(p.s) && p.s[p.i] == '-' {
+		p.i++
+	}
+
 	for p.i < len(p.s) && (isDigit(p.s[p.i]) || p.s[p.i] == '.') {
 		p.i++
 	}
@@ -428,4 +588,25 @@ func (p *parser) peek() byte {
 
 func isDigit(b byte) bool {
 	return b >= '0' && b <= '9'
+}
+
+func (p *parser) checkKeyword(s string) bool {
+	if !strings.HasPrefix(p.s[p.i:], s) {
+		return false
+	}
+	// Check next char
+	next := p.i + len(s)
+	if next >= len(p.s) {
+		return true
+	}
+	c := p.s[next]
+	// ident chars: a-z, A-Z, 0-9, _, $
+	if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '$' {
+		return false
+	}
+	return true
+}
+
+func (p *parser) checkStr(s string) bool {
+	return strings.HasPrefix(p.s[p.i:], s)
 }
