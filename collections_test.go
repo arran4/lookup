@@ -314,6 +314,46 @@ func TestContainsMap(t *testing.T) {
 	}
 }
 
+func TestIntersectionMixedTypes(t *testing.T) {
+	type S struct{ Val int }
+	data := struct {
+		Mixed []interface{}
+	}{
+		Mixed: []interface{}{1, "a", S{1}, S{2}},
+	}
+
+	tests := []struct {
+		name   string
+		result func() Pathor
+		want   interface{}
+	}{
+		{
+			name:   "intersect safe types",
+			result: func() Pathor { return Reflect(data).Find("Mixed", Intersection(Array(1, "b"))) },
+			want:   []interface{}{1},
+		},
+		{
+			name:   "intersect unsafe types",
+			result: func() Pathor { return Reflect(data).Find("Mixed", Intersection(Array(S{1}, S{3}))) },
+			want:   []interface{}{S{1}},
+		},
+		{
+			name:   "intersect mixed",
+			result: func() Pathor { return Reflect(data).Find("Mixed", Intersection(Array(1, S{2}, "c"))) },
+			want:   []interface{}{1, S{2}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.result()
+			if diff := cmp.Diff(tt.want, got.Raw()); diff != "" {
+				t.Errorf("unexpected result: %s", diff)
+			}
+		})
+	}
+}
+
 func TestInStruct(t *testing.T) {
 	type S struct{ A, B string }
 	s := S{A: "foo", B: "bar"}
