@@ -147,7 +147,7 @@ func (p *parser) parseComparison() (Node, error) {
 }
 
 func (p *parser) parseStringConcat() (Node, error) {
-	lhs, err := p.parseAdditive()
+	lhs, err := p.parseRange()
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func (p *parser) parseStringConcat() (Node, error) {
 
 	for p.peek() == '&' {
 		p.i++ // consume '&'
-		rhs, err := p.parseAdditive()
+		rhs, err := p.parseRange()
 		if err != nil {
 			return nil, err
 		}
@@ -172,6 +172,34 @@ func (p *parser) parseStringConcat() (Node, error) {
 		}
 	}
 
+	return lhs, nil
+}
+
+func (p *parser) parseRange() (Node, error) {
+	lhs, err := p.parseAdditive()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := p.consumeWhitespace(); err != nil {
+		return nil, err
+	}
+
+	for p.checkStr("..") {
+		p.i += 2
+		rhs, err := p.parseAdditive()
+		if err != nil {
+			return nil, err
+		}
+		lhs = &BinaryNode{
+			Operator: "..",
+			Left:     lhs,
+			Right:    rhs,
+		}
+		if err := p.consumeWhitespace(); err != nil {
+			return nil, err
+		}
+	}
 	return lhs, nil
 }
 
@@ -570,8 +598,22 @@ func (p *parser) parseValue() (string, error) {
 		p.i++
 	}
 
-	for p.i < len(p.s) && (isDigit(p.s[p.i]) || p.s[p.i] == '.') {
-		p.i++
+	hasDot := false
+	for p.i < len(p.s) {
+		if isDigit(p.s[p.i]) {
+			p.i++
+		} else if p.s[p.i] == '.' {
+			if p.i+1 < len(p.s) && p.s[p.i+1] == '.' {
+				break
+			}
+			if hasDot {
+				break
+			}
+			hasDot = true
+			p.i++
+		} else {
+			break
+		}
 	}
 	if start == p.i {
 		return "", fmt.Errorf("expected value")

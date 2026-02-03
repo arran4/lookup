@@ -299,7 +299,7 @@ func (u *unionFunc) Run(scope *Scope) Pathor {
 
 	add := func(v reflect.Value) {
 		val := v.Interface()
-		if isSafeForMap(v) {
+		if isValueSafeForMap(v) {
 			if _, ok := seenMap[val]; ok {
 				return
 			}
@@ -587,7 +587,7 @@ func evalIndex(scope *Scope, val interface{}, def int) (int, error) {
 	return 0, ErrIndexValueNotValid
 }
 
-func isSafeForMap(v reflect.Value) bool {
+func isValueSafeForMap(v reflect.Value) bool {
 	if v.Kind() == reflect.Interface {
 		if v.IsNil() {
 			return true
