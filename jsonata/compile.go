@@ -70,6 +70,8 @@ func compileBinary(n *BinaryNode) lookup.Runner {
 		return lookup.BinaryAnd(left, right)
 	case "or":
 		return lookup.BinaryOr(left, right)
+	case "..":
+		return lookup.Sequence(left, right)
 	}
 	// Fallback
 	return lookup.Error(fmt.Errorf("unsupported binary operator: %s", n.Operator))
