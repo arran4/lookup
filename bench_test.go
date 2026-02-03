@@ -137,3 +137,43 @@ func BenchmarkInterfaceorNested(b *testing.B) {
 		root.Find("B").Find("D").Raw()
 	}
 }
+
+func BenchmarkUnionLarge(b *testing.B) {
+	size := 1000
+	left := make([]int, size)
+	right := make([]int, size)
+	for i := 0; i < size; i++ {
+		left[i] = i
+		right[i] = i + size/2 // Overlap by half
+	}
+
+	l := Reflect(left)
+	r := Reflect(right)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		l.Find("", Union(ValueOf(r))).Raw()
+	}
+}
+
+func BenchmarkUnionStructs(b *testing.B) {
+	type Item struct {
+		ID   int
+		Name string
+	}
+	size := 100
+	left := make([]Item, size)
+	right := make([]Item, size)
+	for i := 0; i < size; i++ {
+		left[i] = Item{ID: i, Name: "A"}
+		right[i] = Item{ID: i + size/2, Name: "A"}
+	}
+
+	l := Reflect(left)
+	r := Reflect(right)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		l.Find("", Union(ValueOf(r))).Raw()
+	}
+}
