@@ -17,6 +17,9 @@ func (r *Reflector) Path() string {
 
 // Type extracts the reflect.Type from the stored object
 func (r *Reflector) Type() reflect.Type {
+	if !r.v.IsValid() {
+		return nil
+	}
 	return r.v.Type()
 }
 
