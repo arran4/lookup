@@ -1,0 +1,144 @@
+name: CI/CD
+
+on:
+ push:
+   branches: [main, master]
+   tags: ['v*', 'v*.*.*', 'v*.*.*-rc*', 'v*.*.*-beta*', 'test-*']
+ pull_request:
+   types: [opened, synchronize, reopened, ready_for_review, closed]
+   branches: [main, master]
+ release:
+   types: [published]
+ workflow_dispatch:
+   inputs:
+     mode:
+       type: choice
+       default: lint-fix
+       options: [lint-fix, build, release-major, release-minor, release-patch, release-test, release-rc, release-alpha, monthly-maintenance]
+     release_version_override:
+       type: string
+       default: ''
+     allow_prs:
+       type: boolean
+       default: true
+ schedule:
+   - cron: '17 3 1 * *'
+   - cron: '41 2 * * *'
+
+concurrency:
+ group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+ cancel-in-progress: true
+
+permissions:
+ contents: write
+ pull-requests: write
+ checks: write
+ packages: write
+ security-events: write
+
+jobs:
+ route:
+   # ... from section above
+ prepare-release-tag:
+   needs: [route]
+   # ... from section above
+
+ discover:
+   needs: route
+   # ... from section above
+
+ gitleaks:
+   needs: [route, discover]
+   # ...
+
+ java-build-test:
+   needs: [route, discover]
+   # ...
+
+ hugo-build:
+   needs: [route, discover]
+   # ...
+
+ hugo-deploy:
+   needs: [route, discover, hugo-build]
+   # ...
+
+ golangci:
+   needs: [route, discover]
+   # ...
+
+ go-test:
+   needs: [route, discover, golangci]
+   # ...
+
+ go-vet:
+   needs: [route, discover]
+   # ...
+
+ go-fmt-pr:
+   needs: [route, discover]
+   # ...
+
+ node-lint-test:
+   needs: [route, discover]
+   # ...
+
+ dart-analyze-test:
+   needs: [route, discover]
+   # ...
+
+ flutter-analyze-test:
+   needs: [route, discover]
+   # ...
+
+ flutter-build-artifacts:
+   needs: [route, discover, flutter-analyze-test]
+   # ...
+
+ cpp-qt-build-test:
+   needs: [route, discover]
+   # ...
+
+ c-make-build-test:
+   needs: [route, discover]
+   # ...
+
+ docker-build:
+   needs: [route, discover]
+   # ...
+
+ autofix:
+   needs: [route, discover]
+   # ...
+
+ cleanup-autofix-prs:
+   needs: [route]
+   # ...
+
+ goreleaser:
+   needs: [route, discover, go-test, prepare-release-tag]
+   # ...
+
+ source-deb:
+   needs: [route, discover]
+   # ...
+
+ source-rpm:
+   needs: [route, discover]
+   # ...
+
+ docker-release:
+   needs: [route, discover, docker-build]
+   # ...
+
+ publish-draft:
+   needs: [goreleaser, source-deb, source-rpm, docker-release]
+   # ...
+
+ promote-release:
+   needs: [publish-draft]
+   # ...
+
+ prepare-next-version-pr:
+   needs: [publish-draft, prepare-release-tag]
+   # ...

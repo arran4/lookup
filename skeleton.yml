@@ -1,0 +1,144 @@
+  1name: CI/CD
+  2
+  3on:
+  4  push:
+  5    branches: [main, master]
+  6    tags: ['v*', 'v*.*.*', 'v*.*.*-rc*', 'v*.*.*-beta*', 'test-*']
+  7  pull_request:
+  8    types: [opened, synchronize, reopened, ready_for_review, closed]
+  9    branches: [main, master]
+ 10  release:
+ 11    types: [published]
+ 12  workflow_dispatch:
+ 13    inputs:
+ 14      mode:
+ 15        type: choice
+ 16        default: lint-fix
+ 17        options: [lint-fix, build, release-major, release-minor, release-patch, release-test, release-rc, release-alpha, monthly-maintenance]
+ 18      release_version_override:
+ 19        type: string
+ 20        default: ''
+ 21      allow_prs:
+ 22        type: boolean
+ 23        default: true
+ 24  schedule:
+ 25    - cron: '17 3 1 * *'
+ 26    - cron: '41 2 * * *'
+ 27
+ 28concurrency:
+ 29  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+ 30  cancel-in-progress: true
+ 31
+ 32permissions:
+ 33  contents: write
+ 34  pull-requests: write
+ 35  checks: write
+ 36  packages: write
+ 37  security-events: write
+ 38
+ 39jobs:
+ 40  route:
+ 41    # ... from section above
+ 42  prepare-release-tag:
+ 43    needs: [route]
+ 44    # ... from section above
+ 45
+ 46  discover:
+ 47    needs: route
+ 48    # ... from section above
+ 49
+ 50  gitleaks:
+ 51    needs: [route, discover]
+ 52    # ...
+ 53
+ 54  java-build-test:
+ 55    needs: [route, discover]
+ 56    # ...
+ 57
+ 58  hugo-build:
+ 59    needs: [route, discover]
+ 60    # ...
+ 61
+ 62  hugo-deploy:
+ 63    needs: [route, discover, hugo-build]
+ 64    # ...
+ 65
+ 66  golangci:
+ 67    needs: [route, discover]
+ 68    # ...
+ 69
+ 70  go-test:
+ 71    needs: [route, discover, golangci]
+ 72    # ...
+ 73
+ 74  go-vet:
+ 75    needs: [route, discover]
+ 76    # ...
+ 77
+ 78  go-fmt-pr:
+ 79    needs: [route, discover]
+ 80    # ...
+ 81
+ 82  node-lint-test:
+ 83    needs: [route, discover]
+ 84    # ...
+ 85
+ 86  dart-analyze-test:
+ 87    needs: [route, discover]
+ 88    # ...
+ 89
+ 90  flutter-analyze-test:
+ 91    needs: [route, discover]
+ 92    # ...
+ 93
+ 94  flutter-build-artifacts:
+ 95    needs: [route, discover, flutter-analyze-test]
+ 96    # ...
+ 97
+ 98  cpp-qt-build-test:
+ 99    needs: [route, discover]
+100    # ...
+101
+102  c-make-build-test:
+103    needs: [route, discover]
+104    # ...
+105
+106  docker-build:
+107    needs: [route, discover]
+108    # ...
+109
+110  autofix:
+111    needs: [route, discover]
+112    # ...
+113
+114  cleanup-autofix-prs:
+115    needs: [route]
+116    # ...
+117
+118  goreleaser:
+119    needs: [route, discover, go-test, prepare-release-tag]
+120    # ...
+121
+122  source-deb:
+123    needs: [route, discover]
+124    # ...
+125
+126  source-rpm:
+127    needs: [route, discover]
+128    # ...
+129
+130  docker-release:
+131    needs: [route, discover, docker-build]
+132    # ...
+133
+134  publish-draft:
+135    needs: [goreleaser, source-deb, source-rpm, docker-release]
+136    # ...
+137
+138  promote-release:
+139    needs: [publish-draft]
+140    # ...
+141
+142  prepare-next-version-pr:
+143    needs: [publish-draft, prepare-release-tag]
+144    # ...

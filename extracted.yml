@@ -1,0 +1,1556 @@
+# Block 0
+1# Agent rules for generation:
+2# https://arran4.com/post/2026/006-Github-CI-and-Deploy/
+3# Built using this post as a reference/guide.
+4name: CI/CD
+
+
+# Block 1
+ 1name: CI/CD
+ 2
+ 3on:
+ 4  push:
+ 5    branches: [main, master]
+ 6    # semantic version tags + rc/beta snapshots
+ 7    tags:
+ 8      - 'v*'
+ 9      - 'v*.*.*'
+10      - 'v*.*.*-rc*'
+11      - 'v*.*.*-beta*'
+12      - 'test-*'
+13  pull_request:
+14    types: [opened, synchronize, reopened, ready_for_review, closed]
+15    branches: [main, master]
+16  release:
+17    types: [published]
+18  workflow_dispatch:
+19    inputs:
+20      mode:
+21        description: "Pipeline mode"
+22        required: true
+23        default: "lint-fix"
+24        type: choice
+25        options:
+26          - lint-fix
+27          - build
+28          - release-major
+29          - release-minor
+30          - release-patch
+31          - release-test
+32          - release-rc
+33          - release-alpha
+34          - monthly-maintenance
+35      release_version_override:
+36        description: "Optional explicit release version (for example 2.4.0 or 2.4.0-rc.2)"
+37        required: false
+38        default: ""
+39        type: string
+40      allow_prs:
+41        description: "Allow automation to open pull requests"
+42        required: false
+43        default: true
+44        type: boolean
+45  schedule:
+46    # preferred heavy monthly run (quota reset strategy)
+47    - cron: '17 3 1 * *'
+48    # optional nightly lightweight checks
+49    - cron: '41 2 * * *'
+
+
+# Block 2
+ 1  prepare-release-tag:
+ 2    name: Prepare release tag
+ 3    needs: [route]
+ 4    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(inputs.mode, 'release-') }}
+ 5    runs-on: ubuntu-latest
+ 6    outputs:
+ 7      release_tag: ${{ steps.tag.outputs.release_tag }}
+ 8      next_version: ${{ steps.tag.outputs.next_version }}
+ 9    steps:
+10      - uses: actions/checkout@v4
+11        with:
+12          fetch-depth: 0
+13      - name: Setup git-tag-inc
+14        uses: arran4/git-tag-inc-action@v1
+15        with:
+16          mode: install
+17      # Do not also run `go install github.com/arran4/git-tag-inc/...` in this job.
+18      # Using both is redundant and has caused avoidable CI drift.
+19      - id: tag
+20        shell: bash
+21        run: |
+22          set -euo pipefail
+23          git config --global user.name "github-actions[bot]"
+24          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+25          MODE="${{ inputs.mode }}"
+26          OVERRIDE="${{ inputs.release_version_override }}"
+27
+28          if [[ -n "$OVERRIDE" ]]; then
+29            # Accept "1.2.3" or "v1.2.3" override input.
+30            OVERRIDE="${OVERRIDE#v}"
+31            next_tag="v$OVERRIDE"
+32          else
+33            case "$MODE" in
+34              release-major) level="major"; suffix="" ;;
+35              release-minor) level="minor"; suffix="" ;;
+36              release-patch) level="patch"; suffix="" ;;
+37              release-test)  level="patch"; suffix="test" ;;
+38              release-rc)    level="patch"; suffix="rc" ;;
+39              release-alpha) level="patch"; suffix="alpha" ;;
+40              *) echo "Unsupported release mode: $MODE"; exit 1 ;;
+41            esac
+42            if command -v git-tag-inc >/dev/null 2>&1; then
+43              # git-tag-inc uses positional commands (patch/major/minor/test/rc...)
+44              # and NOT flag forms like -patch.
+45              level="${level#-}"
+46              args=(-print-version-only "$level")
+47              [[ -n "$suffix" ]] && args+=("$suffix")
+48              next_tag=$(git-tag-inc "${args[@]}")
+49            else
+50              # Fallback implementation when git-tag-inc is not available.
+51              git fetch --tags --force
+52              latest=$(git tag -l 'v*' | sed 's/^v//' | sort -V | tail -n 1)
+53              [[ -z "$latest" ]] && latest='0.0.0'
+54
+55              # Prefer npx semver if available (same pattern used in g2 fixes).
+56              if command -v npx >/dev/null 2>&1; then
+57                case "$level" in
+58                  major) bumped=$(npx --yes semver "$latest" -i major) ;;
+59                  minor) bumped=$(npx --yes semver "$latest" -i minor) ;;
+60                  *) bumped=$(npx --yes semver "$latest" -i patch) ;;
+61                esac
+62                next_tag="v${bumped}"
+63              else
+64                base="${latest%%-*}"
+65                IFS='.' read -r maj min pat <<< "$base"
+66                case "$level" in
+67                  major) maj=$((maj+1)); min=0; pat=0 ;;
+68                  minor) min=$((min+1)); pat=0 ;;
+69                  *) pat=$((pat+1)) ;;
+70                esac
+71                next_tag="v${maj}.${min}.${pat}"
+72              fi
+73
+74              if [[ -n "$suffix" ]]; then
+75                next_tag="${next_tag}-${suffix}.1"
+76              fi
+77            fi
+78          fi
+79
+80          # Tagging safety guards to avoid duplicate/invalid release states.
+81          [[ "$next_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.]+)?$ ]] || {
+82            echo "Invalid tag format: $next_tag" >&2
+83            exit 1
+84          }
+85          git fetch --tags --force
+86          if git rev-parse "$next_tag" >/dev/null 2>&1; then
+87            echo "Tag already exists: $next_tag" >&2
+88            echo "Choose a new mode or set release_version_override." >&2
+89            exit 1
+90          fi
+91
+92          echo "release_tag=$next_tag" >> "$GITHUB_OUTPUT"
+93          clean_tag="${next_tag#v}"; clean_tag="${clean_tag%%-*}"
+94          IFS='.' read -r maj min pat <<< "$clean_tag"
+95          echo "next_version=${maj:-0}.${min:-0}.$(( ${pat:-0} + 1 ))-SNAPSHOT" >> "$GITHUB_OUTPUT"
+
+
+# Block 3
+ 1concurrency:
+ 2  # Keep this as a safety net, not the primary dedupe mechanism.
+ 3  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+ 4  cancel-in-progress: true
+ 5
+ 6permissions:
+ 7  contents: write
+ 8  discussions: write
+ 9  pull-requests: write
+10  checks: write
+11  packages: write
+12  security-events: write
+13
+14jobs:
+15  route:
+16    name: Route event
+17    runs-on: ubuntu-latest
+18    outputs:
+19      run_code_checks: ${{ steps.route.outputs.run_code_checks }}
+20      run_pr_meta_checks: ${{ steps.route.outputs.run_pr_meta_checks }}
+21      run_cleanup: ${{ steps.route.outputs.run_cleanup }}
+22      run_release: ${{ steps.route.outputs.run_release }}
+23      is_monthly: ${{ steps.route.outputs.is_monthly }}
+24      is_nightly: ${{ steps.route.outputs.is_nightly }}
+25    steps:
+26      - id: route
+27        shell: bash
+28        run: |
+29          set -euo pipefail
+30
+31          run_code_checks=false
+32          run_pr_meta_checks=false
+33          run_cleanup=false
+34          run_release=false
+35          is_monthly=false
+36          is_nightly=false
+37
+38          case "${{ github.event_name }}" in
+39            push)
+40              run_code_checks=true
+41              ;;
+42            pull_request)
+43              if [[ "${{ github.event.action }}" == "closed" ]]; then
+44                run_cleanup=true
+45              else
+46                run_pr_meta_checks=true
+47                # In practice, also run code checks on PRs so lint/fmt/vet/test
+48                # show up directly in the PR UI. Use concurrency to collapse churn.
+49                run_code_checks=true
+50              fi
+51              ;;
+52            release)
+53              run_release=true
+54              ;;
+55            workflow_dispatch)
+56              run_code_checks=true
+57              if [[ "${{ inputs.mode }}" == release-* ]]; then
+58                run_release=true
+59              fi
+60              if [[ "${{ inputs.mode }}" == "monthly-maintenance" ]]; then
+61                is_monthly=true
+62              fi
+63              if [[ "${{ inputs.mode }}" == "lint-fix" ]]; then
+64                # Manual lint-fix acts as an on-demand nightly-style maintenance pass.
+65                is_nightly=true
+66              fi
+67              ;;
+68            schedule)
+69              run_code_checks=true
+70              if [[ "${{ github.event.schedule }}" == "17 3 1 * *" ]]; then
+71                is_monthly=true
+72              fi
+73              if [[ "${{ github.event.schedule }}" == "41 2 * * *" ]]; then
+74                is_nightly=true
+75              fi
+76              ;;
+77          esac
+78
+79          echo "run_code_checks=$run_code_checks" >> "$GITHUB_OUTPUT"
+80          echo "run_pr_meta_checks=$run_pr_meta_checks" >> "$GITHUB_OUTPUT"
+81          echo "run_cleanup=$run_cleanup" >> "$GITHUB_OUTPUT"
+82          echo "run_release=$run_release" >> "$GITHUB_OUTPUT"
+83          echo "is_monthly=$is_monthly" >> "$GITHUB_OUTPUT"
+84          echo "is_nightly=$is_nightly" >> "$GITHUB_OUTPUT"
+
+
+# Block 4
+ 1  route:
+ 2    name: Event Router
+ 3    runs-on: ubuntu-latest
+ 4    outputs:
+ 5      run_code_checks: ${{ steps.decide.outputs.run_code_checks }}
+ 6      run_build: ${{ steps.decide.outputs.run_build }}
+ 7      run_release: ${{ steps.decide.outputs.run_release }}
+ 8    steps:
+ 9      - id: decide
+10        shell: bash
+11        run: |
+12          set -euo pipefail
+13          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.action }}" == "closed" ]]; then
+14            echo "run_code_checks=false" >> "$GITHUB_OUTPUT"
+15            echo "run_build=false" >> "$GITHUB_OUTPUT"
+16            echo "run_release=false" >> "$GITHUB_OUTPUT"
+17            exit 0
+18          fi
+19
+20          echo "run_code_checks=true" >> "$GITHUB_OUTPUT"
+21
+22          if [[ "${{ github.ref }}" == refs/tags/* || ("${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.mode }}" != "lint-fix") ]]; then
+23            echo "run_build=true" >> "$GITHUB_OUTPUT"
+24          else
+25            echo "run_build=false" >> "$GITHUB_OUTPUT"
+26          fi
+27
+28          if [[ "${{ github.ref }}" == refs/tags/v* || ("${{ github.event_name }}" == "workflow_dispatch" && startsWith("${{ inputs.mode }}", "release-")) ]]; then
+29            echo "run_release=true" >> "$GITHUB_OUTPUT"
+30          else
+31            echo "run_release=false" >> "$GITHUB_OUTPUT"
+32          fi
+
+
+# Block 5
+1concurrency:
+2  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+3  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/') }}
+
+
+# Block 6
+ 1  discover:
+ 2    name: Discover capabilities and cost profile
+ 3    needs: route
+ 4    runs-on: ubuntu-latest
+ 5    outputs:
+ 6      profile: ${{ steps.profile.outputs.profile }}
+ 7      has_go: ${{ steps.detect.outputs.has_go }}
+ 8      has_node: ${{ steps.detect.outputs.has_node }}
+ 9      has_dart: ${{ steps.detect.outputs.has_dart }}
+10      has_flutter: ${{ steps.detect.outputs.has_flutter }}
+11      has_qt_cpp: ${{ steps.detect.outputs.has_qt_cpp }}
+12      has_make_c: ${{ steps.detect.outputs.has_make_c }}
+13      has_docker: ${{ steps.detect.outputs.has_docker }}
+14      has_goreleaser: ${{ steps.detect.outputs.has_goreleaser }}
+15      has_dart_or_flutter_tests: ${{ steps.detect.outputs.has_dart_or_flutter_tests }}
+16      has_packaging: ${{ steps.detect.outputs.has_packaging }}
+17    steps:
+18      - uses: actions/checkout@v4
+19
+20      # Template-time toggles (set these once for the repo; avoid broad auto-detection)
+21      # EXPECT_GO=true
+22      # EXPECT_NODE=false
+23      # EXPECT_DART=false
+24      # EXPECT_FLUTTER=false
+25      # EXPECT_QT_CPP=false
+26      # EXPECT_MAKE_C=false
+27      # EXPECT_DOCKER=false
+28      # EXPECT_GORELEASER=true
+29
+30      - id: detect
+31        shell: bash
+32        run: |
+33          set -euo pipefail
+34          # Keep this minimal: most language choices should be decided at workflow install/customization time.
+35          # Runtime checks stay for optional tests and packaging folders.
+36
+37          echo "has_go=${EXPECT_GO:-false}" >> "$GITHUB_OUTPUT"
+38          echo "has_node=${EXPECT_NODE:-false}" >> "$GITHUB_OUTPUT"
+39          echo "has_dart=${EXPECT_DART:-false}" >> "$GITHUB_OUTPUT"
+40          echo "has_flutter=${EXPECT_FLUTTER:-false}" >> "$GITHUB_OUTPUT"
+41          echo "has_qt_cpp=${EXPECT_QT_CPP:-false}" >> "$GITHUB_OUTPUT"
+42          echo "has_make_c=${EXPECT_MAKE_C:-false}" >> "$GITHUB_OUTPUT"
+43          echo "has_docker=${EXPECT_DOCKER:-false}" >> "$GITHUB_OUTPUT"
+44          echo "has_goreleaser=${EXPECT_GORELEASER:-false}" >> "$GITHUB_OUTPUT"
+45
+46          ([[ -d test ]] || [[ -d tests ]] || [[ -f pubspec.yaml ]]) && echo "has_dart_or_flutter_tests=true" >> "$GITHUB_OUTPUT" || echo "has_dart_or_flutter_tests=false" >> "$GITHUB_OUTPUT"
+47          ([[ -d packaging ]] || [[ -d pkg ]] || [[ -f debian/control ]]) && echo "has_packaging=true" >> "$GITHUB_OUTPUT" || echo "has_packaging=false" >> "$GITHUB_OUTPUT"
+48
+49      - id: profile
+50        shell: bash
+51        run: |
+52          set -euo pipefail
+53          # repo visibility is authoritative
+54          if [[ "${{ github.event.repository.private }}" == "true" ]]; then
+55            echo "profile=private" >> "$GITHUB_OUTPUT"
+56          else
+57            echo "profile=public" >> "$GITHUB_OUTPUT"
+58          fi
+
+
+# Block 7
+ 1include: package:flutter_lints/flutter.yaml
+ 2
+ 3analyzer:
+ 4  language:
+ 5    strict-casts: true
+ 6
+ 7linter:
+ 8  rules:
+ 9    - avoid_print
+10    - prefer_single_quotes
+
+
+# Block 8
+ 1run:
+ 2  timeout: 5m
+ 3
+ 4linters:
+ 5  enable:
+ 6    - govet
+ 7    - staticcheck
+ 8    - errcheck
+ 9    - ineffassign
+10    - revive
+
+
+# Block 9
+1BasedOnStyle: LLVM
+2IndentWidth: 2
+3ColumnLimit: 100
+
+
+# Block 10
+ 1  gitleaks:
+ 2    name: Secret scan
+ 3    needs: [route, discover]
+ 4    if: ${{ needs.route.outputs.run_cleanup != 'true' && (needs.route.outputs.is_nightly == 'true' || needs.route.outputs.is_monthly == 'true') }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8        with:
+ 9          fetch-depth: 0
+10      - uses: gitleaks/gitleaks-action@v2
+11        env:
+12          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+13
+14  dependency-review:
+15    name: Dependency review (public/full)
+16    needs: [route, discover]
+17    if: ${{ needs.discover.outputs.profile == 'public' && github.event_name == 'pull_request' && github.event.action != 'closed' }}
+18    runs-on: ubuntu-latest
+19    steps:
+20      - uses: actions/dependency-review-action@v4
+
+
+# Block 11
+ 1  java-build-test:
+ 2    name: Java build/test
+ 3    needs: [route, discover]
+ 4    if: ${{ needs.route.outputs.run_code_checks == 'true' && hashFiles('pom.xml') != '' }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8      - uses: actions/setup-java@v4
+ 9        with:
+10          java-version: '11'
+11          distribution: temurin
+12          cache: maven
+13      - run: mvn spotless:check
+14      - run: mvn test -DskipITs=false
+
+
+# Block 12
+ 1permissions:
+ 2  contents: write
+ 3  pull-requests: write
+ 4  checks: write
+ 5  packages: write
+ 6  security-events: write
+ 7  pages: write
+ 8  id-token: write
+ 9
+10jobs:
+11  route:
+12    outputs:
+13      run_pages: ${{ steps.route.outputs.run_pages }}
+14    steps:
+15      - id: route
+16        run: |
+17          run_pages=false
+18          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+19            run_pages=true
+20          elif [[ "${{ github.ref }}" == refs/tags/* || "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/master" ]]; then
+21            run_pages=true
+22          fi
+23          echo "run_pages=$run_pages" >> "$GITHUB_OUTPUT"
+24
+25  discover:
+26    outputs:
+27      has_hugo: ${{ steps.detect.outputs.has_hugo }}
+28    steps:
+29      - id: detect
+30        run: |
+31          [[ -d site/mydocs ]] && echo "has_hugo=true" >> "$GITHUB_OUTPUT" || echo "has_hugo=false" >> "$GITHUB_OUTPUT"
+
+
+# Block 13
+ 1  hugo-build:
+ 2    name: Build Hugo site
+ 3    needs: [route, discover]
+ 4    if: ${{ needs.discover.outputs.has_hugo == 'true' && needs.route.outputs.run_pages == 'true' }}
+ 5    runs-on: ubuntu-latest
+ 6    env:
+ 7      HUGO_VERSION: 0.123.7
+ 8    steps:
+ 9      - name: Install Hugo CLI
+10        run: |
+11          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb
+12          sudo dpkg -i ${{ runner.temp }}/hugo.deb
+13      - name: Install Dart Sass
+14        run: sudo snap install dart-sass
+15      - uses: actions/checkout@v4
+16        with:
+17          submodules: recursive
+18      - id: pages
+19        uses: actions/configure-pages@v5
+20      - name: Install Node dependencies
+21        working-directory: ./site/mydocs
+22        run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+23      - name: Build with Hugo
+24        working-directory: ./site/mydocs
+25        env:
+26          HUGO_ENVIRONMENT: production
+27          HUGO_ENV: production
+28        run: |
+29          hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+30      - uses: actions/upload-pages-artifact@v3
+31        with:
+32          path: ./site/mydocs/public
+33
+34  hugo-deploy:
+35    name: Deploy to GitHub Pages
+36    needs: [route, discover, hugo-build]
+37    if: ${{ needs.discover.outputs.has_hugo == 'true' && needs.route.outputs.run_pages == 'true' }}
+38    runs-on: ubuntu-latest
+39    concurrency:
+40      group: pages
+41      cancel-in-progress: false
+42    environment:
+43      name: github-pages
+44      url: ${{ steps.deployment.outputs.page_url }}
+45    steps:
+46      - name: Deploy to GitHub Pages
+47        id: deployment
+48        uses: actions/deploy-pages@v4
+
+
+# Block 14
+ 1  # Requested baseline snippet (modern versions)
+ 2  golangci:
+ 3    name: lint
+ 4    needs: [route, discover]
+ 5    if: ${{ needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' }}
+ 6    runs-on: ubuntu-latest
+ 7    steps:
+ 8      - uses: actions/checkout@v5
+ 9      - uses: actions/setup-go@v6
+10        with:
+11          go-version-file: go.mod
+12      - name: golangci-lint
+13        uses: golangci/golangci-lint-action@v9
+14        with:
+15          version: latest
+16
+17  go-test:
+18    name: Go lint/test (${{ matrix.os }})
+19    needs: [route, discover, golangci]
+20    if: ${{ needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' }}
+21    runs-on: ${{ matrix.os }}
+22    strategy:
+23      fail-fast: false
+24      matrix:
+25        # Cost-aware default: Ubuntu only.
+26        # Add windows-latest/macos-latest only for true platform-specific behavior.
+27        os: [ubuntu-latest]
+28    steps:
+29      - uses: actions/checkout@v4
+30      - uses: actions/setup-go@v6
+31        with:
+32          go-version-file: go.mod
+33          cache: true
+34      - name: Test
+35        run: go test ./... -v
+36
+37  go-vet:
+38    name: Go vet
+39    needs: [route, discover]
+40    if: ${{ needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' && needs.discover.outputs.profile == 'public' }}
+41    runs-on: ubuntu-latest
+42    steps:
+43      - uses: actions/checkout@v4
+44      - uses: actions/setup-go@v6
+45        with:
+46          go-version-file: go.mod
+47          cache: true
+48      - run: go vet ./...
+49
+50  go-fmt-pr:
+51    name: go fmt -> PR (manual dispatch)
+52    needs: [route, discover]
+53    if: ${{ needs.discover.outputs.has_go == 'true' && github.event_name == 'workflow_dispatch' && inputs.mode == 'lint-fix' && inputs.allow_prs == true }}
+54    runs-on: ubuntu-latest
+55    steps:
+56      - uses: actions/checkout@v4
+57      - uses: actions/setup-go@v6
+58        with:
+59          go-version-file: go.mod
+60      - name: Run go fmt
+61        run: go fmt ./...
+62      - name: Create PR if go fmt changed files
+63        env:
+64          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+65        run: |
+66          set -euo pipefail
+67          git diff --quiet && { echo "No fmt changes"; exit 0; }
+68          git config user.name "github-actions[bot]"
+69          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+70          BRANCH="ci/gofmt/${{ github.run_id }}"
+71          git checkout -b "$BRANCH"
+72          git add -A
+73          git commit -m "ci: go fmt"
+74          git push origin "$BRANCH"
+75          gh pr create --title "ci: go fmt" --body "Automated go fmt from manual dispatch." --base main --head "$BRANCH" --label "ci-autofix"
+
+
+# Block 15
+ 1  go-cross-os-smoke:
+ 2    name: Go cross-OS smoke (${{ matrix.os }})
+ 3    needs: [route, discover, golangci]
+ 4    if: ${{ needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' && (github.event_name == 'workflow_dispatch' && inputs.mode == 'build') }}
+ 5    runs-on: ${{ matrix.os }}
+ 6    strategy:
+ 7      fail-fast: false
+ 8      matrix:
+ 9        os: [ubuntu-latest, windows-latest, macos-latest]
+10    steps:
+11      - uses: actions/checkout@v4
+12      - uses: actions/setup-go@v6
+13        with:
+14          go-version-file: go.mod
+15      - run: go build ./...
+
+
+# Block 16
+ 1  node-lint-test:
+ 2    name: Node lint/test
+ 3    needs: [route, discover]
+ 4    if: ${{ needs.discover.outputs.has_node == 'true' && needs.route.outputs.run_code_checks == 'true' }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8      - uses: actions/setup-node@v4
+ 9        with:
+10          node-version: '22'
+11          cache: 'npm'
+12      - run: npm ci
+13      - run: npm run lint --if-present
+14      - run: npm test --if-present
+15      - name: Build source npm package
+16        run: npm pack --json > npm-pack-result.json
+17
+18      - uses: actions/upload-artifact@v4
+19        with:
+20          name: npm-source-package
+21          retention-days: 1
+22          path: |
+23            *.tgz
+24            npm-pack-result.json
+
+
+# Block 17
+ 1on:
+ 2  workflow_dispatch:
+ 3    inputs:
+ 4      level:
+ 5        description: Version Bump Level
+ 6        required: true
+ 7        default: patch
+ 8        type: choice
+ 9        options: [patch, minor, major, prerelease]
+10      create_prerelease:
+11        description: Create as prerelease (e.g. -next.0)
+12        required: false
+13        default: false
+14        type: boolean
+15
+16jobs:
+17  version-and-release:
+18    runs-on: ubuntu-latest
+19    steps:
+20      - uses: actions/checkout@v4
+21        with:
+22          fetch-depth: 0
+23      - uses: actions/setup-node@v4
+24        with:
+25          node-version: '18'
+26
+27      - name: Manual Version Bump
+28        if: github.event_name == 'workflow_dispatch'
+29        run: |
+30          LEVEL="${{ inputs.level }}"
+31          CREATE_PRE="${{ inputs.create_prerelease }}"
+32          if [ "$LEVEL" = "prerelease" ]; then
+33            npm version prerelease --preid=next --no-git-tag-version
+34          elif [ "$CREATE_PRE" = "true" ]; then
+35            npm version pre$LEVEL --preid=next --no-git-tag-version
+36          else
+37            npm version $LEVEL --no-git-tag-version
+38          fi
+39
+40      - name: Determine npm tag and prerelease state
+41        id: versions
+42        run: |
+43          CURRENT_VERSION=$(node -p "require('./package.json').version")
+44          if [[ "$CURRENT_VERSION" == *-* ]]; then
+45            echo "npm_tag=next" >> "$GITHUB_OUTPUT"
+46            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
+47          else
+48            echo "npm_tag=latest" >> "$GITHUB_OUTPUT"
+49            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+50          fi
+
+
+# Block 18
+ 1  dart-analyze-test:
+ 2    name: Dart analyze/test
+ 3    needs: [route, discover]
+ 4    if: ${{ needs.discover.outputs.has_dart == 'true' && needs.route.outputs.run_code_checks == 'true' }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8      - uses: dart-lang/setup-dart@v1
+ 9      - run: dart --version
+10      - run: dart pub get
+11      - run: dart format --set-exit-if-changed .
+12      - run: dart analyze
+13      - run: dart test
+14
+15  flutter-analyze-test:
+16    name: Flutter analyze/test (fast path)
+17    needs: [route, discover]
+18    if: ${{ needs.discover.outputs.has_flutter == 'true' && needs.route.outputs.run_code_checks == 'true' }}
+19    runs-on: ubuntu-latest
+20    steps:
+21      - uses: actions/checkout@v4
+22      - uses: subosito/flutter-action@v2
+23        with:
+24          channel: stable
+25      - run: flutter --version
+26      - run: flutter pub get
+27      - run: dart format --set-exit-if-changed .
+28      - run: flutter analyze
+29      - run: flutter test
+30
+31  flutter-format-pr:
+32    name: Flutter format -> PR (manual lint-fix)
+33    needs: [route, discover]
+34    if: ${{ needs.discover.outputs.has_flutter == 'true' && github.event_name == 'workflow_dispatch' && inputs.mode == 'lint-fix' }}
+35    runs-on: ubuntu-latest
+36    steps:
+37      - uses: actions/checkout@v4
+38      - uses: subosito/flutter-action@v2
+39        with:
+40          channel: stable
+41      - run: flutter pub get
+42      - id: format
+43        run: |
+44          dart format .
+45          if [[ -n $(git status --porcelain -- '*.dart') ]]; then
+46            echo "changes=true" >> "$GITHUB_OUTPUT"
+47            git status --porcelain -- '*.dart'
+48          else
+49            echo "changes=false" >> "$GITHUB_OUTPUT"
+50          fi
+51      - name: Open PR with formatting fixes
+52        if: steps.format.outputs.changes == 'true' && inputs.allow_prs == true
+53        uses: peter-evans/create-pull-request@v7
+54        with:
+55          token: ${{ secrets.GITHUB_TOKEN }}
+56          commit-message: "style: apply dart format"
+57          title: "style: apply dart format"
+58          body: "Automated PR for Flutter/Dart formatting fixes."
+59          branch: "automated/dart-format-${{ github.ref_name }}"
+60          base: ${{ github.ref_name }}
+61          delete-branch: true
+62      - name: Fail if formatting drift exists
+63        if: steps.format.outputs.changes == 'true'
+64        run: |
+65          echo "Formatting drift detected. Fix directly or merge the generated PR."
+66          exit 1
+67
+68  flutter-build-artifacts:
+69    name: Flutter build artifacts (release/monthly only)
+70    needs: [route, discover, flutter-analyze-test]
+71    if: ${{ needs.discover.outputs.has_flutter == 'true' && (needs.route.outputs.run_release == 'true' || needs.route.outputs.is_monthly == 'true' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'build')) }}
+72    runs-on: ubuntu-latest
+73    steps:
+74      - uses: actions/checkout@v4
+75      - uses: subosito/flutter-action@v2
+76        with:
+77          channel: stable
+78      - run: flutter pub get
+79      - run: flutter build linux --release
+80      - run: flutter build apk --release || true
+81
+82      - uses: actions/upload-artifact@v4
+83        with:
+84          name: flutter-release-bundles
+85          retention-days: 1
+86          path: |
+87            build/linux/**
+88            build/app/outputs/flutter-apk/*.apk
+
+
+# Block 19
+ 1  dart-release-prep:
+ 2    name: Dart release prep
+ 3    if: ${{ github.event_name == 'workflow_dispatch' }}
+ 4    runs-on: ubuntu-latest
+ 5    steps:
+ 6      - uses: actions/checkout@v4
+ 7        with:
+ 8          fetch-depth: 0
+ 9      - uses: dart-lang/setup-dart@v1
+10      - name: Compute version and tag
+11        env:
+12          INCREMENT: ${{ inputs.increment }}
+13          MANUAL_VERSION_INPUT: ${{ inputs.manual_version }}
+14        run: |
+15          set -euo pipefail
+16          PUBSPEC_VERSION=$(awk '/^version:/ {print $2}' pubspec.yaml)
+17          git fetch --tags
+18          HIGHEST_TAG=$(git tag -l "v*" | sed 's/^v//' | sort -V | tail -n 1)
+19          [ -z "$HIGHEST_TAG" ] && HIGHEST_TAG="0.0.0"
+20
+21          CURRENT_VERSION=$(echo -e "$PUBSPEC_VERSION
+22$HIGHEST_TAG" | sort -V | tail -n 1)
+23
+24          if [ "$INCREMENT" = "manual" ]; then
+25            [ -z "$MANUAL_VERSION_INPUT" ] && { echo "manual_version required"; exit 1; }
+26            NEW_VERSION="$MANUAL_VERSION_INPUT"
+27          else
+28            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+29            case "$INCREMENT" in
+30              major) NEW_VERSION="$((MAJOR+1)).0.0" ;;
+31              minor) NEW_VERSION="$MAJOR.$((MINOR+1)).0" ;;
+32              *) NEW_VERSION="$MAJOR.$MINOR.$((PATCH+1))" ;;
+33            esac
+34          fi
+35
+36          sed -i "s/^version: .*/version: $NEW_VERSION/" pubspec.yaml
+37          git config user.name "github-actions[bot]"
+38          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+39          git checkout -b "release/v$NEW_VERSION"
+40          git add pubspec.yaml
+41          git commit -m "Bump version to $NEW_VERSION"
+42          git tag "v$NEW_VERSION"
+43          git push origin "v$NEW_VERSION"
+44          git push origin "release/v$NEW_VERSION"
+
+
+# Block 20
+ 1  cpp-qt-build-test:
+ 2    name: Qt/C++ build
+ 3    needs: [route, discover]
+ 4    if: ${{ needs.discover.outputs.has_qt_cpp == 'true' && needs.route.outputs.run_code_checks == 'true' }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8      - run: sudo apt-get update
+ 9      - run: sudo apt-get install -y cmake ninja-build build-essential qt6-base-dev qt6-tools-dev clang-format cppcheck
+10      - name: Lint style and static checks
+11        run: |
+12          find . \( -name '*.cpp' -o -name '*.cc' -o -name '*.h' -o -name '*.hpp' \) -print0 | xargs -0 -r clang-format --dry-run --Werror
+13          cppcheck --enable=warning,style,performance,portability --error-exitcode=1 .
+14      - run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+15      - run: cmake --build build --parallel
+16      - run: ctest --test-dir build --output-on-failure
+17
+18  c-make-build-test:
+19    name: Classic C Makefile build
+20    needs: [route, discover]
+21    if: ${{ needs.discover.outputs.has_make_c == 'true' && needs.route.outputs.run_code_checks == 'true' }}
+22    runs-on: ubuntu-latest
+23    steps:
+24      - uses: actions/checkout@v4
+25      - run: make -j"$(nproc)" all
+26      - run: make test || true
+
+
+# Block 21
+ 1  autofix:
+ 2    name: Auto-format and open PR
+ 3    needs: [route, discover]
+ 4    if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'lint-fix' && inputs.allow_prs == true }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8
+ 9      - name: Setup Go (if needed)
+10        if: ${{ needs.discover.outputs.has_go == 'true' }}
+11        uses: actions/setup-go@v6
+12        with:
+13          go-version-file: go.mod
+14
+15      - name: Setup Node (if needed)
+16        if: ${{ needs.discover.outputs.has_node == 'true' }}
+17        uses: actions/setup-node@v4
+18        with:
+19          node-version: '22'
+20          cache: npm
+21
+22      - name: Setup Dart/Flutter (if needed)
+23        if: ${{ needs.discover.outputs.has_dart == 'true' || needs.discover.outputs.has_flutter == 'true' }}
+24        uses: subosito/flutter-action@v2
+25        with:
+26          channel: stable
+27
+28      - name: Run autofix formatters
+29        shell: bash
+30        run: |
+31          set -euo pipefail
+32          if [[ "${{ needs.discover.outputs.has_go }}" == "true" ]]; then
+33            go fix ./... || true
+34            go fmt ./... || true
+35          fi
+36          if [[ "${{ needs.discover.outputs.has_node }}" == "true" ]]; then
+37            npm ci || true
+38            npx prettier . --write || true
+39          fi
+40          if [[ "${{ needs.discover.outputs.has_dart }}" == "true" || "${{ needs.discover.outputs.has_flutter }}" == "true" ]]; then
+41            dart format . || true
+42          fi
+43
+44      - name: Create PR if changes exist
+45        env:
+46          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+47        shell: bash
+48        run: |
+49          set -euo pipefail
+50          if git diff --quiet; then
+51            echo "No changes; exiting."
+52            exit 0
+53          fi
+54
+55          git config user.name "github-actions[bot]"
+56          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+57
+58          PARENT_PR="${{ github.event.pull_request.number || 'none' }}"
+59          BRANCH="ci/autofix/${{ github.run_id }}-parent-${PARENT_PR}"
+60
+61          git checkout -b "$BRANCH"
+62          git add -A
+63          git commit -m "ci: automated formatting fixes"
+64          git push origin "$BRANCH"
+65
+66          gh pr create \
+67            --title "ci: automated formatting fixes" \
+68            --body "Automated formatting pass. Parent-PR: ${PARENT_PR}" \
+69            --base main \
+70            --head "$BRANCH" \
+71            --label "ci-autofix"
+
+
+# Block 22
+ 1  cleanup-autofix-prs:
+ 2    name: Cleanup autofix PRs on parent close
+ 3    needs: [route]
+ 4    if: ${{ needs.route.outputs.run_cleanup == 'true' }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8      - env:
+ 9          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+10          PARENT_PR: ${{ github.event.pull_request.number }}
+11        run: |
+12          set -euo pipefail
+13          gh pr list --state open --search "label:ci-autofix in:title" --json number,headRefName,body | \
+14            jq -r '.[] | select(.body | contains("Parent-PR: '"$PARENT_PR"'")) | [.number, .headRefName] | @tsv' | \
+15            while IFS=$'\t' read -r pr branch; do
+16              gh pr close "$pr" --comment "Closing auto-fix PR because parent PR #$PARENT_PR was closed."
+17              git push origin --delete "$branch" || true
+18            done
+
+
+# Block 23
+1steps:
+2  - uses: actions/checkout@v4
+3  - run: git push origin --delete "$BRANCH"
+
+
+# Block 24
+ 1  docker-build:
+ 2    name: Docker build
+ 3    needs: [route, discover]
+ 4    if: ${{ needs.discover.outputs.has_docker == 'true' && needs.route.outputs.run_release == 'true' }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8      - uses: docker/setup-qemu-action@v3
+ 9      - uses: docker/setup-buildx-action@v3
+10      - uses: docker/build-push-action@v6
+11        with:
+12          context: .
+13          file: ${{ hashFiles('Dockerfile.goreleaser') != '' && 'Dockerfile.goreleaser' || 'Dockerfile' }}
+14          push: false
+15          tags: ghcr.io/${{ github.repository }}:ci-${{ github.run_id }}
+16
+17  docker-release:
+18    name: Docker release
+19    needs: [route, discover, docker-build]
+20    if: ${{ needs.discover.outputs.has_docker == 'true' && needs.route.outputs.run_release == 'true' }}
+21    runs-on: ubuntu-latest
+22    permissions:
+23      contents: read
+24      packages: write
+25    steps:
+26      - uses: actions/checkout@v4
+27      - uses: docker/setup-qemu-action@v3
+28      - uses: docker/setup-buildx-action@v3
+29      - uses: docker/login-action@v3
+30        with:
+31          registry: ghcr.io
+32          username: ${{ github.actor }}
+33          password: ${{ secrets.GITHUB_TOKEN }}
+34      - uses: docker/build-push-action@v6
+35        with:
+36          context: .
+37          push: true
+38          tags: |
+39            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+40            ghcr.io/${{ github.repository }}:latest
+41          platforms: linux/amd64,linux/arm64
+
+
+# Block 25
+ 1  shell-check-and-chezmoi-apply:
+ 2    name: ShellCheck + chezmoi apply
+ 3    needs: [route]
+ 4    if: ${{ needs.route.outputs.run_code_checks == 'true' }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8      - name: Install shellcheck and zsh
+ 9        run: sudo apt-get update && sudo apt-get install -y shellcheck zsh
+10      - name: ShellCheck scripts
+11        run: |
+12          shopt -s globstar
+13          shellcheck **/*.sh
+14      - name: Apply chezmoi source into CI home
+15        run: |
+16          yes "" | sh -c "$(curl -fsLS get.chezmoi.io)" -- init --no-tty --debug --source=$PWD --apply
+17      - name: Verify rendered shell files parse
+18        run: |
+19          for f in ~/.bashrc ~/.bash_profile ~/.bash_login ~/.bash_logout ~/.profile; do
+20            [[ -f "$f" ]] && bash -n "$f"
+21          done
+22          for f in ~/.zshrc ~/.zprofile ~/.zlogin ~/.zlogout ~/.zshenv; do
+23            [[ -f "$f" ]] && zsh -n "$f"
+24          done
+25
+26  docker-release:
+27    name: Docker release
+28    needs: [route]
+29    if: ${{ needs.route.outputs.run_release == 'true' }}
+30    runs-on: ubuntu-latest
+31    steps:
+32      - uses: actions/checkout@v4
+33      - uses: docker/setup-qemu-action@v3
+34      - uses: docker/setup-buildx-action@v3
+35      - uses: docker/login-action@v3
+36        with:
+37          registry: ghcr.io
+38          username: ${{ github.actor }}
+39          password: ${{ secrets.GITHUB_TOKEN }}
+40      - name: Docker metadata
+41        id: meta
+42        uses: docker/metadata-action@v5
+43        with:
+44          images: ghcr.io/${{ github.repository_owner }}/dev-dotfiles-debian
+45          tags: |
+46            type=ref,event=tag
+47            type=semver,pattern={{version}}
+48            type=semver,pattern={{major}}.{{minor}}
+49            type=raw,value=${{ inputs.release_version_override }},enable=${{ inputs.release_version_override != '' }}
+50            type=raw,value=latest,enable={{is_default_branch}}
+51      - uses: docker/build-push-action@v6
+52        with:
+53          context: .
+54          build-contexts: dotfiles=.
+55          file: containers/dev-dotfiles-debian/Dockerfile
+56          push: true
+57          tags: ${{ steps.meta.outputs.tags }}
+58
+59  package-dotfiles:
+60    name: Package dotfiles archive
+61    needs: [route]
+62    if: ${{ needs.route.outputs.run_release == 'true' }}
+63    runs-on: ubuntu-latest
+64    steps:
+65      - uses: actions/checkout@v4
+66      - name: Build dotfiles archive
+67        run: |
+68          yes "" | sh -c "$(curl -fsLS get.chezmoi.io)" -- init --no-tty --debug --source=$PWD --apply
+69          ./bin/chezmoi archive --source=$PWD --format zip --output dotfiles.zip
+70      - uses: actions/upload-artifact@v4
+71        with:
+72          name: dotfiles-archive
+73          retention-days: 1
+74          path: dotfiles.zip
+
+
+# Block 26
+ 1  goreleaser:
+ 2    name: GoReleaser
+ 3    # In practice, include all quality gates here (for example: go-test, go-vet, go-lint, format).
+ 4    needs: [route, discover, go-test, prepare-release-tag]
+ 5    if: ${{ needs.discover.outputs.has_go == 'true' && needs.discover.outputs.has_goreleaser == 'true' && (((github.event_name == 'push') && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && startsWith(inputs.mode, 'release-'))) }}
+ 6    runs-on: ubuntu-latest
+ 7    steps:
+ 8      - uses: actions/checkout@v4
+ 9        with:
+10          fetch-depth: 0
+11      - uses: actions/setup-go@v6
+12        with:
+13          go-version-file: go.mod
+14      - name: Tag commit for release (workflow_dispatch)
+15        if: ${{ github.event_name == 'workflow_dispatch' && startsWith(inputs.mode, 'release-') }}
+16        run: git tag ${{ needs.prepare-release-tag.outputs.release_tag }}
+17      - name: Run GoReleaser
+18        uses: goreleaser/goreleaser-action@v6
+19        with:
+20          distribution: goreleaser
+21          version: '~> v2'
+22          args: >-
+23            release --clean
+24            ${{ (github.event_name == 'workflow_dispatch' && (inputs.mode == 'release-test' || inputs.mode == 'release-rc' || inputs.mode == 'release-alpha')) && '--snapshot' || '' }}
+25        env:
+26          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+27          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }} # inject secrets.TAP_GITHUB_TOKEN
+28          GORELEASER_CURRENT_TAG: ${{ needs.prepare-release-tag.outputs.release_tag }}
+
+
+# Block 27
+1# ❌ Don't (fails on v2):
+2# args: release --clean --tag v0.0.1
+3
+4# ✅ Do:
+5# args: release --clean
+6# env:
+7#   GORELEASER_CURRENT_TAG: v0.0.1
+
+
+# Block 28
+1if: ${{ !failure() && !cancelled() && needs.route.outputs.run_release == 'true' }}
+
+
+# Block 29
+ 1project_name: your-project
+ 2
+ 3before:
+ 4  hooks:
+ 5    - go mod tidy
+ 6
+ 7builds:
+ 8  - id: app
+ 9    binary: app
+10    main: ./cmd/app
+11    env:
+12      - CGO_ENABLED=0
+13
+14archives:
+15  - formats: [tar.gz]
+16    format_overrides:
+17      - goos: windows
+18        formats: [zip]
+19
+20checksum:
+21  name_template: checksums.txt
+22
+23dockers:
+24  - image_templates:
+25      - ghcr.io/OWNER/REPO:{{ .Tag }}
+26      - ghcr.io/OWNER/REPO:latest
+27    dockerfile: Dockerfile.goreleaser
+28    use: buildx
+29    goos: linux
+30    goarch: [amd64, arm64]
+31
+32nfpms:
+33  - id: linux-packages
+34    package_name: app
+35    vendor: Your Org
+36    homepage: https://example.com
+37    maintainer: You <you@example.com>
+38    description: App description
+39    license: MIT
+40    formats:
+41      - deb
+42      - rpm
+43      - apk
+44      - archlinux
+45    section: default
+46    priority: optional
+47
+48homebrew_casks:
+49  -
+50    repository:
+51      owner: arran4
+52      name: homebrew-tap
+53      branch: "{{.ProjectName}}-{{.Version}}"
+54      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+55      pull_request:
+56        enabled: true
+57        draft: false
+58    commit_author:
+59      name: goreleaserbot
+60      email: bot@goreleaser.com
+61
+62scoops:
+63  - name: app
+64    bucket:
+65      owner: OWNER
+66      name: scoop-bucket
+67
+68changelog:
+69  sort: asc
+70  filters:
+71    exclude:
+72      - '^docs:'
+73      - '^test:'
+
+
+# Block 30
+1archives:
+2  - formats: [tar.gz]
+3    name_template: >-
+4      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+
+
+# Block 31
+ 1  source-deb:
+ 2    name: Build source .dsc/.orig.tar.*
+ 3    needs: [route, discover]
+ 4    if: ${{ needs.discover.outputs.has_packaging == 'true' && needs.route.outputs.run_release == 'true' }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8      - run: sudo apt-get update
+ 9      - run: sudo apt-get install -y devscripts debhelper build-essential fakeroot
+10      - name: Build source Debian package
+11        run: |
+12          chmod +x packaging/scripts/build-source-deb.sh
+13          packaging/scripts/build-source-deb.sh
+14      - uses: actions/upload-artifact@v4
+15        with:
+16          name: source-deb
+17          retention-days: 1
+18          path: |
+19            dist/deb-source/*.dsc
+20            dist/deb-source/*.debian.tar.*
+21            dist/deb-source/*.orig.tar.*
+22            dist/deb-source/*.changes
+
+
+# Block 32
+ 1  source-rpm:
+ 2    name: Build source .src.rpm
+ 3    needs: [route, discover]
+ 4    if: ${{ needs.discover.outputs.has_packaging == 'true' && needs.route.outputs.run_release == 'true' }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8      - run: sudo apt-get update
+ 9      - run: sudo apt-get install -y rpm
+10      - name: Build source RPM
+11        run: |
+12          chmod +x packaging/scripts/build-source-rpm.sh
+13          packaging/scripts/build-source-rpm.sh
+14      - uses: actions/upload-artifact@v4
+15        with:
+16          name: source-rpm
+17          retention-days: 1
+18          path: dist/rpm-source/*.src.rpm
+
+
+# Block 33
+ 1  flatpak-build:
+ 2    name: Flatpak package
+ 3    needs: [route, discover]
+ 4    if: ${{ needs.route.outputs.run_release == 'true' && (needs.discover.outputs.has_flutter == 'true' || needs.discover.outputs.has_qt_cpp == 'true') }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8      - run: sudo apt-get update
+ 9      - run: sudo apt-get install -y flatpak flatpak-builder
+10      - name: Build Flatpak
+11        run: |
+12          flatpak-builder --force-clean build-dir packaging/flatpak/app.yaml
+13      - uses: actions/upload-artifact@v4
+14        with:
+15          name: flatpak-bundle
+16          retention-days: 1
+17          path: build-dir
+
+
+# Block 34
+ 1  manual-gh-release:
+ 2    name: Manual release creation
+ 3    needs: [prepare-release-tag]
+ 4    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(inputs.mode, 'release-') }}
+ 5    runs-on: ubuntu-latest
+ 6    permissions:
+ 7      contents: write
+ 8      discussions: write
+ 9    steps:
+10      - uses: actions/checkout@v4
+11        with:
+12          fetch-depth: 0
+13      - name: Sync version source with highest existing tag first
+14        run: |
+15          set -euo pipefail
+16          git fetch --tags --force
+17          # For repos with a source-controlled version, bump it to the release version
+18          # and commit it before tagging (so the tag includes the bump).
+19          # Example for CMake:
+20          # RELEASE_VERSION="${{ needs.prepare-release-tag.outputs.release_tag }}"
+21          # RELEASE_VERSION="${RELEASE_VERSION#v}"
+22          # sed -i -E "s/(project\([^ ]+ VERSION )[^ )]+/\1$RELEASE_VERSION/" CMakeLists.txt
+23          # git add CMakeLists.txt
+24          # git commit -m "chore: bump release version to $RELEASE_VERSION"
+25      - name: Push prepared tag (retry)
+26        env:
+27          TAG: ${{ needs.prepare-release-tag.outputs.release_tag }}
+28        run: |
+29          set -euo pipefail
+30          git tag "$TAG"
+31          git push origin "$TAG" || { sleep 2; git push origin "$TAG"; }
+32      - name: Create release with generated notes + discussion
+33        env:
+34          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+35          TAG: ${{ needs.prepare-release-tag.outputs.release_tag }}
+36        run: |
+37          set -euo pipefail
+38          prerelease=""
+39          case "${{ inputs.mode }}" in
+40            release-test|release-rc|release-alpha) prerelease="--prerelease" ;;
+41          esac
+42
+43          discussion_arg="--discussion-category Announcements"
+44
+45          # Permissions/discussions can block discussion linking in some repos.
+46          # Fall back to plain release creation if category linking fails.
+47          if [[ -n "$prerelease" ]]; then
+48            gh release create "$TAG" --generate-notes $prerelease || true
+49          else
+50            gh release create "$TAG" --generate-notes $discussion_arg || \
+51              gh release create "$TAG" --generate-notes
+52          fi
+
+
+# Block 35
+ 1  publish-draft:
+ 2    name: Publish draft release assets
+ 3    needs:
+ 4      - goreleaser
+ 5      - source-deb
+ 6      - source-rpm
+ 7      - docker-release
+ 8    if: ${{ needs.route.outputs.run_release == 'true' }}
+ 9    runs-on: ubuntu-latest
+10    steps:
+11      - name: Collect artifacts
+12        uses: actions/download-artifact@v4
+13        with:
+14          path: dist-release
+15      - name: Publish draft GitHub release
+16        uses: softprops/action-gh-release@v2
+17        with:
+18          draft: true
+19          files: dist-release/**
+20        env:
+21          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+22
+23  promote-release:
+24    name: Promote draft to published
+25    needs: [publish-draft]
+26    if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && startsWith(inputs.mode, 'release-')) }}
+27    runs-on: ubuntu-latest
+28    steps:
+29      - name: Release promoted via upstream process
+30        run: echo "Promotion step placeholder (gh api patch release draft=false)"
+
+
+# Block 36
+ 1  prepare-next-version-pr:
+ 2    name: Prepare next development iteration PR
+ 3    needs: [publish-draft]
+ 4    if: ${{ github.event_name == 'workflow_dispatch' && (startsWith(inputs.mode, 'release-') || inputs.mode == 'release-test') }}
+ 5    runs-on: ubuntu-latest
+ 6    steps:
+ 7      - uses: actions/checkout@v4
+ 8      - name: Bump to next version and open PR
+ 9        env:
+10          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+11        run: |
+12          set -euo pipefail
+13          NEXT_VERSION="${{ needs.prepare-release-tag.outputs.next_version || '' }}"
+14          [[ -z "$NEXT_VERSION" ]] && { echo "No next version calculated; skipping."; exit 0; }
+15
+16          BRANCH="bump-version-$NEXT_VERSION"
+17          git config user.name "github-actions[bot]"
+18          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+19          git checkout -b "$BRANCH"
+20
+21          # Replace with repo-specific version bump command(s)
+22          # mvn versions:set -DnewVersion="$NEXT_VERSION" -DgenerateBackupPoms=false
+23          # sed -i -E "s/(project\([^ ]+ VERSION )[^ )]+/\1$NEXT_VERSION/" CMakeLists.txt
+24
+25          git add -A
+26          git commit -m "Prepare next development iteration $NEXT_VERSION"
+27          git push -u origin "$BRANCH"
+28          gh pr create --title "Prepare next development iteration $NEXT_VERSION" --body "Automated PR for next iteration." --base main --head "$BRANCH"
+
+
+# Block 37
+  1name: CI/CD
+  2
+  3on:
+  4  push:
+  5    branches: [main, master]
+  6    tags: ['v*', 'v*.*.*', 'v*.*.*-rc*', 'v*.*.*-beta*', 'test-*']
+  7  pull_request:
+  8    types: [opened, synchronize, reopened, ready_for_review, closed]
+  9    branches: [main, master]
+ 10  release:
+ 11    types: [published]
+ 12  workflow_dispatch:
+ 13    inputs:
+ 14      mode:
+ 15        type: choice
+ 16        default: lint-fix
+ 17        options: [lint-fix, build, release-major, release-minor, release-patch, release-test, release-rc, release-alpha, monthly-maintenance]
+ 18      release_version_override:
+ 19        type: string
+ 20        default: ''
+ 21      allow_prs:
+ 22        type: boolean
+ 23        default: true
+ 24  schedule:
+ 25    - cron: '17 3 1 * *'
+ 26    - cron: '41 2 * * *'
+ 27
+ 28concurrency:
+ 29  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+ 30  cancel-in-progress: true
+ 31
+ 32permissions:
+ 33  contents: write
+ 34  pull-requests: write
+ 35  checks: write
+ 36  packages: write
+ 37  security-events: write
+ 38
+ 39jobs:
+ 40  route:
+ 41    # ... from section above
+ 42  prepare-release-tag:
+ 43    needs: [route]
+ 44    # ... from section above
+ 45
+ 46  discover:
+ 47    needs: route
+ 48    # ... from section above
+ 49
+ 50  gitleaks:
+ 51    needs: [route, discover]
+ 52    # ...
+ 53
+ 54  java-build-test:
+ 55    needs: [route, discover]
+ 56    # ...
+ 57
+ 58  hugo-build:
+ 59    needs: [route, discover]
+ 60    # ...
+ 61
+ 62  hugo-deploy:
+ 63    needs: [route, discover, hugo-build]
+ 64    # ...
+ 65
+ 66  golangci:
+ 67    needs: [route, discover]
+ 68    # ...
+ 69
+ 70  go-test:
+ 71    needs: [route, discover, golangci]
+ 72    # ...
+ 73
+ 74  go-vet:
+ 75    needs: [route, discover]
+ 76    # ...
+ 77
+ 78  go-fmt-pr:
+ 79    needs: [route, discover]
+ 80    # ...
+ 81
+ 82  node-lint-test:
+ 83    needs: [route, discover]
+ 84    # ...
+ 85
+ 86  dart-analyze-test:
+ 87    needs: [route, discover]
+ 88    # ...
+ 89
+ 90  flutter-analyze-test:
+ 91    needs: [route, discover]
+ 92    # ...
+ 93
+ 94  flutter-build-artifacts:
+ 95    needs: [route, discover, flutter-analyze-test]
+ 96    # ...
+ 97
+ 98  cpp-qt-build-test:
+ 99    needs: [route, discover]
+100    # ...
+101
+102  c-make-build-test:
+103    needs: [route, discover]
+104    # ...
+105
+106  docker-build:
+107    needs: [route, discover]
+108    # ...
+109
+110  autofix:
+111    needs: [route, discover]
+112    # ...
+113
+114  cleanup-autofix-prs:
+115    needs: [route]
+116    # ...
+117
+118  goreleaser:
+119    needs: [route, discover, go-test, prepare-release-tag]
+120    # ...
+121
+122  source-deb:
+123    needs: [route, discover]
+124    # ...
+125
+126  source-rpm:
+127    needs: [route, discover]
+128    # ...
+129
+130  docker-release:
+131    needs: [route, discover, docker-build]
+132    # ...
+133
+134  publish-draft:
+135    needs: [goreleaser, source-deb, source-rpm, docker-release]
+136    # ...
+137
+138  promote-release:
+139    needs: [publish-draft]
+140    # ...
+141
+142  prepare-next-version-pr:
+143    needs: [publish-draft, prepare-release-tag]
+144    # ...
+
+
+# Block 38
+1- uses: actions/upload-artifact@v4
+2  with:
+3    name: ci-temp-output
+4    path: dist/**
+5    retention-days: 1
+
+
+# Block 39
+ 1  cleanup-old-artifacts:
+ 2    name: Cleanup old CI artifacts
+ 3    if: ${{ needs.route.outputs.is_monthly == 'true' }}
+ 4    runs-on: ubuntu-latest
+ 5    steps:
+ 6      - name: Delete artifacts older than 1 day
+ 7        env:
+ 8          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+ 9        run: |
+10          set -euo pipefail
+11          cutoff=$(date -u -d '1 day ago' +%s)
+12          gh api repos/${{ github.repository }}/actions/artifacts --paginate \
+13            --jq '.artifacts[] | [.id, .created_at] | @tsv' | \
+14          while IFS=$'	' read -r id created; do
+15            created_epoch=$(date -u -d "$created" +%s)
+16            if (( created_epoch < cutoff )); then
+17              gh api -X DELETE repos/${{ github.repository }}/actions/artifacts/$id || true
+18            fi
+19          done
