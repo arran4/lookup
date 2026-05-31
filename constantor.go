@@ -161,7 +161,7 @@ func (c *Constantor) IsNil() bool {
 	}
 	v := reflect.ValueOf(c.c)
 	switch v.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.Interface, reflect.Slice:
+	case reflect.Chan, reflect.Func, reflect.Map, reflect.Pointer, reflect.Interface, reflect.Slice:
 		return v.IsNil()
 	}
 	return false
@@ -171,7 +171,7 @@ func (c *Constantor) IsPtr() bool {
 	if c.c == nil {
 		return false
 	}
-	return reflect.TypeOf(c.c).Kind() == reflect.Ptr
+	return reflect.TypeOf(c.c).Kind() == reflect.Pointer
 }
 
 func (c *Constantor) IsInterface() bool {
