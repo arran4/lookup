@@ -143,7 +143,7 @@ func (i *Interfaceor) IsNil() bool {
 	}
 	v := reflect.ValueOf(raw)
 	switch v.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.Interface, reflect.Slice:
+	case reflect.Chan, reflect.Func, reflect.Map, reflect.Pointer, reflect.Interface, reflect.Slice:
 		return v.IsNil()
 	}
 	return false
@@ -154,7 +154,7 @@ func (i *Interfaceor) IsPtr() bool {
 	if raw == nil {
 		return false
 	}
-	return reflect.TypeOf(raw).Kind() == reflect.Ptr
+	return reflect.TypeOf(raw).Kind() == reflect.Pointer
 }
 
 func (i *Interfaceor) IsInterface() bool {
