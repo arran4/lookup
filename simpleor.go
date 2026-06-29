@@ -157,7 +157,7 @@ func (s *Simpleor) IsNil() bool {
 	// Also check if interface holds nil
 	v := reflect.ValueOf(s.v)
 	switch v.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Map, reflect.Pointer, reflect.Interface, reflect.Slice:
+	case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.Interface, reflect.Slice:
 		return v.IsNil()
 	}
 	return false
@@ -167,7 +167,7 @@ func (s *Simpleor) IsPtr() bool {
 	if s.v == nil {
 		return false
 	}
-	return reflect.TypeOf(s.v).Kind() == reflect.Pointer
+	return reflect.TypeOf(s.v).Kind() == reflect.Ptr
 }
 
 func (s *Simpleor) IsInterface() bool {

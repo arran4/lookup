@@ -192,7 +192,7 @@ func isNilOrNilPointer(i interface{}) bool {
 		return true
 	}
 	v := reflect.ValueOf(i)
-	if v.Kind() == reflect.Pointer && v.IsNil() {
+	if v.Kind() == reflect.Ptr && v.IsNil() {
 		return true
 	}
 	return false
