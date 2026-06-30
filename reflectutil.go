@@ -132,7 +132,7 @@ func arrayOrSliceForEachPath(prefix string, paths []string, v reflect.Value, run
 			case reflect.Map:
 				at = at.Elem()
 				continue
-			case reflect.Ptr:
+			case reflect.Pointer:
 				at = at.Elem()
 				continue
 			case reflect.Func:
@@ -381,7 +381,7 @@ func extractKey(path string, v reflect.Value, p string) (reflect.Value, Pathor) 
 	case reflect.Interface:
 	//  Interface.. We will just do string
 	//case reflect.Map:
-	//case reflect.Ptr:
+	//case reflect.Pointer:
 	//case reflect.Slice:
 	case reflect.String:
 	//case reflect.Struct:
@@ -503,7 +503,7 @@ func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
 				return true
 			}
 		}
-	case reflect.Ptr:
+	case reflect.Pointer:
 		return elementOf(v.Elem(), in.Elem(), &v)
 	case reflect.Slice:
 		if in.CanInterface() {

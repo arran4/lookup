@@ -81,7 +81,7 @@ func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.
 	}
 	var result Pathor
 	switch v.Kind() {
-	case reflect.Ptr:
+	case reflect.Pointer:
 		if v.IsNil() {
 			p += path
 			result = &Invalidor{
@@ -192,14 +192,14 @@ func (r *Reflector) IsNil() bool {
 		return true
 	}
 	switch r.v.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.Interface, reflect.Slice:
+	case reflect.Chan, reflect.Func, reflect.Map, reflect.Pointer, reflect.Interface, reflect.Slice:
 		return r.v.IsNil()
 	}
 	return false
 }
 
 func (r *Reflector) IsPtr() bool {
-	return r.v.Kind() == reflect.Ptr
+	return r.v.Kind() == reflect.Pointer
 }
 
 func (r *Reflector) IsInterface() bool {

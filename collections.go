@@ -198,7 +198,7 @@ func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
 			}
 			return arrayOrSlicePath(ExtractPath(pathor)+"["+strconv.FormatInt(ii, 10)+"]", ii, pathor.Value())
 		}
-	case reflect.Struct, reflect.Ptr:
+	case reflect.Struct, reflect.Pointer:
 		switch ii := i.(type) {
 		case *Constantor:
 			return evaluateType(scope, pathor, ii.Raw())
