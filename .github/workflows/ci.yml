@@ -146,7 +146,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.TAP_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
       - name: Setup git-tag-inc
         uses: arran4/git-tag-inc-action@v1
         with:
@@ -222,9 +221,6 @@ jobs:
           clean_tag="${next_tag#v}"; clean_tag="${clean_tag%%-*}"
           IFS='.' read -r maj min pat <<< "$clean_tag"
           echo "next_version=${maj:-0}.${min:-0}.$(( ${pat:-0} + 1 ))-SNAPSHOT" >> "$GITHUB_OUTPUT"
-
-          git tag "$next_tag"
-          git push origin "refs/tags/$next_tag"
 
   discover:
     name: Discover capabilities and cost profile
@@ -485,8 +481,8 @@ jobs:
 
   goreleaser:
     name: GoReleaser
-    needs: [route, discover, go-test]
-    if: ${{ !failure() && !cancelled() && needs.discover.outputs.has_go == 'true' && needs.discover.outputs.has_goreleaser == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+    needs: [route, discover, go-test, prepare-release-tag]
+    if: ${{ !failure() && !cancelled() && needs.discover.outputs.has_go == 'true' && needs.discover.outputs.has_goreleaser == 'true' && (((github.event_name == 'push') && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && startsWith(inputs.mode, 'release-'))) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -495,19 +491,53 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - name: Tag commit for release (workflow_dispatch)
+        if: ${{ github.event_name == 'workflow_dispatch' && startsWith(inputs.mode, 'release-') }}
+        run: git tag ${{ needs.prepare-release-tag.outputs.release_tag }} || true
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: '~> v2'
-          args: release --clean
+          args: >-
+            release --clean
+            ${{ (github.event_name == 'workflow_dispatch' && (inputs.mode == 'release-test' || inputs.mode == 'release-rc' || inputs.mode == 'release-alpha')) && '--snapshot' || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: ${{ needs.prepare-release-tag.outputs.release_tag }}
+
+  publish-draft:
+    name: Publish draft release assets
+    needs:
+      - goreleaser
+    if: ${{ needs.route.outputs.run_release == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Collect artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist-release
+      - name: Publish draft GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: dist-release/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  promote-release:
+    name: Promote draft to published
+    needs: [publish-draft]
+    if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && startsWith(inputs.mode, 'release-')) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release promoted via upstream process
+        run: echo "Promotion step placeholder (gh api patch release draft=false)"
 
   prepare-next-version-pr:
     name: Prepare next development iteration PR
-    needs: [prepare-release-tag]
+    needs: [publish-draft, prepare-release-tag]
     if: ${{ github.event_name == 'workflow_dispatch' && (startsWith(inputs.mode, 'release-') || inputs.mode == 'release-test') }}
     runs-on: ubuntu-latest
     steps:
