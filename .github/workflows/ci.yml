@@ -1,6 +1,8 @@
 # Agent rules for generation:
-# https://arran4.com/post/2026/006-Github-CI-and-Deploy/
-# Built using this post as a reference/guide.
+# https://arran4.github.io/blog/post/2026/042-simplified-github-ci-release-safe/
+# Release safety details:
+# https://arran4.github.io/blog/post/2026/041-release-safe-single-owner-github-ci/
+
 name: CI/CD
 
 on:
@@ -101,13 +103,10 @@ jobs:
               fi
               ;;
             release)
-              run_release=true
+              run_release=false
               ;;
             workflow_dispatch)
               run_code_checks=true
-              if [[ "${{ inputs.mode }}" == release-* ]]; then
-                run_release=true
-              fi
               if [[ "${{ inputs.mode }}" == "monthly-maintenance" ]]; then
                 is_monthly=true
               fi
@@ -221,6 +220,15 @@ jobs:
           clean_tag="${next_tag#v}"; clean_tag="${clean_tag%%-*}"
           IFS='.' read -r maj min pat <<< "$clean_tag"
           echo "next_version=${maj:-0}.${min:-0}.$(( ${pat:-0} + 1 ))-SNAPSHOT" >> "$GITHUB_OUTPUT"
+
+          if [[ -z "${{ secrets.TAP_GITHUB_TOKEN }}" ]]; then
+            echo "Error: TAP_GITHUB_TOKEN is not set. A trigger-capable token is required to push release tags and trigger GoReleaser." >&2
+            exit 1
+          fi
+
+          git remote set-url origin "https://x-access-token:${{ secrets.TAP_GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git tag "$next_tag"
+          git push origin "refs/tags/$next_tag"
 
   discover:
     name: Discover capabilities and cost profile
@@ -481,8 +489,8 @@ jobs:
 
   goreleaser:
     name: GoReleaser
-    needs: [route, discover, go-test, prepare-release-tag]
-    if: ${{ !failure() && !cancelled() && needs.discover.outputs.has_go == 'true' && needs.discover.outputs.has_goreleaser == 'true' && (((github.event_name == 'push') && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && startsWith(inputs.mode, 'release-'))) }}
+    needs: [route, discover, go-test]
+    if: ${{ !failure() && !cancelled() && needs.discover.outputs.has_go == 'true' && needs.discover.outputs.has_goreleaser == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -491,71 +499,13 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - name: Tag commit for release (workflow_dispatch)
-        if: ${{ github.event_name == 'workflow_dispatch' && startsWith(inputs.mode, 'release-') }}
-        run: git tag ${{ needs.prepare-release-tag.outputs.release_tag }} || true
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: '~> v2'
-          args: >-
-            release --clean
-            ${{ (github.event_name == 'workflow_dispatch' && (inputs.mode == 'release-test' || inputs.mode == 'release-rc' || inputs.mode == 'release-alpha')) && '--snapshot' || '' }}
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
-          GORELEASER_CURRENT_TAG: ${{ needs.prepare-release-tag.outputs.release_tag }}
 
-  publish-draft:
-    name: Publish draft release assets
-    needs:
-      - goreleaser
-    if: ${{ needs.route.outputs.run_release == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Collect artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: dist-release
-      - name: Publish draft GitHub release
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          files: dist-release/**
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  promote-release:
-    name: Promote draft to published
-    needs: [publish-draft]
-    if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && startsWith(inputs.mode, 'release-')) }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Release promoted via upstream process
-        run: echo "Promotion step placeholder (gh api patch release draft=false)"
-
-  prepare-next-version-pr:
-    name: Prepare next development iteration PR
-    needs: [publish-draft, prepare-release-tag]
-    if: ${{ github.event_name == 'workflow_dispatch' && (startsWith(inputs.mode, 'release-') || inputs.mode == 'release-test') }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Bump to next version and open PR
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          NEXT_VERSION="${{ needs.prepare-release-tag.outputs.next_version || '' }}"
-          if [[ -z "$NEXT_VERSION" ]]; then echo "No next version calculated; skipping."; else
-            BRANCH="bump-version-$NEXT_VERSION"
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git checkout -b "$BRANCH"
-
-            git add -A
-            git commit -m "Prepare next development iteration $NEXT_VERSION" || true
-            git push -u origin "$BRANCH" || true
-            gh pr create --title "Prepare next development iteration $NEXT_VERSION" --body "Automated PR for next iteration." --base main --head "$BRANCH" || true
-          fi
