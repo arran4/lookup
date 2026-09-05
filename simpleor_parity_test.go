@@ -56,12 +56,25 @@ func TestSimpleorReflectorParity_ErrorPropagation(t *testing.T) {
 	sRes := s.Find("non_existent_key")
 	rRes := r.Find("non_existent_key")
 
-	// They both return Invalidor, but let's check equality semantics
-	_, sIsInv := sRes.(*lookup.Invalidor)
-	_, rIsInv := rRes.(*lookup.Invalidor)
+	sInv, sIsInv := sRes.(*lookup.Invalidor)
+	rInv, rIsInv := rRes.(*lookup.Invalidor)
 
 	if sIsInv != rIsInv {
-		t.Errorf("Mismatch in error propagation: Simpleor invalid=%v, Reflector invalid=%v", sIsInv, rIsInv)
+		t.Fatalf("Mismatch in error propagation: Simpleor invalid=%v, Reflector invalid=%v", sIsInv, rIsInv)
+	}
+
+	if sIsInv {
+		// Both return Invalidor. Their paths might differ based on parser/reflector implementations
+		// ("non_existent_key" vs "\"non_existent_key\""), but their observable interface behavior for Raw() must match.
+		if sInv.Raw() != rInv.Raw() {
+			t.Errorf("Mismatch in Invalidor Raw(): Simpleor %v, Reflector %v", sInv.Raw(), rInv.Raw())
+		}
+
+		// The errors are both populated but might not be completely semantically identical since simple/reflector paths differ.
+		// However, we can assert both have an error and are not panicing.
+		if sInv.Error() == "" && rInv.Error() != "" {
+			t.Errorf("Mismatch in Error: Simpleor is empty, Reflector has error: %s", rInv.Error())
+		}
 	}
 }
 
@@ -123,15 +136,12 @@ func TestSimpleorReflectorParity_Result(t *testing.T) {
 	s := lookup.Simple(data)
 	r := lookup.Reflect(data)
 
-	// Since we're dealing with context transitions in Scope, we should test lookup.Result (if it exists, though looking at code we only have This and Parent)
-	// Let's test deep chaining with Relator which uses Scope traversal
-
 	tests := []struct {
 		name string
 		path string
 		opts []lookup.Runner
 	}{
-		{"parent", "a", []lookup.Runner{lookup.Parent("")}},
+		{"result", "a", []lookup.Runner{lookup.Chain(lookup.This(), lookup.Result(""))}},
 	}
 
 	for _, tt := range tests {

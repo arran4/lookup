@@ -16,27 +16,46 @@ func (m mockRunner) Run(scope *lookup.Scope) lookup.Pathor {
 }
 
 func TestChainPreservesContext(t *testing.T) {
-	ctx := &evaluator.Context{}
-	called := false
-	_ = called
+	ctx := &evaluator.Context{
+		Variables: map[string]interface{}{},
+	}
 
 	s := lookup.NewScopeWithContext(nil, lookup.Simple("init"), ctx)
 
 	r1 := mockRunner{fn: func(scope *lookup.Scope) lookup.Pathor {
 		if scope.Context == nil {
-			t.Fatal("r1 lost context")
+			t.Fatal("r1 lost context pointer")
 		}
-		called = true
+
+		// Behavioral assertion: can we actually add something to the context
+		// and have it preserved in the next step?
+		if scope.Context.Variables == nil {
+			scope.Context.Variables = map[string]interface{}{}
+		}
+		scope.Context.Variables["myKey"] = "myBehavior"
+
 		return lookup.Simple("r1_result")
 	}}
 
 	r2 := mockRunner{fn: func(scope *lookup.Scope) lookup.Pathor {
 		if scope.Context == nil {
-			t.Fatal("r2 lost context")
+			t.Fatal("r2 lost context pointer")
 		}
-		if !called {
-			t.Fatal("r2 context behavior failed - r1 not called")
+
+		if scope.Context.Variables == nil {
+			t.Fatal("r2 lost context behavior (Variables map is nil)")
 		}
+
+		// Check that the context behavior/data added in r1 is still there
+		val, ok := scope.Context.Variables["myKey"]
+		if !ok {
+			t.Fatal("r2 lost context behavior (key not found)")
+		}
+
+		if val != "myBehavior" {
+			t.Fatalf("r2 context value got %v, want 'myBehavior'", val)
+		}
+
 		return lookup.Simple("r2_result")
 	}}
 
