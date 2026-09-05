@@ -91,5 +91,6 @@ func (s *Scope) Next(position Pathor) *Scope {
 		Current:  s.Current,
 		Parent:   s,
 		Position: position,
+		Context:  s.Context,
 	}
 }
