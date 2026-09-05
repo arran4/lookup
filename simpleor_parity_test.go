@@ -98,6 +98,23 @@ func TestSimpleorReflectorParity_TypedSlices(t *testing.T) {
 	}
 }
 
+func TestSimpleorReflectorParity_TypedMaps(t *testing.T) {
+	data := map[string]int{
+		"a": 10,
+		"b": 20,
+	}
+
+	s := lookup.Simple(data)
+	r := lookup.Reflect(data)
+
+	sRes := s.Find("b")
+	rRes := r.Find("b")
+
+	if !reflect.DeepEqual(sRes.Raw(), rRes.Raw()) {
+		t.Errorf("Mismatch for typed maps: Simpleor got %v, Reflector got %v", sRes.Raw(), rRes.Raw())
+	}
+}
+
 func TestSimpleorReflectorParity_Result(t *testing.T) {
 	data := map[string]interface{}{
 		"a": 1,
