@@ -128,6 +128,14 @@ func TestSimpleorReflectorParity_TypedMaps(t *testing.T) {
 	}
 }
 
+type mockResultRunner struct {
+	val interface{}
+}
+
+func (m mockResultRunner) Run(scope *lookup.Scope) lookup.Pathor {
+	return lookup.Simple(m.val)
+}
+
 func TestSimpleorReflectorParity_Result(t *testing.T) {
 	data := map[string]interface{}{
 		"a": 1,
@@ -136,12 +144,28 @@ func TestSimpleorReflectorParity_Result(t *testing.T) {
 	s := lookup.Simple(data)
 	r := lookup.Reflect(data)
 
+	// Chain the custom runner returning a different value, then lookup.Result("")
+	// Result("") should return that different value (the Position), whereas This() would return the original Scope.Current.
+
 	tests := []struct {
 		name string
 		path string
 		opts []lookup.Runner
 	}{
-		{"result", "a", []lookup.Runner{lookup.Chain(lookup.This(), lookup.Result(""))}},
+		{
+			name: "result_vs_current",
+			path: "a",
+			opts: []lookup.Runner{
+				lookup.Chain(mockResultRunner{val: 42}, lookup.Result("")),
+			},
+		},
+		{
+			name: "this_vs_current",
+			path: "a",
+			opts: []lookup.Runner{
+				lookup.Chain(mockResultRunner{val: 42}, lookup.This()),
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -151,6 +175,24 @@ func TestSimpleorReflectorParity_Result(t *testing.T) {
 
 			if !reflect.DeepEqual(sRes.Raw(), rRes.Raw()) {
 				t.Errorf("Mismatch for path %q: Simpleor got %v, Reflector got %v", tt.path, sRes.Raw(), rRes.Raw())
+			}
+
+			// Also specifically check semantic correctness
+			if tt.name == "result_vs_current" {
+				if sRes.Raw() != 42 {
+					t.Errorf("Simpleor expected 42 (Result), got %v", sRes.Raw())
+				}
+				if rRes.Raw() != 42 {
+					t.Errorf("Reflector expected 42 (Result), got %v", rRes.Raw())
+				}
+			}
+			if tt.name == "this_vs_current" {
+				if sRes.Raw() != 1 {
+					t.Errorf("Simpleor expected 1 (This), got %v", sRes.Raw())
+				}
+				if rRes.Raw() != 1 {
+					t.Errorf("Reflector expected 1 (This), got %v", rRes.Raw())
+				}
 			}
 		})
 	}
