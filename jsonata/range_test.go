@@ -19,8 +19,8 @@ func TestRangeExecution(t *testing.T) {
 			expected: []interface{}{1, 2, 3, 4, 5},
 		},
 		{
-			name:     "Single item range",
-			expr:     "1..1",
+			name: "Single item range",
+			expr: "1..1",
 			// Note: Current implementation unwraps singleton arrays to the value itself.
 			// This might not be strictly JSONata compliant for explicit arrays, but is consistent with current runner behavior.
 			expected: 1,

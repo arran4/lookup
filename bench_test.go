@@ -186,11 +186,11 @@ func BenchmarkElementOfSliceString(b *testing.B) {
 }
 
 func BenchmarkElementOfSliceStruct(b *testing.B) {
-  	type Item struct {
+	type Item struct {
 		ID   int
 		Name string
 	}
-  	// Setup a large slice of structs
+	// Setup a large slice of structs
 	size := 1000
 	slice := make([]Item, size)
 	for i := 0; i < size; i++ {
@@ -207,7 +207,7 @@ func BenchmarkElementOfSliceStruct(b *testing.B) {
 		if !elementOf(v, in, nil) {
 			b.Fatal("should have found element")
 		}
-  }
+	}
 }
 
 func BenchmarkUnionLarge(b *testing.B) {
