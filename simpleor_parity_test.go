@@ -64,17 +64,36 @@ func TestSimpleorReflectorParity_ErrorPropagation(t *testing.T) {
 	}
 
 	if sIsInv {
-		// Both return Invalidor. Their paths might differ based on parser/reflector implementations
-		// ("non_existent_key" vs "\"non_existent_key\""), but their observable interface behavior for Raw() must match.
 		if sInv.Raw() != rInv.Raw() {
 			t.Errorf("Mismatch in Invalidor Raw(): Simpleor %v, Reflector %v", sInv.Raw(), rInv.Raw())
 		}
 
-		// The errors are both populated but might not be completely semantically identical since simple/reflector paths differ.
-		// However, we can assert both have an error and are not panicing.
-		if sInv.Error() == "" && rInv.Error() != "" {
-			t.Errorf("Mismatch in Error: Simpleor is empty, Reflector has error: %s", rInv.Error())
+		if sInv.Raw() != nil {
+			t.Errorf("Expected Invalidor Raw() to be nil, got %v", sInv.Raw())
 		}
+
+		// Assert the known documented path string differences between Simpleor and Reflector.
+		// Simpleor simply uses the raw key string, while Reflector explicitly quotes missing map keys when rendering paths.
+		if sInv.Path() != "non_existent_key" {
+			t.Errorf("Expected Simpleor missing map path to be 'non_existent_key', got %q", sInv.Path())
+		}
+		if rInv.Path() != "\"non_existent_key\"" {
+			t.Errorf("Expected Reflector missing map path to be '\"non_existent_key\"', got %q", rInv.Path())
+		}
+
+		// Assert error strings exist and indicate missing elements
+		sErr := sInv.Error()
+		rErr := rInv.Error()
+		if sErr == "" {
+			t.Errorf("Simpleor returned empty error")
+		}
+		if rErr == "" {
+			t.Errorf("Reflector returned empty error")
+		}
+
+		// For Sentinel semantic parity: Simpleor utilizes ErrNotFound while Reflector throws an ad-hoc formatted error
+		// "element not found at simple path..."
+		// This tests the behavioral divergence is locked down properly so a unified design isn't forced unrelatedly.
 	}
 }
 
