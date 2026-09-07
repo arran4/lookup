@@ -34,6 +34,18 @@ func TestHarnessSemantics(t *testing.T) {
 	assert.False(t, outcome.Skipped, "Expected test/3 to not skip")
 	assert.Equal(t, "pass-execution-error", outcome.Message)
 
+	// Test expected error code missing incidental matching
+	// e.g. An unrelated error string simply contains "T0410" without the strict matching format
+	outcome = evaluateHarnessOutcome("test/3_incidental", nil, fmt.Errorf("Some unrelated failure referencing T0410 but not strictly"), "T0410", true, false, "", false, nil)
+	assert.True(t, outcome.Failed, "Expected test/3_incidental to fail due to mismatch")
+	assert.Equal(t, "Expected error T0410 but got different error: Some unrelated failure referencing T0410 but not strictly", outcome.Message)
+
+	// Test expected error code exact matching fallback "[T0410]"
+	outcome = evaluateHarnessOutcome("test/3_exact", nil, fmt.Errorf("[T0410] General evaluation failure"), "T0410", true, false, "", false, nil)
+	assert.False(t, outcome.Failed, "Expected test/3_exact to not fail")
+	assert.False(t, outcome.Skipped, "Expected test/3_exact to not skip")
+	assert.Equal(t, "pass-execution-error", outcome.Message)
+
 	// Test expected error code matching an error (expected failure unexpected pass)
 	outcome = evaluateHarnessOutcome("test/3b", nil, fmt.Errorf("Argument 1 of function"), "T0410", false, false, "", false, nil)
 	assert.True(t, outcome.Failed, "Expected test/3b to fail")
@@ -76,6 +88,11 @@ func TestHarnessSemantics(t *testing.T) {
 	outcome = evaluateHarnessOutcome("test/setup_malformed", nil, nil, "", false, false, "", false, fmt.Errorf("failed to unmarshal dataset: invalid character"))
 	assert.True(t, outcome.Failed)
 	assert.Equal(t, "Setup failed: failed to unmarshal dataset: invalid character", outcome.Message)
+
+	// Test actual runCase integration coverage for missing dataset
+	_, err := runCase(suiteCase{Dataset: "nonexistent"}, "1+1")
+	assert.NotNil(t, err)
+	assert.True(t, strings.Contains(err.Error(), "failed to read"))
 
 	// Test expected error code but got nil error
 	outcome = evaluateHarnessOutcome("test/4", nil, nil, "T0410", true, false, "", false, nil)

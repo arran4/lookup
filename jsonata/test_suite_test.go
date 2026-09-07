@@ -252,14 +252,14 @@ func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCod
 		errStr := execErr.Error()
 
 		// If JSONata error codes aren't cleanly mapping to Go errors, specify precise fallbacks here.
-		if strings.Contains(errStr, scCode) {
-			matchedError = true
-		} else if scCode == "T0410" && strings.Contains(errStr, "Argument 1 of function") {
+		if scCode == "T0410" && strings.Contains(errStr, "Argument 1 of function") {
 			matchedError = true
 		} else if scCode == "S0201" && strings.Contains(errStr, "syntax error") {
 			matchedError = true
 		} else if scCode == "S0106" && strings.Contains(errStr, "unclosed comment") {
 			matchedError = true
+		} else if strings.Contains(errStr, fmt.Sprintf("[%s]", scCode)) || strings.Contains(errStr, fmt.Sprintf("%s:", scCode)) {
+		    matchedError = true
 		}
 
 		if !matchedError {
