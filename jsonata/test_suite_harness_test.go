@@ -1,10 +1,10 @@
 package jsonata
 
 import (
-	"encoding/json"
 	"fmt"
-	"strings"
 	"testing"
+	"encoding/json"
+	"strings"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -59,7 +59,7 @@ func TestHarnessSemantics(t *testing.T) {
 	var expectedNum interface{}
 	dec := json.NewDecoder(strings.NewReader(expectedNumStr))
 	dec.UseNumber()
-	dec.Decode(&expectedNum)
+	_ = dec.Decode(&expectedNum)
 
 	n, _ := expectedNum.(json.Number)
 	i, _ := n.Int64()

@@ -180,6 +180,7 @@ Modifiers are `Runner` implementations that transform the current scope of a loo
 | `Every(r)` | True if every element in scope matches `r`. |
 | `Any(r)` | True if any element in scope matches `r`. |
 | `Match(r)` | Proceed only if `r` evaluates to true. |
+| `If(c, t, o)` | When `c` is true run `t` otherwise `o`. |
 | `Default(v)` | Use `v` whenever the lookup would result in an invalid value. |
 | `Error(err)` | Returns an invalid / failed result. |
 | `If(c, t, o)` | Conditional modifier: When `c` is true run `t` otherwise `o`. |
@@ -441,13 +442,13 @@ Open an issue on GitHub if you have questions or run into problems.
 
 ## JSONata Feature Compatibility Matrix
 
-Test results generated from `go test ./jsonata`. To regenerate this table, use the scripts provided or parse test outputs for PASS, SKIP and FAIL counts filtering by `TestGroups/`.
+Test results generated from `go test ./jsonata`.
 
 | Feature Group | Passed | Failed | Unsupported |
 |---|---|---|---|
 | array-constructor | 0 | 21 | 0 |
 | blocks | 0 | 7 | 0 |
-| boolean-expresssions | 21 | 10 | 0 |
+| boolean-expresssions | 23 | 8 | 0 |
 | closures | 0 | 2 | 0 |
 | coalescing-operator | 0 | 13 | 0 |
 | comments | 2 | 0 | 2 |
@@ -456,75 +457,75 @@ Test results generated from `go test ./jsonata`. To regenerate this table, use t
 | context | 0 | 4 | 0 |
 | default-operator | 0 | 14 | 0 |
 | descendent-operator | 0 | 17 | 0 |
-| encoding | 0 | 4 | 0 |
-| errors | 0 | 27 | 0 |
+| encoding | 2 | 2 | 0 |
+| errors | 5 | 22 | 0 |
 | fields | 8 | 0 | 0 |
 | flattening | 3 | 44 | 0 |
-| function-abs | 0 | 4 | 0 |
+| function-abs | 1 | 3 | 0 |
 | function-append | 0 | 6 | 0 |
 | function-applications | 0 | 22 | 0 |
-| function-assert | 0 | 8 | 0 |
-| function-average | 6 | 7 | 0 |
-| function-boolean | 0 | 24 | 0 |
-| function-ceil | 0 | 4 | 0 |
-| function-contains | 0 | 7 | 0 |
+| function-assert | 6 | 2 | 0 |
+| function-average | 8 | 5 | 0 |
+| function-boolean | 2 | 22 | 0 |
+| function-ceil | 1 | 3 | 0 |
+| function-contains | 3 | 4 | 0 |
 | function-count | 7 | 7 | 0 |
-| function-decodeUrl | 0 | 3 | 0 |
-| function-decodeUrlComponent | 0 | 3 | 0 |
+| function-decodeUrl | 2 | 1 | 0 |
+| function-decodeUrlComponent | 2 | 1 | 0 |
 | function-each | 0 | 3 | 0 |
-| function-encodeUrl | 0 | 3 | 0 |
-| function-encodeUrlComponent | 0 | 3 | 0 |
-| function-error | 0 | 11 | 0 |
-| function-eval | 0 | 8 | 0 |
-| function-exists | 0 | 25 | 0 |
-| function-floor | 0 | 4 | 0 |
-| function-formatBase | 0 | 9 | 0 |
-| function-formatNumber | 0 | 37 | 0 |
-| function-fromMillis | 0 | 3 | 0 |
-| function-join | 0 | 12 | 0 |
-| function-keys | 0 | 7 | 0 |
-| function-length | 0 | 17 | 0 |
-| function-lookup | 0 | 4 | 0 |
-| function-lowercase | 0 | 2 | 0 |
-| function-max | 13 | 14 | 0 |
-| function-merge | 0 | 5 | 0 |
-| function-number | 0 | 34 | 0 |
-| function-pad | 0 | 13 | 0 |
-| function-power | 0 | 7 | 0 |
-| function-replace | 0 | 12 | 0 |
-| function-reverse | 0 | 4 | 0 |
-| function-round | 0 | 18 | 0 |
-| function-shuffle | 0 | 4 | 0 |
+| function-encodeUrl | 2 | 1 | 0 |
+| function-encodeUrlComponent | 2 | 1 | 0 |
+| function-error | 4 | 7 | 0 |
+| function-eval | 3 | 5 | 0 |
+| function-exists | 2 | 23 | 0 |
+| function-floor | 1 | 3 | 0 |
+| function-formatBase | 3 | 6 | 0 |
+| function-formatNumber | 15 | 22 | 0 |
+| function-fromMillis | 1 | 2 | 0 |
+| function-join | 5 | 7 | 0 |
+| function-keys | 2 | 5 | 0 |
+| function-length | 8 | 9 | 0 |
+| function-lookup | 2 | 2 | 0 |
+| function-lowercase | 1 | 1 | 0 |
+| function-max | 17 | 10 | 0 |
+| function-merge | 1 | 4 | 0 |
+| function-number | 14 | 20 | 0 |
+| function-pad | 1 | 12 | 0 |
+| function-power | 3 | 4 | 0 |
+| function-replace | 8 | 4 | 0 |
+| function-reverse | 1 | 3 | 0 |
+| function-round | 1 | 17 | 0 |
+| function-shuffle | 1 | 3 | 0 |
 | function-sift | 0 | 5 | 0 |
 | function-signatures | 0 | 35 | 0 |
-| function-sort | 0 | 11 | 0 |
-| function-split | 0 | 19 | 0 |
-| function-spread | 0 | 4 | 0 |
-| function-sqrt | 0 | 4 | 0 |
-| function-string | 0 | 31 | 0 |
-| function-substring | 17 | 2 | 0 |
-| function-substringAfter | 0 | 5 | 0 |
-| function-substringBefore | 0 | 5 | 0 |
-| function-sum | 3 | 4 | 0 |
-| function-tomillis | 0 | 13 | 0 |
-| function-trim | 0 | 3 | 0 |
+| function-sort | 2 | 9 | 0 |
+| function-split | 8 | 11 | 0 |
+| function-spread | 1 | 3 | 0 |
+| function-sqrt | 2 | 2 | 0 |
+| function-string | 4 | 27 | 0 |
+| function-substring | 18 | 1 | 0 |
+| function-substringAfter | 1 | 4 | 0 |
+| function-substringBefore | 1 | 4 | 0 |
+| function-sum | 4 | 3 | 0 |
+| function-tomillis | 4 | 9 | 0 |
+| function-trim | 1 | 2 | 0 |
 | function-typeOf | 0 | 13 | 0 |
-| function-uppercase | 0 | 2 | 0 |
+| function-uppercase | 1 | 1 | 0 |
 | function-zip | 0 | 6 | 0 |
 | higher-order-functions | 0 | 3 | 0 |
 | hof-filter | 0 | 4 | 0 |
 | hof-map | 0 | 12 | 0 |
-| hof-reduce | 0 | 11 | 0 |
-| hof-single | 0 | 11 | 0 |
+| hof-reduce | 1 | 10 | 0 |
+| hof-single | 3 | 8 | 0 |
 | hof-zip-map | 0 | 4 | 0 |
 | inclusion-operator | 7 | 2 | 0 |
 | lambdas | 0 | 14 | 0 |
 | literals | 7 | 13 | 0 |
-| matchers | 0 | 2 | 0 |
-| missing-paths | 0 | 6 | 0 |
+| matchers | 1 | 1 | 0 |
+| missing-paths | 6 | 0 | 0 |
 | multiple-array-selectors | 0 | 3 | 0 |
 | null | 4 | 3 | 0 |
-| numeric-operators | 0 | 19 | 0 |
+| numeric-operators | 5 | 14 | 0 |
 | object-constructor | 0 | 27 | 0 |
 | parentheses | 6 | 2 | 0 |
 | partial-application | 0 | 5 | 0 |
@@ -538,7 +539,7 @@ Test results generated from `go test ./jsonata`. To regenerate this table, use t
 | string-concat | 12 | 0 | 0 |
 | tail-recursion | 0 | 10 | 0 |
 | token-conversion | 0 | 4 | 0 |
-| transform | 18 | 86 | 0 |
+| transform | 57 | 47 | 0 |
 | transforms | 0 | 15 | 0 |
 | variables | 1 | 12 | 0 |
 | wildcards | 0 | 10 | 0 |

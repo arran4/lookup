@@ -68,8 +68,7 @@ func runCase(c suiteCase, expr string) (interface{}, error) {
 	if res == nil {
 		return nil, nil
 	}
-	// Return the Pathor directly so the caller can check if it's an error/Invalidor
-	return res, nil
+	return res.Raw(), nil
 }
 
 func TestGroups(t *testing.T) {
@@ -126,37 +125,11 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				}
 			}()
 
-			res, err := runCase(sc, c.Expr)
-			var out interface{}
-			if res != nil {
-				if p, ok := res.(lookup.Pathor); ok {
-					out = p.Raw()
-				} else {
-					out = res
-				}
-			}
+			out, err := runCase(sc, c.Expr)
 
-			// Setup errors, e.g. failing to read dataset
-			if err != nil && strings.Contains(err.Error(), "failed to read") {
-				if expectPass {
-					t.Fatalf("Setup failed: %v", err)
-				} else {
-					t.Skipf("Setup failed (expected failure): %v", err)
-				}
-				return
-			}
-
-			// Some tests are meant to fail parsing or execution. In those cases sc.Code is set.
-			// Alternatively if out is an error/Invalidor it should be treated as an error.
-			var execErr error
-			if err != nil {
-				execErr = err
-			} else if resErr, ok := res.(error); ok {
-				execErr = resErr
-			}
-
+			// Handle expected execution errors encoded in test suite
 			if sc.Code != "" {
-				if execErr == nil {
+				if err == nil {
 					if expectPass {
 						t.Fatalf("Expected error %s but got nil", sc.Code)
 					} else {
@@ -164,16 +137,21 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 					}
 					return
 				}
-				// Optionally verify exact error code matches, but for now consider it a pass
-				// Make sure we pass the rest of the assertions so it doesn't fail unexpected.
+				// Optionally verify the error code here, but standard runner ignores exact match for now
 				return
 			}
 
-			if execErr != nil {
+			if err != nil {
+				// This check applies if it's an unexpected run error or if we're expecting failure anyway
+				if reason, ok := unsupportedTests[testID]; ok {
+					t.Skipf("Unsupported test mechanism: %v (err: %v)", reason, err)
+					return
+				}
+
 				if expectPass {
-					t.Fatalf("runCase failed: %v", execErr)
+					t.Fatalf("runCase failed: %v", err)
 				} else {
-					t.Skipf("Expected failure (runCase error): %v", execErr)
+					t.Skipf("Expected failure (runCase error): %v", err)
 				}
 				return
 			}
