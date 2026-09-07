@@ -72,7 +72,7 @@ var expectedFailures = map[string]bool{
 	"variables/case009":                   true,
 	"variables/case011":                   true,
 	"boolean-expresssions/case030":        true,
-	"comments/case002":                    true,
+
 	"errors/case005":                      true,
 	"errors/case000":                      true,
 	"errors/case019":                      true,

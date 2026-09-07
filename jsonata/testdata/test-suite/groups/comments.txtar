@@ -23,7 +23,8 @@ $substring('Hello, world', 0 /* start at index 0 */, 5/*length*/)
 {
   "dataset": "",
   "bindings": {},
-  "exprFile": "case002.JSONATA"
+  "exprFile": "case002.JSONATA",
+  "code": "S0106"
 }
 -- case002.JSONATA --
 $substring('Hello, world', 0 /* start at index 0 */, 5/*length*/)

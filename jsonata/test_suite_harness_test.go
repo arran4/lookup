@@ -35,7 +35,7 @@ func TestHarnessSemantics(t *testing.T) {
 	assert.Equal(t, "pass-execution-error", outcome.Message)
 
 	// Test expected error code matching an error (expected failure unexpected pass)
-	outcome = evaluateHarnessOutcome("test/3b", nil, fmt.Errorf("parse failed"), "T0410", false, false, "", false, nil)
+	outcome = evaluateHarnessOutcome("test/3b", nil, fmt.Errorf("Argument 1 of function"), "T0410", false, false, "", false, nil)
 	assert.True(t, outcome.Failed, "Expected test/3b to fail")
 	assert.True(t, strings.Contains(outcome.Message, "Unexpected pass!"), "Expected message to contain Unexpected pass! Message: %s", outcome.Message)
 
@@ -71,6 +71,11 @@ func TestHarnessSemantics(t *testing.T) {
 	outcome = evaluateHarnessOutcome("missing-paths/case999", nil, parseErr, "", true, false, "", true, nil)
 	assert.True(t, outcome.Failed)
 	assert.Equal(t, "runCase failed: parse failed: unexpected token", outcome.Message)
+
+	// Test malformed dataset fixture load failure
+	outcome = evaluateHarnessOutcome("test/setup_malformed", nil, nil, "", false, false, "", false, fmt.Errorf("failed to unmarshal dataset: invalid character"))
+	assert.True(t, outcome.Failed)
+	assert.Equal(t, "Setup failed: failed to unmarshal dataset: invalid character", outcome.Message)
 
 	// Test expected error code but got nil error
 	outcome = evaluateHarnessOutcome("test/4", nil, nil, "T0410", true, false, "", false, nil)
