@@ -11,19 +11,20 @@ import (
 	"strings"
 )
 
-type MatrixStats struct {
+type matrixStats struct {
 	Passed      int
 	Failed      int
 	Unsupported int
 }
 
-func GenerateCompatibilityMatrix(fsys embed.FS) (string, error) {
+// generateCompatibilityMatrix builds the markdown matrix string mapping
+func generateCompatibilityMatrix(fsys embed.FS) (string, error) {
 	entries, err := fsys.ReadDir("testdata/test-suite/groups")
 	if err != nil {
 		return "", fmt.Errorf("failed to list groups: %w", err)
 	}
 
-	groups := make(map[string]*MatrixStats)
+	groups := make(map[string]*matrixStats)
 
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".txtar") {
@@ -31,7 +32,7 @@ func GenerateCompatibilityMatrix(fsys embed.FS) (string, error) {
 		}
 
 		groupName := strings.TrimSuffix(entry.Name(), ".txtar")
-		groups[groupName] = &MatrixStats{}
+		groups[groupName] = &matrixStats{}
 
 		data, err := fs.ReadFile(fsys, path.Join("testdata/test-suite/groups", entry.Name()))
 		if err != nil {

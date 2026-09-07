@@ -7,7 +7,7 @@ import (
 )
 
 func TestCompatibilityMatrixUpToDate(t *testing.T) {
-	matrix, err := GenerateCompatibilityMatrix(testData)
+	matrix, err := generateCompatibilityMatrix(testData)
 	if err != nil {
 		t.Fatalf("Failed to generate compatibility matrix: %v", err)
 	}
@@ -35,7 +35,11 @@ func TestCompatibilityMatrixUpToDate(t *testing.T) {
 	currentMatrix := strings.TrimSpace(readme[startIndex:endIndex])
 	expectedMatrix := strings.TrimSpace(matrix)
 
+	// Normalize Windows line endings just in case
+	currentMatrix = strings.ReplaceAll(currentMatrix, "\r\n", "\n")
+	expectedMatrix = strings.ReplaceAll(expectedMatrix, "\r\n", "\n")
+
 	if currentMatrix != expectedMatrix {
-		t.Errorf("README.md compatibility matrix is out of date. Please run 'go generate ./jsonata' to update it.\n\nExpected:\n%s\n\nActual:\n%s", expectedMatrix, currentMatrix)
+		t.Errorf("README.md compatibility matrix is out of date. Please run 'UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix' to update it.\n\nExpected:\n%s\n\nActual:\n%s", expectedMatrix, currentMatrix)
 	}
 }

@@ -11,7 +11,7 @@ func TestUpdateCompatibilityMatrix(t *testing.T) {
 		t.Skip("Set UPDATE_MATRIX=1 to update README.md")
 	}
 
-	matrix, err := GenerateCompatibilityMatrix(testData)
+	matrix, err := generateCompatibilityMatrix(testData)
 	if err != nil {
 		t.Fatalf("Failed to generate compatibility matrix: %v", err)
 	}
@@ -36,7 +36,14 @@ func TestUpdateCompatibilityMatrix(t *testing.T) {
 		endIndex += startIndex
 	}
 
-	newReadme := readme[:startIndex] + strings.TrimSpace(matrix) + readme[endIndex:]
+	// Ensure consistent line endings
+	formattedMatrix := strings.TrimSpace(matrix)
+
+	if strings.Contains(readme, "\r\n") {
+		formattedMatrix = strings.ReplaceAll(formattedMatrix, "\n", "\r\n")
+	}
+
+	newReadme := readme[:startIndex] + formattedMatrix + readme[endIndex:]
 
 	err = os.WriteFile("../README.md", []byte(newReadme), 0644)
 	if err != nil {
