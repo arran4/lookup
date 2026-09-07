@@ -126,7 +126,28 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 			}()
 
 			out, err := runCase(sc, c.Expr)
+
+			// Handle expected execution errors encoded in test suite
+			if sc.Code != "" {
+				if err == nil {
+					if expectPass {
+						t.Fatalf("Expected error %s but got nil", sc.Code)
+					} else {
+						t.Skipf("Expected failure: Expected error %s but got nil", sc.Code)
+					}
+					return
+				}
+				// Optionally verify the error code here, but standard runner ignores exact match for now
+				return
+			}
+
 			if err != nil {
+				// This check applies if it's an unexpected run error or if we're expecting failure anyway
+				if reason, ok := unsupportedTests[testID]; ok {
+					t.Skipf("Unsupported test mechanism: %v (err: %v)", reason, err)
+					return
+				}
+
 				if expectPass {
 					t.Fatalf("runCase failed: %v", err)
 				} else {

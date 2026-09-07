@@ -182,6 +182,9 @@ Modifiers are `Runner` implementations that transform the current scope of a loo
 | `Match(r)` | Proceed only if `r` evaluates to true. |
 | `If(c, t, o)` | When `c` is true run `t` otherwise `o`. |
 | `Default(v)` | Use `v` whenever the lookup would result in an invalid value. |
+| `Error(err)` | Returns an invalid / failed result. |
+| `If(c, t, o)` | Conditional modifier: When `c` is true run `t` otherwise `o`. |
+| `Append(r)` | Combine the current collection with `r` preserving duplicates. |
 | `Union(r)` | Combine the current collection with `r` removing duplicates. |
 | `Intersection(r)` | Elements present in both the current collection and `r`. |
 | `First(r)` | Return the first value matching `r`. |
@@ -202,18 +205,9 @@ See `expression.go` and `collections.go` for the full list of helpers.
 | **Jsonor** | Lazy-on-first-access, followed by full decoding/caching of raw JSON. |
 | **Yamlor** | Lazy-on-first-access, followed by full decoding/caching of raw YAML. |
 | **Relator** | Stores a path which can be replayed. Mostly used by modifiers for relative lookups. |
+| **Simpleor** | A type-switch based version of `Reflector` for a smaller set of inputs. Use `lookup.Simple` to create one. |
 
-### Todo Data Structures
 
-| Data structure | Description |
-|----------------|-------------|
-| `Simpleor` | A type-switch based version of `Reflector` for a smaller set of inputs. |
-
-| Modifier | Category | Description | Input | Output |
-| --- | --- | --- | --- | --- |
-| Append(?) | Collections | Combine two results with duplicates | | |
-| If(?, ?, ?) | Expression | Conditional | | |
-| Error(?) | Invalidor | Returns an invalid / failed result | | |
 
 ## Basic Lookup Behaviour
 
