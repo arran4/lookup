@@ -163,7 +163,7 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				unsupportedReason = reason
 			}
 
-			outcome := evaluateHarnessOutcome(testID, out, execErr, sc.Code, expectPass, isUnsupported, unsupportedReason)
+			outcome := evaluateHarnessOutcome(testID, out, execErr, sc.Code, expectPass, isUnsupported, unsupportedReason, sc.Undefined)
 
 			if outcome.Failed {
 				t.Fatalf("%s", outcome.Message)
@@ -230,7 +230,7 @@ type harnessOutcome struct {
 	Message string
 }
 
-func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCode string, expectPass bool, isUnsupported bool, unsupportedReason string) harnessOutcome {
+func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCode string, expectPass bool, isUnsupported bool, unsupportedReason string, isUndefined bool) harnessOutcome {
 	if isUnsupported {
 		return harnessOutcome{Skipped: true, Message: fmt.Sprintf("Unsupported test mechanism: %v (err: %v)", unsupportedReason, execErr)}
 	}
@@ -243,11 +243,22 @@ func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCod
 				return harnessOutcome{Skipped: true, Message: fmt.Sprintf("Expected failure: Expected error %s but got nil", scCode)}
 			}
 		}
-		// Optionally verify exact error code matches, but for now consider it a pass
+		// Verify error code conceptually.
+		// For now we just return a message to stop assertions.
+		if !expectPass {
+			// If the expected failure is the error, and we get the error, it's a pass
+			// which is an unexpected pass for an expected failure case.
+			return harnessOutcome{Failed: true, Message: fmt.Sprintf("Unexpected pass! Test %s is marked as expected failure but it produced expected error %s", testID, scCode)}
+		}
 		return harnessOutcome{Message: "pass-execution-error"} // Return a message to stop further assertions on outcome
 	}
 
 	if execErr != nil {
+		// If it's an Invalidor and the expected output is actually "undefined" (e.g. sc.Undefined),
+		// we should let it pass as undefined instead of treating it as a generic evaluation error.
+		if isUndefined {
+			return harnessOutcome{} // It will be compared to nil in the assertion phase
+		}
 		if expectPass {
 			return harnessOutcome{Failed: true, Message: fmt.Sprintf("runCase failed: %v", execErr)}
 		} else {

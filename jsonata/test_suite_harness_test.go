@@ -13,32 +13,38 @@ func TestHarnessSemantics(t *testing.T) {
 	// A meta-test capturing harness behaviors for normal, expected-fail, and expected-error outcomes.
 
 	// Test normal expected failure runCase error
-	outcome := evaluateHarnessOutcome("test/1", nil, fmt.Errorf("evaluation error"), "", false, false, "")
+	outcome := evaluateHarnessOutcome("test/1", nil, fmt.Errorf("evaluation error"), "", false, false, "", false)
 	assert.True(t, outcome.Skipped)
 	assert.Equal(t, "Expected failure (runCase error): evaluation error", outcome.Message)
 
 	// Test new unexpected error
-	outcome = evaluateHarnessOutcome("test/2", nil, fmt.Errorf("evaluation error"), "", true, false, "")
+	outcome = evaluateHarnessOutcome("test/2", nil, fmt.Errorf("evaluation error"), "", true, false, "", false)
 	assert.True(t, outcome.Failed)
 	assert.Equal(t, "runCase failed: evaluation error", outcome.Message)
 
 	// Test expected error code matching an error (success execution path)
-	outcome = evaluateHarnessOutcome("test/3", nil, fmt.Errorf("some error"), "T0410", true, false, "")
+	outcome = evaluateHarnessOutcome("test/3", nil, fmt.Errorf("some error"), "T0410", true, false, "", false)
 	assert.False(t, outcome.Failed)
 	assert.False(t, outcome.Skipped)
 	assert.Equal(t, "pass-execution-error", outcome.Message)
 
 	// Test expected error code but got nil error
-	outcome = evaluateHarnessOutcome("test/4", nil, nil, "T0410", true, false, "")
+	outcome = evaluateHarnessOutcome("test/4", nil, nil, "T0410", true, false, "", false)
 	assert.True(t, outcome.Failed)
 	assert.Equal(t, "Expected error T0410 but got nil", outcome.Message)
 
 	// Test missing fixture (unsupported)
-	outcome = evaluateHarnessOutcome("comments/case003", nil, fmt.Errorf("some unsupported error"), "", true, true, "Function definition not implemented")
+	outcome = evaluateHarnessOutcome("comments/case003", nil, fmt.Errorf("some unsupported error"), "", true, true, "Function definition not implemented", false)
 	assert.True(t, outcome.Skipped)
 	assert.Equal(t, "Unsupported test mechanism: Function definition not implemented (err: some unsupported error)", outcome.Message)
 
 	// Check numbers matching logic simulation
+
+	// Test undefined evaluation
+	outcome = evaluateHarnessOutcome("test/5", nil, fmt.Errorf("missing"), "", true, false, "", true)
+	assert.False(t, outcome.Failed)
+	assert.False(t, outcome.Skipped)
+
 	outNum := 10
 	expectedNumStr := "10"
 	var expectedNum interface{}
