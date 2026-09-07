@@ -441,12 +441,10 @@ Open an issue on GitHub if you have questions or run into problems.
 
 ## JSONata Feature Compatibility Matrix
 
-Test results generated from `go test ./jsonata`. To regenerate this table, you can run the parsing script:
+Test results generated from `go test ./jsonata`. To regenerate this table, you can parse the log:
 
 ```bash
-cd jsonata
-go test -v ./... > output.log
-# A script parsing '=== RUN', '--- PASS', '--- SKIP' counts by group yields these totals.
+go test -v ./jsonata/... | awk '/--- PASS: TestGroups\// {passed[$3]++} /--- FAIL: TestGroups\// {failed[$3]++} /--- SKIP: TestGroups\// {skipped[$3]++} END {for (group in passed) print group, passed[group], failed[group], skipped[group]}'
 ```
 
 | Feature Group | Passed | Failed | Unsupported |
