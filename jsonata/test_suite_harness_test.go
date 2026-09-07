@@ -84,6 +84,18 @@ func TestHarnessSemantics(t *testing.T) {
 	assert.True(t, outcome.Failed)
 	assert.Equal(t, "runCase failed: parse failed: unexpected token", outcome.Message)
 
+	// Test plain error mimicking element not found text
+	plainErr := fmt.Errorf("some random element not found at simple path error")
+	outcome = evaluateHarnessOutcome("missing-paths/case998", nil, plainErr, "", true, false, "", true, nil)
+	assert.True(t, outcome.Failed)
+	assert.Equal(t, "runCase failed: some random element not found at simple path error", outcome.Message)
+
+	// Test plain error mimicking invalid path
+	plainErr2 := fmt.Errorf("some invalid path error")
+	outcome = evaluateHarnessOutcome("missing-paths/case997", nil, plainErr2, "", true, false, "", true, nil)
+	assert.True(t, outcome.Failed)
+	assert.Equal(t, "runCase failed: some invalid path error", outcome.Message)
+
 	// Test malformed dataset fixture load failure
 	outcome = evaluateHarnessOutcome("test/setup_malformed", nil, nil, "", false, false, "", false, fmt.Errorf("failed to unmarshal dataset: invalid character"))
 	assert.True(t, outcome.Failed)
@@ -93,6 +105,11 @@ func TestHarnessSemantics(t *testing.T) {
 	_, err := runCase(suiteCase{Dataset: "nonexistent"}, "1+1")
 	assert.NotNil(t, err)
 	assert.True(t, strings.Contains(err.Error(), "failed to read"))
+
+	// Test actual runCase integration coverage for malformed dataset (invalid JSON)
+	_, err = runCase(suiteCase{Dataset: "malformed_test_dataset"}, "1+1")
+	assert.NotNil(t, err)
+	assert.True(t, strings.Contains(err.Error(), "failed to unmarshal"))
 
 	// Test expected error code but got nil error
 	outcome = evaluateHarnessOutcome("test/4", nil, nil, "T0410", true, false, "", false, nil)

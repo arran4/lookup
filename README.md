@@ -442,11 +442,11 @@ Open an issue on GitHub if you have questions or run into problems.
 ## JSONata Feature Compatibility Matrix
 
 Test results generated from `go test ./jsonata`. To regenerate this table, you can parse the log:
-*(Note: `comments/case003` is excluded because the expression depends on unsupported function-definition/recursion behavior rather than comment parsing itself being untested. The strict comments cases retain comment-specific coverage).*
 
 ```bash
-go test -v ./jsonata/... | awk '/--- PASS: TestGroups\// {passed[$3]++} /--- FAIL: TestGroups\// {failed[$3]++} /--- SKIP: TestGroups\// {skipped[$3]++} END {for (group in passed) print group, passed[group], failed[group], skipped[group]}'
+go test -v ./jsonata/... | awk '/--- PASS: TestGroups\// {split($3,a,"/"); if (a[3] != "") passed[a[2]]++} /--- FAIL: TestGroups\// {split($3,a,"/"); if (a[3] != "") failed[a[2]]++} /--- SKIP: TestGroups\// {split($3,a,"/"); if (a[3] != "") skipped[a[2]]++} END {for (group in passed) print "| " group " | " passed[group]+0 " | " failed[group]+0 " | " skipped[group]+0 " |"}' | sort
 ```
+*(Note: `comments/case003` is excluded because the expression depends on unsupported function-definition/recursion behavior rather than comment parsing itself being untested. The strict comments cases retain comment-specific coverage).*
 
 | Feature Group | Passed | Failed | Unsupported |
 |---|---|---|---|

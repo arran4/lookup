@@ -259,7 +259,7 @@ func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCod
 		} else if scCode == "S0106" && strings.Contains(errStr, "unclosed comment") {
 			matchedError = true
 		} else if strings.Contains(errStr, fmt.Sprintf("[%s]", scCode)) || strings.Contains(errStr, fmt.Sprintf("%s:", scCode)) {
-		    matchedError = true
+			matchedError = true
 		}
 
 		if !matchedError {
@@ -284,11 +284,9 @@ func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCod
 			var invalidor *lookup.Invalidor
 			if errors.As(execErr, &invalidor) {
 				unwrapped := invalidor.Unwrap()
-				if errors.Is(unwrapped, lookup.ErrNoSuchPath) || strings.Contains(unwrapped.Error(), "element not found") || strings.Contains(unwrapped.Error(), "invalid path") {
+				if errors.Is(unwrapped, lookup.ErrNoSuchPath) || strings.Contains(unwrapped.Error(), "element not found at simple path") {
 					return harnessOutcome{} // Valid undefined path result, pass for assertion phase
 				}
-			} else if strings.Contains(execErr.Error(), "element not found") || strings.Contains(execErr.Error(), "invalid path") {
-				return harnessOutcome{}
 			}
 		}
 
