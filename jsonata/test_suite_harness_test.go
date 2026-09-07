@@ -56,6 +56,21 @@ func TestHarnessSemantics(t *testing.T) {
 	assert.True(t, outcome.Failed, "Expected test/wrong to fail")
 	assert.Equal(t, "Expected error T0410 but got different error: some random error", outcome.Message)
 
+	// Test WRONG expected error matching incidental prefix
+	outcome = evaluateHarnessOutcome("test/wrong_incidental", nil, fmt.Errorf("XT0410: unrelated error"), "T0410", true, false, "", false, nil)
+	assert.True(t, outcome.Failed, "Expected test/wrong_incidental to fail")
+	assert.Equal(t, "Expected error T0410 but got different error: XT0410: unrelated error", outcome.Message)
+
+	// Test expected failure WRONG expected error matching incidental prefix
+	outcome = evaluateHarnessOutcome("test/wrong_fail_incidental", nil, fmt.Errorf("XT0410: unrelated error"), "T0410", false, false, "", false, nil)
+	assert.True(t, outcome.Skipped, "Expected test/wrong_fail_incidental to skip")
+	assert.Equal(t, "Expected failure (wrong error): Expected T0410 but got: XT0410: unrelated error", outcome.Message)
+
+	// Test exact bounded match works
+	outcome = evaluateHarnessOutcome("test/exact_match", nil, fmt.Errorf("T0410: exact match error"), "T0410", true, false, "", false, nil)
+	assert.False(t, outcome.Failed, "Expected test/exact_match to not fail")
+	assert.False(t, outcome.Skipped, "Expected test/exact_match to not skip")
+
 	// Test WRONG expected error on an expected failure (should skip not unexpectedly pass)
 	outcome = evaluateHarnessOutcome("test/wrong_fail", nil, fmt.Errorf("some random error"), "T0410", false, false, "", false, nil)
 	assert.True(t, outcome.Skipped, "Expected test/wrong_fail to skip")

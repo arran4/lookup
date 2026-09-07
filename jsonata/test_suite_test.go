@@ -258,7 +258,9 @@ func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCod
 			matchedError = true
 		} else if scCode == "S0106" && strings.Contains(errStr, "unclosed comment") {
 			matchedError = true
-		} else if strings.Contains(errStr, fmt.Sprintf("[%s]", scCode)) || strings.Contains(errStr, fmt.Sprintf("%s:", scCode)) {
+		} else if strings.Contains(errStr, fmt.Sprintf("[%s]", scCode)) || strings.Contains(errStr, fmt.Sprintf(" %s:", scCode)) || strings.HasPrefix(errStr, fmt.Sprintf("%s:", scCode)) {
+		    // General fallback for exactly structured JSONata error strings if they existed.
+		    // Explicitly bounds tokens with prefixes/spaces to avoid incidental substrings like "XT0410"
 			matchedError = true
 		}
 
