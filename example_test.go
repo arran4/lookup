@@ -35,35 +35,6 @@ func Example_jsonata() {
 	// Output: Firefly
 }
 
-func Example_jsonataCustomFunction() {
-	// 1. Create a Context with standard functions and register custom one
-	// Thread-safe!
-	funcs := jsonata.GetStandardFunctions()
-	funcs["$greet"] = &GreetFunc{}
-	ctx := &evaluator.Context{
-		Functions: funcs,
-	}
-
-	// 2. Data
-	data := map[string]interface{}{
-		"Name": "Alice",
-	}
-
-	// 3. Compile expression using the custom function
-	ast, err := jsonata.Parse("$greet(Name)")
-	if err != nil {
-		log.Fatal(err)
-	}
-	q := jsonata.Compile(ast)
-
-	// 4. Run with Context
-	result := q.Run(lookup.NewScopeWithContext(nil, lookup.Reflect(data), ctx))
-
-	fmt.Println(result.Raw())
-
-	// Output: Hello, Alice!
-}
-
 type GreetFunc struct{}
 
 func (g *GreetFunc) Call(args ...interface{}) (interface{}, error) {
@@ -75,4 +46,30 @@ func (g *GreetFunc) Call(args ...interface{}) (interface{}, error) {
 		return nil, fmt.Errorf("arg 0 must be string")
 	}
 	return fmt.Sprintf("Hello, %s!", name), nil
+}
+
+func Example_jsonataCustomFunction() {
+	// 1. Data
+	data := map[string]interface{}{
+		"Name": "Alice",
+	}
+
+	// 2. Parse query
+	ast, err := jsonata.Parse("$greet(Name)")
+	if err != nil {
+		log.Fatal(err)
+	}
+	q := jsonata.Compile(ast)
+
+	// 3. Use in query with a custom context
+	ctx := &evaluator.Context{
+		Functions: jsonata.GetStandardFunctions(),
+	}
+	ctx.Functions["$greet"] = &GreetFunc{}
+
+	result := q.Run(lookup.NewScopeWithContext(nil, lookup.Reflect(data), ctx))
+
+	fmt.Println(result.Raw())
+
+	// Output: Hello, Alice!
 }

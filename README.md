@@ -33,8 +33,8 @@ go get github.com/arran4/lookup
 |---------|-------------|
 | **Pathor** | Interface returned from all queries. Exposes `Find`, `Raw`, `Type` and `Value`. |
 | **Reflector** | Implementation of `Pathor` based on reflection for arbitrary Go values. Use `lookup.Reflect` to create one. |
-| **Jsonor** | Lazily unmarshals raw JSON as fields are requested. Use `lookup.Json` to create one. |
-| **Yamlor** | Lazily unmarshals raw YAML as fields are requested. Use `lookup.Yaml` to create one. |
+| **Jsonor** | Lazy-on-first-access, followed by full decoding/caching of raw JSON. Use `lookup.Json` to create one. |
+| **Yamlor** | Lazy-on-first-access, followed by full decoding/caching of raw YAML. Use `lookup.Yaml` to create one. |
 | **Interfaceor** | Wraps a user defined `Interface` so you can implement custom lookups. |
 | **Constantor** | Holds a constant value and is often used internally by modifiers. |
 | **Invalidor** | Represents an invalid path while still implementing `Pathor`. |
@@ -72,15 +72,26 @@ You can extend JSONata by registering custom functions. This leverages `github.c
 // 1. Define function
 type GreetFunc struct{}
 func (g *GreetFunc) Call(args ...interface{}) (interface{}, error) {
-    return "Hello " + args[0].(string), nil
+	if len(args) == 0 {
+		return "Hello!", nil
+	}
+	name, ok := args[0].(string)
+	if !ok {
+		return nil, fmt.Errorf("arg 0 must be string")
+	}
+	return fmt.Sprintf("Hello, %s!", name), nil
 }
 
-// 2. Register
-jsonata.Functions["$greet"] = &GreetFunc{}
-
-// 3. Use in query
+// 2. Parse query
 ast, _ := jsonata.Parse("$greet(Name)")
 q := jsonata.Compile(ast)
+
+// 3. Use in query with a custom context
+ctx := &evaluator.Context{
+    Functions: jsonata.GetStandardFunctions(),
+}
+ctx.Functions["$greet"] = &GreetFunc{}
+// q.Run(lookup.NewScopeWithContext(nil, lookup.Reflect(data), ctx))
 ```
 
 ## Quick Start
@@ -188,8 +199,8 @@ See `expression.go` and `collections.go` for the full list of helpers.
 | **Invalidor** | Indicates that the search reached an invalid path. It implements the `error` interface. |
 | **Constantor** | Similar to `Invalidor` but wraps a constant value. Attempting to navigate it does not change the position. |
 | **Interfaceor** | Like `Reflector` but relies on a user supplied interface to obtain children. |
-| **Jsonor** | Navigate raw JSON values without unmarshalling everything up front. |
-| **Yamlor** | Navigate raw YAML values without unmarshalling everything up front. |
+| **Jsonor** | Lazy-on-first-access, followed by full decoding/caching of raw JSON. |
+| **Yamlor** | Lazy-on-first-access, followed by full decoding/caching of raw YAML. |
 | **Relator** | Stores a path which can be replayed. Mostly used by modifiers for relative lookups. |
 
 ### Todo Data Structures
@@ -197,9 +208,6 @@ See `expression.go` and `collections.go` for the full list of helpers.
 | Data structure | Description |
 |----------------|-------------|
 | `Simpleor` | A type-switch based version of `Reflector` for a smaller set of inputs. |
-
-
-## Planned / TODO
 
 | Modifier | Category | Description | Input | Output |
 | --- | --- | --- | --- | --- |
@@ -442,102 +450,102 @@ Open an issue on GitHub if you have questions or run into problems.
 
 Test results generated from `go test ./jsonata`.
 
-| Feature Group | Passed | Failed |
-|---|---|---|
-| array-constructor | 0 | 21 |
-| blocks | 0 | 7 |
-| boolean-expresssions | 0 | 31 |
-| closures | 0 | 2 |
-| coalescing-operator | 0 | 13 |
-| comments | 4 | 0 |
-| comparison-operators | 0 | 29 |
-| conditionals | 0 | 9 |
-| context | 0 | 4 |
-| default-operator | 0 | 14 |
-| descendent-operator | 0 | 17 |
-| encoding | 0 | 4 |
-| errors | 0 | 27 |
-| fields | 3 | 5 |
-| flattening | 0 | 47 |
-| function-abs | 0 | 4 |
-| function-append | 0 | 6 |
-| function-applications | 0 | 22 |
-| function-assert | 0 | 8 |
-| function-average | 0 | 13 |
-| function-boolean | 0 | 24 |
-| function-ceil | 0 | 4 |
-| function-contains | 0 | 7 |
-| function-count | 0 | 14 |
-| function-decodeUrl | 0 | 3 |
-| function-decodeUrlComponent | 0 | 3 |
-| function-each | 0 | 3 |
-| function-encodeUrl | 0 | 3 |
-| function-encodeUrlComponent | 0 | 3 |
-| function-error | 0 | 11 |
-| function-eval | 0 | 8 |
-| function-exists | 0 | 25 |
-| function-floor | 0 | 4 |
-| function-formatBase | 0 | 9 |
-| function-formatNumber | 0 | 37 |
-| function-fromMillis | 0 | 3 |
-| function-join | 0 | 12 |
-| function-keys | 0 | 7 |
-| function-length | 0 | 17 |
-| function-lookup | 0 | 4 |
-| function-lowercase | 0 | 2 |
-| function-max | 0 | 27 |
-| function-merge | 0 | 5 |
-| function-number | 0 | 34 |
-| function-pad | 0 | 13 |
-| function-power | 0 | 7 |
-| function-replace | 0 | 12 |
-| function-reverse | 0 | 4 |
-| function-round | 0 | 18 |
-| function-shuffle | 0 | 4 |
-| function-sift | 0 | 5 |
-| function-signatures | 0 | 35 |
-| function-sort | 0 | 11 |
-| function-split | 0 | 19 |
-| function-spread | 0 | 4 |
-| function-sqrt | 0 | 4 |
-| function-string | 0 | 31 |
-| function-substring | 0 | 19 |
-| function-substringAfter | 0 | 5 |
-| function-substringBefore | 0 | 5 |
-| function-sum | 0 | 7 |
-| function-tomillis | 0 | 13 |
-| function-trim | 0 | 3 |
-| function-typeOf | 0 | 13 |
-| function-uppercase | 0 | 2 |
-| function-zip | 0 | 6 |
-| higher-order-functions | 0 | 3 |
-| hof-filter | 0 | 4 |
-| hof-map | 0 | 12 |
-| hof-reduce | 0 | 11 |
-| hof-single | 0 | 11 |
-| hof-zip-map | 0 | 4 |
-| inclusion-operator | 0 | 9 |
-| lambdas | 0 | 14 |
-| literals | 0 | 20 |
-| matchers | 0 | 2 |
-| missing-paths | 6 | 0 |
-| multiple-array-selectors | 0 | 3 |
-| null | 1 | 6 |
-| numeric-operators | 0 | 19 |
-| object-constructor | 0 | 27 |
-| parentheses | 0 | 8 |
-| partial-application | 0 | 5 |
-| performance | 0 | 2 |
-| predicates | 0 | 4 |
-| quoted-selectors | 0 | 8 |
-| range-operator | 0 | 25 |
-| regex | 0 | 39 |
-| simple-array-selectors | 4 | 19 |
-| sorting | 0 | 21 |
-| string-concat | 0 | 12 |
-| tail-recursion | 0 | 10 |
-| token-conversion | 0 | 4 |
-| transform | 10 | 94 |
-| transforms | 0 | 15 |
-| variables | 0 | 13 |
-| wildcards | 0 | 10 |
+| Feature Group | Passed | Failed | Unsupported |
+|---|---|---|---|
+| array-constructor | 0 | 21 | 0 |
+| blocks | 0 | 7 | 0 |
+| boolean-expresssions | 23 | 8 | 0 |
+| closures | 0 | 2 | 0 |
+| coalescing-operator | 0 | 13 | 0 |
+| comments | 2 | 0 | 2 |
+| comparison-operators | 19 | 10 | 0 |
+| conditionals | 0 | 9 | 0 |
+| context | 0 | 4 | 0 |
+| default-operator | 0 | 14 | 0 |
+| descendent-operator | 0 | 17 | 0 |
+| encoding | 2 | 2 | 0 |
+| errors | 5 | 22 | 0 |
+| fields | 8 | 0 | 0 |
+| flattening | 3 | 44 | 0 |
+| function-abs | 1 | 3 | 0 |
+| function-append | 0 | 6 | 0 |
+| function-applications | 0 | 22 | 0 |
+| function-assert | 6 | 2 | 0 |
+| function-average | 8 | 5 | 0 |
+| function-boolean | 2 | 22 | 0 |
+| function-ceil | 1 | 3 | 0 |
+| function-contains | 3 | 4 | 0 |
+| function-count | 7 | 7 | 0 |
+| function-decodeUrl | 2 | 1 | 0 |
+| function-decodeUrlComponent | 2 | 1 | 0 |
+| function-each | 0 | 3 | 0 |
+| function-encodeUrl | 2 | 1 | 0 |
+| function-encodeUrlComponent | 2 | 1 | 0 |
+| function-error | 4 | 7 | 0 |
+| function-eval | 3 | 5 | 0 |
+| function-exists | 2 | 23 | 0 |
+| function-floor | 1 | 3 | 0 |
+| function-formatBase | 3 | 6 | 0 |
+| function-formatNumber | 15 | 22 | 0 |
+| function-fromMillis | 1 | 2 | 0 |
+| function-join | 5 | 7 | 0 |
+| function-keys | 2 | 5 | 0 |
+| function-length | 8 | 9 | 0 |
+| function-lookup | 2 | 2 | 0 |
+| function-lowercase | 1 | 1 | 0 |
+| function-max | 17 | 10 | 0 |
+| function-merge | 1 | 4 | 0 |
+| function-number | 14 | 20 | 0 |
+| function-pad | 1 | 12 | 0 |
+| function-power | 3 | 4 | 0 |
+| function-replace | 8 | 4 | 0 |
+| function-reverse | 1 | 3 | 0 |
+| function-round | 1 | 17 | 0 |
+| function-shuffle | 1 | 3 | 0 |
+| function-sift | 0 | 5 | 0 |
+| function-signatures | 0 | 35 | 0 |
+| function-sort | 2 | 9 | 0 |
+| function-split | 8 | 11 | 0 |
+| function-spread | 1 | 3 | 0 |
+| function-sqrt | 2 | 2 | 0 |
+| function-string | 4 | 27 | 0 |
+| function-substring | 18 | 1 | 0 |
+| function-substringAfter | 1 | 4 | 0 |
+| function-substringBefore | 1 | 4 | 0 |
+| function-sum | 4 | 3 | 0 |
+| function-tomillis | 4 | 9 | 0 |
+| function-trim | 1 | 2 | 0 |
+| function-typeOf | 0 | 13 | 0 |
+| function-uppercase | 1 | 1 | 0 |
+| function-zip | 0 | 6 | 0 |
+| higher-order-functions | 0 | 3 | 0 |
+| hof-filter | 0 | 4 | 0 |
+| hof-map | 0 | 12 | 0 |
+| hof-reduce | 1 | 10 | 0 |
+| hof-single | 3 | 8 | 0 |
+| hof-zip-map | 0 | 4 | 0 |
+| inclusion-operator | 7 | 2 | 0 |
+| lambdas | 0 | 14 | 0 |
+| literals | 7 | 13 | 0 |
+| matchers | 1 | 1 | 0 |
+| missing-paths | 6 | 0 | 0 |
+| multiple-array-selectors | 0 | 3 | 0 |
+| null | 4 | 3 | 0 |
+| numeric-operators | 5 | 14 | 0 |
+| object-constructor | 0 | 27 | 0 |
+| parentheses | 6 | 2 | 0 |
+| partial-application | 0 | 5 | 0 |
+| performance | 0 | 2 | 0 |
+| predicates | 2 | 2 | 0 |
+| quoted-selectors | 0 | 8 | 0 |
+| range-operator | 0 | 25 | 0 |
+| regex | 0 | 39 | 0 |
+| simple-array-selectors | 8 | 15 | 0 |
+| sorting | 0 | 21 | 0 |
+| string-concat | 12 | 0 | 0 |
+| tail-recursion | 0 | 10 | 0 |
+| token-conversion | 0 | 4 | 0 |
+| transform | 57 | 47 | 0 |
+| transforms | 0 | 15 | 0 |
+| variables | 1 | 12 | 0 |
+| wildcards | 0 | 10 | 0 |

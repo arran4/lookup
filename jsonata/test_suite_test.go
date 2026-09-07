@@ -83,14 +83,12 @@ func TestGroups(t *testing.T) {
 		}
 		groupName := strings.TrimSuffix(entry.Name(), ".txtar")
 		t.Run(groupName, func(t *testing.T) {
-			_, skipOnFail := groupStatus[groupName]
-			expectPass := !skipOnFail
-			runTxtarGroup(t, path.Join("testdata/test-suite/groups", entry.Name()), expectPass)
+			runTxtarGroup(t, path.Join("testdata/test-suite/groups", entry.Name()), groupName)
 		})
 	}
 }
 
-func runTxtarGroup(t *testing.T, filename string, expectPass bool) {
+func runTxtarGroup(t *testing.T, filename string, groupName string) {
 	data, err := fs.ReadFile(testData, filename)
 	if err != nil {
 		t.Fatalf("failed to read txtar file %s: %v", filename, err)
@@ -103,14 +101,13 @@ func runTxtarGroup(t *testing.T, filename string, expectPass bool) {
 
 	for _, c := range cases {
 		t.Run(c.Name, func(t *testing.T) {
-			if strings.Contains(filename, "comments.txtar") {
-				if c.Name == "case002" {
-					t.Skip("Skipping case002: Error expectation logic not implemented in test runner")
-				}
-				if c.Name == "case003" {
-					t.Skip("Skipping case003: Function definition not implemented")
-				}
+			testID := groupName + "/" + c.Name
+			if reason, ok := unsupportedTests[testID]; ok {
+				t.Skipf("Unsupported: %s", reason)
+				return
 			}
+
+			expectPass := !expectedFailures[testID]
 
 			var sc suiteCase
 			if err := json.Unmarshal([]byte(c.Input), &sc); err != nil {
@@ -121,9 +118,9 @@ func runTxtarGroup(t *testing.T, filename string, expectPass bool) {
 			defer func() {
 				if r := recover(); r != nil {
 					if expectPass {
-						t.Errorf("panic: %v", r)
+						t.Fatalf("panic: %v", r)
 					} else {
-						t.Skipf("panic: %v", r)
+						t.Skipf("Expected failure (panic): %v", r)
 					}
 				}
 			}()
@@ -133,7 +130,7 @@ func runTxtarGroup(t *testing.T, filename string, expectPass bool) {
 				if expectPass {
 					t.Fatalf("runCase failed: %v", err)
 				} else {
-					t.Skipf("runCase failed: %v", err)
+					t.Skipf("Expected failure (runCase error): %v", err)
 				}
 				return
 			}
@@ -149,33 +146,37 @@ func runTxtarGroup(t *testing.T, filename string, expectPass bool) {
 				}
 			}
 
-			if expectPass {
+			match := assert.ObjectsAreEqual(expected, out)
+			if !match {
 				if n, ok := expected.(json.Number); ok {
 					f, err := n.Float64()
 					if err == nil {
 						// Compare as float if actual is float
 						if fOut, ok := out.(float64); ok {
-							assert.InDelta(t, f, fOut, 0.0000001)
-							return
-						}
-						// Compare as int if actual is int
-						i, err := n.Int64()
-						if err == nil {
-							if iOut, ok := out.(int); ok {
-								assert.Equal(t, i, int64(iOut))
-								return
-							}
-							if iOut, ok := out.(int64); ok {
-								assert.Equal(t, i, iOut)
-								return
+							match = assert.ObjectsAreEqualValues(f, fOut) // approximation
+						} else {
+							i, err := n.Int64()
+							if err == nil {
+								if iOut, ok := out.(int); ok {
+									match = i == int64(iOut)
+								} else if iOut, ok := out.(int64); ok {
+									match = i == iOut
+								}
 							}
 						}
 					}
 				}
-				assert.Equal(t, expected, out)
+			}
+
+			if expectPass {
+				if !match {
+					t.Fatalf("Test failed. Expected: %v, Got: %v", expected, out)
+				}
 			} else {
-				if !assert.ObjectsAreEqual(expected, out) {
-					t.Skipf("Skipping failed test. Expected: %v, Got: %v", expected, out)
+				if match {
+					t.Fatalf("Unexpected pass! Test %s is marked as expected failure but it passed. Remove it from expectedFailures.", testID)
+				} else {
+					t.Skipf("Expected failure. Expected: %v, Got: %v", expected, out)
 				}
 			}
 		})
