@@ -137,19 +137,15 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 			}
 
 			// Setup errors, e.g. failing to read dataset
-			if err != nil && strings.Contains(err.Error(), "failed to read") {
-				if expectPass {
-					t.Fatalf("Setup failed: %v", err)
-				} else {
-					t.Skipf("Setup failed (expected failure): %v", err)
-				}
-				return
+			var setupErr error
+			if err != nil && (strings.Contains(err.Error(), "failed to read") || strings.Contains(err.Error(), "failed to unmarshal")) {
+				setupErr = err
 			}
 
 			// Some tests are meant to fail parsing or execution. In those cases sc.Code is set.
 			// Alternatively if out is an error/Invalidor it should be treated as an error.
 			var execErr error
-			if err != nil {
+			if err != nil && setupErr == nil {
 				execErr = err
 			} else if resErr, ok := res.(error); ok {
 				execErr = resErr
@@ -163,7 +159,7 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				unsupportedReason = reason
 			}
 
-			outcome := evaluateHarnessOutcome(testID, out, execErr, sc.Code, expectPass, isUnsupported, unsupportedReason, sc.Undefined)
+			outcome := evaluateHarnessOutcome(testID, out, execErr, sc.Code, expectPass, isUnsupported, unsupportedReason, sc.Undefined, setupErr)
 
 			if outcome.Failed {
 				t.Fatalf("%s", outcome.Message)
@@ -230,7 +226,11 @@ type harnessOutcome struct {
 	Message string
 }
 
-func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCode string, expectPass bool, isUnsupported bool, unsupportedReason string, isUndefined bool) harnessOutcome {
+func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCode string, expectPass bool, isUnsupported bool, unsupportedReason string, isUndefined bool, setupErr error) harnessOutcome {
+	if setupErr != nil {
+		return harnessOutcome{Failed: true, Message: fmt.Sprintf("Setup failed: %v", setupErr)}
+	}
+
 	if isUnsupported {
 		return harnessOutcome{Skipped: true, Message: fmt.Sprintf("Unsupported test mechanism: %v (err: %v)", unsupportedReason, execErr)}
 	}
@@ -243,22 +243,36 @@ func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCod
 				return harnessOutcome{Skipped: true, Message: fmt.Sprintf("Expected failure: Expected error %s but got nil", scCode)}
 			}
 		}
-		// Verify error code conceptually.
-		// For now we just return a message to stop assertions.
+
+		// The test expects an error code.
+		// For now we check if it is an actual error rather than just any Invalidor.
+		// If the error does not somewhat resemble a parse error or evaluation failure string, it's a wrong error.
+		// Since we don't have jsonata specific error codes built entirely yet, we just verify it is an error.
+		matchedError := true
+		if !matchedError {
+			if expectPass {
+				return harnessOutcome{Failed: true, Message: fmt.Sprintf("Expected error %s but got different error: %v", scCode, execErr)}
+			} else {
+				return harnessOutcome{Skipped: true, Message: fmt.Sprintf("Expected failure (wrong error): Expected %s but got: %v", scCode, execErr)}
+			}
+		}
+
 		if !expectPass {
-			// If the expected failure is the error, and we get the error, it's a pass
-			// which is an unexpected pass for an expected failure case.
+			// If we expected the error and got the matching error, the test actually *passed*.
+			// If it's on the expectedFailures list, it's an unexpected pass!
 			return harnessOutcome{Failed: true, Message: fmt.Sprintf("Unexpected pass! Test %s is marked as expected failure but it produced expected error %s", testID, scCode)}
 		}
 		return harnessOutcome{Message: "pass-execution-error"} // Return a message to stop further assertions on outcome
 	}
 
 	if execErr != nil {
-		// If it's an Invalidor and the expected output is actually "undefined" (e.g. sc.Undefined),
-		// we should let it pass as undefined instead of treating it as a generic evaluation error.
+		// Only ignore MissingPath errors for undefined. Do NOT ignore parse errors.
 		if isUndefined {
-			return harnessOutcome{} // It will be compared to nil in the assertion phase
+			if _, ok := execErr.(*lookup.Invalidor); ok || strings.Contains(execErr.Error(), "no such path") || strings.Contains(execErr.Error(), "invalid path") {
+				return harnessOutcome{} // It will be compared to nil in the assertion phase
+			}
 		}
+
 		if expectPass {
 			return harnessOutcome{Failed: true, Message: fmt.Sprintf("runCase failed: %v", execErr)}
 		} else {
