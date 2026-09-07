@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/fs"
 	"path"
@@ -245,10 +246,17 @@ func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCod
 		}
 
 		// The test expects an error code.
-		// For now we check if it is an actual error rather than just any Invalidor.
-		// If the error does not somewhat resemble a parse error or evaluation failure string, it's a wrong error.
-		// Since we don't have jsonata specific error codes built entirely yet, we just verify it is an error.
-		matchedError := true
+		// Since we don't have all jsonata specific error codes built, we provide explicit
+		// support mappings or check if the exact error code is directly matched in our error strings.
+		matchedError := false
+		if strings.Contains(execErr.Error(), scCode) {
+			matchedError = true
+		} else if scCode == "T0410" && strings.Contains(execErr.Error(), "Argument 1 of function") { // Placeholder specific mapping logic if needed
+			matchedError = true
+		} else if strings.Contains(execErr.Error(), "parse failed") { // Common parser error expectations
+			matchedError = true
+		}
+
 		if !matchedError {
 			if expectPass {
 				return harnessOutcome{Failed: true, Message: fmt.Sprintf("Expected error %s but got different error: %v", scCode, execErr)}
@@ -266,10 +274,16 @@ func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCod
 	}
 
 	if execErr != nil {
-		// Only ignore MissingPath errors for undefined. Do NOT ignore parse errors.
+		// Only ignore true MissingPath or explicitly undefined evaluation outcomes.
 		if isUndefined {
-			if _, ok := execErr.(*lookup.Invalidor); ok || strings.Contains(execErr.Error(), "no such path") || strings.Contains(execErr.Error(), "invalid path") {
-				return harnessOutcome{} // It will be compared to nil in the assertion phase
+			var invalidor *lookup.Invalidor
+			if errors.As(execErr, &invalidor) {
+				unwrapped := invalidor.Unwrap()
+				if errors.Is(unwrapped, lookup.ErrNoSuchPath) || strings.Contains(unwrapped.Error(), "element not found") || strings.Contains(unwrapped.Error(), "invalid path") {
+					return harnessOutcome{} // Valid undefined path result, pass for assertion phase
+				}
+			} else if strings.Contains(execErr.Error(), "element not found") || strings.Contains(execErr.Error(), "invalid path") {
+				return harnessOutcome{}
 			}
 		}
 
