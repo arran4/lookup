@@ -68,7 +68,8 @@ func runCase(c suiteCase, expr string) (interface{}, error) {
 	if res == nil {
 		return nil, nil
 	}
-	return res.Raw(), nil
+	// Return the Pathor directly so the caller can check if it's an error/Invalidor
+	return res, nil
 }
 
 func TestGroups(t *testing.T) {
@@ -125,34 +126,53 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				}
 			}()
 
-			out, err := runCase(sc, c.Expr)
-
-			// Handle expected execution errors encoded in test suite
-			if sc.Code != "" {
-				if err == nil {
-					if expectPass {
-						t.Fatalf("Expected error %s but got nil", sc.Code)
-					} else {
-						t.Skipf("Expected failure: Expected error %s but got nil", sc.Code)
-					}
-					return
+			res, err := runCase(sc, c.Expr)
+			var out interface{}
+			if res != nil {
+				if p, ok := res.(lookup.Pathor); ok {
+					out = p.Raw()
+				} else {
+					out = res
 				}
-				// Optionally verify the error code here, but standard runner ignores exact match for now
+			}
+
+			// Setup errors, e.g. failing to read dataset
+			if err != nil && strings.Contains(err.Error(), "failed to read") {
+				if expectPass {
+					t.Fatalf("Setup failed: %v", err)
+				} else {
+					t.Skipf("Setup failed (expected failure): %v", err)
+				}
 				return
 			}
 
+			// Some tests are meant to fail parsing or execution. In those cases sc.Code is set.
+			// Alternatively if out is an error/Invalidor it should be treated as an error.
+			var execErr error
 			if err != nil {
-				// This check applies if it's an unexpected run error or if we're expecting failure anyway
-				if reason, ok := unsupportedTests[testID]; ok {
-					t.Skipf("Unsupported test mechanism: %v (err: %v)", reason, err)
-					return
-				}
+				execErr = err
+			} else if resErr, ok := res.(error); ok {
+				execErr = resErr
+			}
 
-				if expectPass {
-					t.Fatalf("runCase failed: %v", err)
-				} else {
-					t.Skipf("Expected failure (runCase error): %v", err)
-				}
+			// We delegate to a pure outcome evaluation function to make logic testable
+			isUnsupported := false
+			unsupportedReason := ""
+			if reason, ok := unsupportedTests[testID]; ok {
+				isUnsupported = true
+				unsupportedReason = reason
+			}
+
+			outcome := evaluateHarnessOutcome(testID, out, execErr, sc.Code, expectPass, isUnsupported, unsupportedReason)
+
+			if outcome.Failed {
+				t.Fatalf("%s", outcome.Message)
+			}
+			if outcome.Skipped {
+				t.Skipf("%s", outcome.Message)
+			}
+			if outcome.Message != "" {
+				// This handles return paths logically where it was just an execution level failure/skip
 				return
 			}
 
@@ -202,4 +222,38 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 			}
 		})
 	}
+}
+
+type harnessOutcome struct {
+	Failed  bool
+	Skipped bool
+	Message string
+}
+
+func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCode string, expectPass bool, isUnsupported bool, unsupportedReason string) harnessOutcome {
+	if isUnsupported {
+		return harnessOutcome{Skipped: true, Message: fmt.Sprintf("Unsupported test mechanism: %v (err: %v)", unsupportedReason, execErr)}
+	}
+
+	if scCode != "" {
+		if execErr == nil {
+			if expectPass {
+				return harnessOutcome{Failed: true, Message: fmt.Sprintf("Expected error %s but got nil", scCode)}
+			} else {
+				return harnessOutcome{Skipped: true, Message: fmt.Sprintf("Expected failure: Expected error %s but got nil", scCode)}
+			}
+		}
+		// Optionally verify exact error code matches, but for now consider it a pass
+		return harnessOutcome{Message: "pass-execution-error"} // Return a message to stop further assertions on outcome
+	}
+
+	if execErr != nil {
+		if expectPass {
+			return harnessOutcome{Failed: true, Message: fmt.Sprintf("runCase failed: %v", execErr)}
+		} else {
+			return harnessOutcome{Skipped: true, Message: fmt.Sprintf("Expected failure (runCase error): %v", execErr)}
+		}
+	}
+
+	return harnessOutcome{}
 }

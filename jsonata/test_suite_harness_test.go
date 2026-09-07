@@ -1,59 +1,44 @@
 package jsonata
 
 import (
-	"fmt"
-	"testing"
 	"encoding/json"
+	"fmt"
 	"strings"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-type mockTestingT struct {
-	*testing.T
-	failed   bool
-	skipped  bool
-	messages []string
-}
-
-func (m *mockTestingT) Fatalf(format string, args ...interface{}) {
-	m.failed = true
-	m.messages = append(m.messages, fmt.Sprintf(format, args...))
-}
-
-func (m *mockTestingT) Skipf(format string, args ...interface{}) {
-	m.skipped = true
-	m.messages = append(m.messages, fmt.Sprintf(format, args...))
-}
-
 func TestHarnessSemantics(t *testing.T) {
 	// A meta-test capturing harness behaviors for normal, expected-fail, and expected-error outcomes.
 
-	// Test error capture on out vs execErr logic
-	out := error(fmt.Errorf("evaluation error"))
-	var execErr error
-	if outErr, ok := out.(error); ok {
-		execErr = outErr
-	}
-	assert.NotNil(t, execErr)
-	assert.Equal(t, "evaluation error", execErr.Error())
+	// Test normal expected failure runCase error
+	outcome := evaluateHarnessOutcome("test/1", nil, fmt.Errorf("evaluation error"), "", false, false, "")
+	assert.True(t, outcome.Skipped)
+	assert.Equal(t, "Expected failure (runCase error): evaluation error", outcome.Message)
 
-	// Test sc.Code logic
-	sc := suiteCase{Code: "T0410"}
-	err := error(nil)
-	assert.Nil(t, err)
-	assert.NotEqual(t, "", sc.Code)
+	// Test new unexpected error
+	outcome = evaluateHarnessOutcome("test/2", nil, fmt.Errorf("evaluation error"), "", true, false, "")
+	assert.True(t, outcome.Failed)
+	assert.Equal(t, "runCase failed: evaluation error", outcome.Message)
 
-	// Simulate harness branch checking sc.Code expecting error but finding none
-	var failed bool
-	if sc.Code != "" {
-		if execErr == nil { // Simulated nil
-			failed = true
-		}
-	}
-	assert.False(t, failed) // execErr is not nil
+	// Test expected error code matching an error (success execution path)
+	outcome = evaluateHarnessOutcome("test/3", nil, fmt.Errorf("some error"), "T0410", true, false, "")
+	assert.False(t, outcome.Failed)
+	assert.False(t, outcome.Skipped)
+	assert.Equal(t, "pass-execution-error", outcome.Message)
 
-	// Check numbers matching logic
+	// Test expected error code but got nil error
+	outcome = evaluateHarnessOutcome("test/4", nil, nil, "T0410", true, false, "")
+	assert.True(t, outcome.Failed)
+	assert.Equal(t, "Expected error T0410 but got nil", outcome.Message)
+
+	// Test missing fixture (unsupported)
+	outcome = evaluateHarnessOutcome("comments/case003", nil, fmt.Errorf("some unsupported error"), "", true, true, "Function definition not implemented")
+	assert.True(t, outcome.Skipped)
+	assert.Equal(t, "Unsupported test mechanism: Function definition not implemented (err: some unsupported error)", outcome.Message)
+
+	// Check numbers matching logic simulation
 	outNum := 10
 	expectedNumStr := "10"
 	var expectedNum interface{}
