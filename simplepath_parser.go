@@ -94,6 +94,9 @@ func CompileSimplePath(query string) (*Relator, error) {
 				escaped = true
 			case '"':
 				inQuote = false
+				if token.Len() == 0 {
+					return nil, fmt.Errorf("empty quoted key at index %d", i)
+				}
 				r = r.Find(token.String())
 				token.Reset()
 				// Expecting a dot or bracket after a quoted key, or EOF
@@ -132,6 +135,11 @@ func CompileSimplePath(query string) (*Relator, error) {
 
 				r = r.Find("", Index(idxStr))
 				token.Reset()
+
+				// Expecting a dot or bracket after a bracket, or EOF
+				if i+1 < len(query) && query[i+1] != '.' && query[i+1] != '[' {
+					return nil, fmt.Errorf("unexpected character after bracket at index %d", i+1)
+				}
 			default:
 				token.WriteByte(c)
 			}
@@ -165,6 +173,9 @@ func CompileSimplePath(query string) (*Relator, error) {
 				} else {
 					return nil, fmt.Errorf("empty key at index %d", i)
 				}
+			}
+			if i+1 < len(query) && query[i+1] == '[' {
+				return nil, fmt.Errorf("unexpected bracket after dot at index %d", i+1)
 			}
 		default:
 			token.WriteByte(c)

@@ -364,7 +364,7 @@ Usage: yaml-simple-path [options] PATH [PATH ...]
 
 Options:
   -f string   YAML file to read (default stdin)
-  -e string   simple path query (can be repeated)
+  -e string   simple path query (can be repeated; processes multiple queries before positional paths)
   -d string   output delimiter (default "\n")
   -json       output as JSON
   -yaml       output as YAML (default)

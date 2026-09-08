@@ -53,6 +53,11 @@ func TestCompileSimplePath(t *testing.T) {
 		{"unicode quote", `M."😊👍"[0]`, true, 7},
 
 		// Invalid cases that must fail compilation
+		{"invalid char after bracket", `A[0]B`, false, nil},
+		{"invalid char after bracket quote", `A[0]"B"`, false, nil},
+		{"empty quoted key", `A.""`, false, nil},
+		{"empty root quote", `""`, false, nil},
+		{"bracket after dot", `A.[0]`, false, nil},
 		{"bracket string key", `A["B"]`, false, nil},
 		{"bracket non numeric", `A[B]`, false, nil},
 		{"bracket escape bracket", `A[\[0\]]`, false, nil},
