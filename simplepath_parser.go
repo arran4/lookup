@@ -83,9 +83,10 @@ func CompileSimplePath(query string) (*Relator, error) {
 		}
 
 		if inQuote {
-			if c == '\\' {
+			switch c {
+			case '\\':
 				escaped = true
-			} else if c == '"' {
+			case '"':
 				inQuote = false
 				r = r.Find(token.String())
 				token.Reset()
@@ -93,20 +94,21 @@ func CompileSimplePath(query string) (*Relator, error) {
 				if i+1 < len(query) && query[i+1] != '.' && query[i+1] != '[' {
 					return nil, fmt.Errorf("unexpected character after quoted key at index %d", i+1)
 				}
-			} else {
+			default:
 				token.WriteByte(c)
 			}
 			continue
 		}
 
 		if inBracket {
-			if c == '\\' {
+			switch c {
+			case '\\':
 				escaped = true
-			} else if c == ']' {
+			case ']':
 				inBracket = false
 				r = r.Find("", Index(token.String()))
 				token.Reset()
-			} else {
+			default:
 				token.WriteByte(c)
 			}
 			continue
