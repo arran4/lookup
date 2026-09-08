@@ -199,36 +199,40 @@ func TestHarnessSemantics(t *testing.T) {
 }
 
 func TestRunCaseDatasetErrors(t *testing.T) {
-	t.Run("missing dataset", func(t *testing.T) {
-		_, err := runCase(suiteCase{Dataset: "nonexistent"}, "1+1")
-		if err == nil {
-			t.Fatal("expected error for nonexistent dataset, got nil")
-		}
-		if !strings.Contains(err.Error(), "failed to read") {
-			t.Errorf("expected missing dataset error to contain 'failed to read', got: %v", err)
-		}
-	})
+	tests := []struct {
+		name    string
+		dataset string
+		wantErr string
+	}{
+		{
+			name:    "missing dataset",
+			dataset: "nonexistent",
+			wantErr: "failed to read",
+		},
+		{
+			name:    "malformed dataset",
+			dataset: "malformed_test_dataset",
+			wantErr: "failed to unmarshal",
+		},
+	}
 
-	t.Run("malformed dataset", func(t *testing.T) {
-		_, err := runCase(suiteCase{Dataset: "malformed_test_dataset"}, "1+1")
-		if err == nil {
-			t.Fatal("expected error for malformed dataset, got nil")
-		}
-		if !strings.Contains(err.Error(), "failed to unmarshal") {
-			t.Errorf("expected malformed dataset error to contain 'failed to unmarshal', got: %v", err)
-		}
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := runCase(suiteCase{Dataset: tt.dataset}, "1+1")
+			if err == nil {
+				t.Fatalf("expected error for %s, got nil", tt.dataset)
+			}
+			if !strings.Contains(err.Error(), tt.wantErr) {
+				t.Errorf("expected error to contain %q, got: %v", tt.wantErr, err)
+			}
+		})
+	}
 }
 
 func TestJSONNumberSanity(t *testing.T) {
-	outNum := 10
-	expectedNumStr := "10"
-	var expectedNum interface{}
-	dec := json.NewDecoder(strings.NewReader(expectedNumStr))
-	dec.UseNumber()
-	err := dec.Decode(&expectedNum)
+	expectedNum, err := parseJSON("10")
 	if err != nil {
-		t.Fatalf("failed to decode JSON number: %v", err)
+		t.Fatalf("parseJSON failed: %v", err)
 	}
 
 	n, ok := expectedNum.(json.Number)
@@ -243,8 +247,5 @@ func TestJSONNumberSanity(t *testing.T) {
 
 	if i != int64(10) {
 		t.Errorf("expected int64 10, got %d", i)
-	}
-	if i != int64(outNum) {
-		t.Errorf("expected outNum matches decoded JSON number")
 	}
 }
