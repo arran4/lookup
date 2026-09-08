@@ -60,6 +60,9 @@ func CompileSimplePath(query string) (*Relator, error) {
 	if len(query) == 0 {
 		return NewRelator(), nil
 	}
+	if query == "." {
+		return nil, fmt.Errorf("empty root")
+	}
 
 	r := NewRelator()
 	var inQuote bool
@@ -71,6 +74,9 @@ func CompileSimplePath(query string) (*Relator, error) {
 	start := 0
 	if query[0] == '.' {
 		start = 1
+		if len(query) == 1 {
+			return nil, fmt.Errorf("empty key at index 1")
+		}
 	}
 
 	for i := start; i < len(query); i++ {
@@ -83,9 +89,10 @@ func CompileSimplePath(query string) (*Relator, error) {
 		}
 
 		if inQuote {
-			if c == '\\' {
+			switch c {
+			case '\\':
 				escaped = true
-			} else if c == '"' {
+			case '"':
 				inQuote = false
 				r = r.Find(token.String())
 				token.Reset()
@@ -93,20 +100,39 @@ func CompileSimplePath(query string) (*Relator, error) {
 				if i+1 < len(query) && query[i+1] != '.' && query[i+1] != '[' {
 					return nil, fmt.Errorf("unexpected character after quoted key at index %d", i+1)
 				}
-			} else {
+			default:
 				token.WriteByte(c)
 			}
 			continue
 		}
 
 		if inBracket {
-			if c == '\\' {
-				escaped = true
-			} else if c == ']' {
+			switch c {
+			case '\\': // Do not allow escapes in brackets directly unless it's a numeric escape which makes no sense
+				return nil, fmt.Errorf("unexpected escape in bracket")
+			case ']':
 				inBracket = false
-				r = r.Find("", Index(token.String()))
+				if token.Len() == 0 {
+					return nil, fmt.Errorf("empty bracket at index %d", i)
+				}
+
+				// Validate bracket content is an integer
+				idxStr := token.String()
+				for j, ch := range idxStr {
+					if j == 0 && ch == '-' {
+						if len(idxStr) == 1 {
+							return nil, fmt.Errorf("non-numeric bracket index %q at index %d", idxStr, i)
+						}
+						continue
+					}
+					if ch < '0' || ch > '9' {
+						return nil, fmt.Errorf("non-numeric bracket index %q at index %d", idxStr, i)
+					}
+				}
+
+				r = r.Find("", Index(idxStr))
 				token.Reset()
-			} else {
+			default:
 				token.WriteByte(c)
 			}
 			continue
@@ -157,6 +183,8 @@ func CompileSimplePath(query string) (*Relator, error) {
 
 	if token.Len() > 0 {
 		r = r.Find(token.String())
+	} else if len(query) > 0 && query[len(query)-1] == '.' {
+		return nil, fmt.Errorf("trailing dot")
 	}
 
 	return r, nil
