@@ -72,7 +72,7 @@ func generateCompatibilityMatrix(fsys embed.FS) (string, error) {
 
 	for _, k := range keys {
 		s := groups[k]
-		sb.WriteString(fmt.Sprintf("| %s | %d | %d | %d |\n", k, s.Passed, s.Failed, s.Unsupported))
+		fmt.Fprintf(&sb, "| %s | %d | %d | %d |\n", k, s.Passed, s.Failed, s.Unsupported)
 	}
 
 	return sb.String(), nil
