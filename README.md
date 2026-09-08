@@ -441,10 +441,10 @@ Open an issue on GitHub if you have questions or run into problems.
 
 ## JSONata Feature Compatibility Matrix
 
-Test results generated from `go test ./jsonata`. To regenerate this table, you can parse the log:
+Test results generated from `go test ./jsonata`. To regenerate this table accurately, run the checked-in matrix updater:
 
 ```bash
-go test -v ./jsonata/... | awk '/--- PASS: TestGroups\// {split($3,a,"/"); if (a[3] != "") passed[a[2]]++} /--- FAIL: TestGroups\// {split($3,a,"/"); if (a[3] != "") failed[a[2]]++} /--- SKIP: TestGroups\// {split($3,a,"/"); if (a[3] != "") skipped[a[2]]++} END {for (group in passed) print "| " group " | " passed[group]+0 " | " failed[group]+0 " | " skipped[group]+0 " |"}' | sort
+UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 ```
 *(Note: `comments/case003` is excluded because the expression depends on unsupported function-definition/recursion behavior rather than comment parsing itself being untested. The strict comments cases retain comment-specific coverage).*
 
