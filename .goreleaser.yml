@@ -1,6 +1,16 @@
 version: 2
 project_name: lookup
 builds:
+  - id: json-simple-path
+    main: ./cmd/json-simple-path
+    binary: json-simple-path
+    env:
+      - CGO_ENABLED=0
+  - id: yaml-simple-path
+    main: ./cmd/yaml-simple-path
+    binary: yaml-simple-path
+    env:
+      - CGO_ENABLED=0
   - id: json-simpe-path
     main: ./cmd/json-simpe-path
     binary: json-simpe-path
@@ -13,13 +23,13 @@ builds:
       - CGO_ENABLED=0
 archives:
   - id: json
-    builds: [json-simpe-path]
+    builds: [json-simple-path, json-simpe-path]
     name_template: "{{ .ProjectName }}_{{ .Version }}_json_{{ .Os }}_{{ .Arch }}"
     format_overrides:
       - goos: windows
         format: zip
   - id: yaml
-    builds: [yaml-simpe-path]
+    builds: [yaml-simple-path, yaml-simpe-path]
     name_template: "{{ .ProjectName }}_{{ .Version }}_yaml_{{ .Os }}_{{ .Arch }}"
     format_overrides:
       - goos: windows
@@ -35,6 +45,12 @@ changelog:
       - '^docs:'
       - '^test:'
 man_pages:
+  - source: man/json-simple-path.1
+    target: json-simple-path.1
+    builds: [json-simple-path]
+  - source: man/yaml-simple-path.1
+    target: yaml-simple-path.1
+    builds: [yaml-simple-path]
   - source: man/json-simpe-path.1
     target: json-simpe-path.1
     builds: [json-simpe-path]

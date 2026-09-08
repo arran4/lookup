@@ -35,7 +35,7 @@ func TestExamples(t *testing.T) {
 	for _, c := range cases {
 		var in io.Reader = bytes.NewBufferString(c.stdin)
 		var out bytes.Buffer
-		err := cli.Run("json-simpe-path", c.args, in, &out, io.Discard, "JSON")
+		err := cli.Run("json-simple-path", c.args, in, &out, io.Discard, "JSON")
 		if err != nil {
 			t.Fatalf("%s: %v", c.name, err)
 		}
@@ -43,5 +43,26 @@ func TestExamples(t *testing.T) {
 		if got != c.want {
 			t.Errorf("%s: want %q got %q", c.name, c.want, got)
 		}
+	}
+}
+
+func TestStrictExamples(t *testing.T) {
+	tmp := t.TempDir()
+	fname := filepath.Join(tmp, "doc.json")
+	if err := os.WriteFile(fname, []byte(exampleJSON), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Should fail with strict mode due to missing path
+	var out bytes.Buffer
+	err := cli.Run("json-simple-path", []string{"-strict", "-f", fname, ".spec.missing"}, nil, &out, io.Discard, "JSON")
+	if err == nil {
+		t.Fatalf("expected error in strict mode for missing path, got nil")
+	}
+
+	// Should fail with strict mode due to syntax error
+	err = cli.Run("json-simple-path", []string{"-strict", "-f", fname, ".spec[0"}, nil, &out, io.Discard, "JSON")
+	if err == nil {
+		t.Fatalf("expected error in strict mode for malformed syntax, got nil")
 	}
 }
