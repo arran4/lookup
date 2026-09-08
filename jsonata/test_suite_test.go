@@ -160,7 +160,7 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				unsupportedReason = reason
 			}
 
-			outcome := evaluateHarnessOutcome(testID, out, execErr, sc.Code, expectPass, isUnsupported, unsupportedReason, sc.Undefined, setupErr)
+			outcome := evaluateHarnessOutcome(testID, execErr, sc.Code, expectPass, isUnsupported, unsupportedReason, sc.Undefined, setupErr)
 
 			if outcome.Failed {
 				t.Fatalf("%s", outcome.Message)
@@ -227,7 +227,7 @@ type harnessOutcome struct {
 	Message string
 }
 
-func evaluateHarnessOutcome(testID string, out interface{}, execErr error, scCode string, expectPass bool, isUnsupported bool, unsupportedReason string, isUndefined bool, setupErr error) harnessOutcome {
+func evaluateHarnessOutcome(testID string, execErr error, scCode string, expectPass bool, isUnsupported bool, unsupportedReason string, isUndefined bool, setupErr error) harnessOutcome {
 	if setupErr != nil {
 		return harnessOutcome{Failed: true, Message: fmt.Sprintf("Setup failed: %v", setupErr)}
 	}

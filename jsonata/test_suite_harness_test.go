@@ -7,144 +7,244 @@ import (
 	"testing"
 
 	"github.com/arran4/lookup"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestHarnessSemantics(t *testing.T) {
-	// A meta-test capturing harness behaviors for normal, expected-fail, and expected-error outcomes.
+	tests := []struct {
+		name              string
+		testID            string
+		execErr           error
+		scCode            string
+		expectPass        bool
+		isUnsupported     bool
+		unsupportedReason string
+		isUndefined       bool
+		setupErr          error
+		want              harnessOutcome
+	}{
+		{
+			name:       "Setup error fails unconditionally",
+			testID:     "test/setup",
+			setupErr:   fmt.Errorf("failed to read dataset"),
+			expectPass: false,
+			want:       harnessOutcome{Failed: true, Message: "Setup failed: failed to read dataset"},
+		},
+		{
+			name:       "Normal expected failure runCase error",
+			testID:     "test/1",
+			execErr:    fmt.Errorf("evaluation error"),
+			expectPass: false,
+			want:       harnessOutcome{Skipped: true, Message: "Expected failure (runCase error): evaluation error"},
+		},
+		{
+			name:       "New unexpected error",
+			testID:     "test/2",
+			execErr:    fmt.Errorf("evaluation error"),
+			expectPass: true,
+			want:       harnessOutcome{Failed: true, Message: "runCase failed: evaluation error"},
+		},
+		{
+			name:       "Expected error code matching an error (success execution path)",
+			testID:     "test/3",
+			execErr:    fmt.Errorf("Argument 1 of function"),
+			scCode:     "T0410",
+			expectPass: true,
+			want:       harnessOutcome{Message: "pass-execution-error"},
+		},
+		{
+			name:       "Expected error code missing incidental matching",
+			testID:     "test/3_incidental",
+			execErr:    fmt.Errorf("Some unrelated failure referencing T0410 but not strictly"),
+			scCode:     "T0410",
+			expectPass: true,
+			want:       harnessOutcome{Failed: true, Message: "Expected error T0410 but got different error: Some unrelated failure referencing T0410 but not strictly"},
+		},
+		{
+			name:       "Expected error code exact matching fallback",
+			testID:     "test/3_exact",
+			execErr:    fmt.Errorf("[T0410] General evaluation failure"),
+			scCode:     "T0410",
+			expectPass: true,
+			want:       harnessOutcome{Message: "pass-execution-error"},
+		},
+		{
+			name:       "Expected error code matching an error (expected failure unexpected pass)",
+			testID:     "test/3b",
+			execErr:    fmt.Errorf("Argument 1 of function"),
+			scCode:     "T0410",
+			expectPass: false,
+			want:       harnessOutcome{Failed: true, Message: "Unexpected pass! Test test/3b is marked as expected failure but it produced expected error T0410"},
+		},
+		{
+			name:       "WRONG expected error (wrong string)",
+			testID:     "test/wrong",
+			execErr:    fmt.Errorf("some random error"),
+			scCode:     "T0410",
+			expectPass: true,
+			want:       harnessOutcome{Failed: true, Message: "Expected error T0410 but got different error: some random error"},
+		},
+		{
+			name:       "WRONG expected error matching incidental prefix",
+			testID:     "test/wrong_incidental",
+			execErr:    fmt.Errorf("XT0410: unrelated error"),
+			scCode:     "T0410",
+			expectPass: true,
+			want:       harnessOutcome{Failed: true, Message: "Expected error T0410 but got different error: XT0410: unrelated error"},
+		},
+		{
+			name:       "Expected failure WRONG expected error matching incidental prefix",
+			testID:     "test/wrong_fail_incidental",
+			execErr:    fmt.Errorf("XT0410: unrelated error"),
+			scCode:     "T0410",
+			expectPass: false,
+			want:       harnessOutcome{Skipped: true, Message: "Expected failure (wrong error): Expected T0410 but got: XT0410: unrelated error"},
+		},
+		{
+			name:       "Exact bounded match works",
+			testID:     "test/exact_match",
+			execErr:    fmt.Errorf("T0410: exact match error"),
+			scCode:     "T0410",
+			expectPass: true,
+			want:       harnessOutcome{Message: "pass-execution-error"},
+		},
+		{
+			name:       "WRONG expected error on an expected failure",
+			testID:     "test/wrong_fail",
+			execErr:    fmt.Errorf("some random error"),
+			scCode:     "T0410",
+			expectPass: false,
+			want:       harnessOutcome{Skipped: true, Message: "Expected failure (wrong error): Expected T0410 but got: some random error"},
+		},
+		{
+			name:        "Missing-paths with undefined evaluation",
+			testID:      "missing-paths/case000",
+			execErr:     lookup.NewInvalidor("path", lookup.ErrNoSuchPath),
+			expectPass:  true,
+			isUndefined: true,
+			want:        harnessOutcome{},
+		},
+		{
+			name:        "Missing-paths with undefined evaluation legacy fallback",
+			testID:      "missing-paths/case001",
+			execErr:     lookup.NewInvalidor("path", fmt.Errorf("element not found at simple path")),
+			expectPass:  true,
+			isUndefined: true,
+			want:        harnessOutcome{},
+		},
+		{
+			name:        "Real evaluator failure disguised as undefined should FAIL",
+			testID:      "missing-paths/case998",
+			execErr:     lookup.NewInvalidor("path", fmt.Errorf("evaluation failure")),
+			expectPass:  true,
+			isUndefined: true,
+			want:        harnessOutcome{Failed: true, Message: "runCase failed: evaluation failure"},
+		},
+		{
+			name:        "Parsing failure with undefined result",
+			testID:      "missing-paths/case999",
+			execErr:     fmt.Errorf("parse failed: unexpected token"),
+			expectPass:  true,
+			isUndefined: true,
+			want:        harnessOutcome{Failed: true, Message: "runCase failed: parse failed: unexpected token"},
+		},
+		{
+			name:        "Plain error mimicking element not found text",
+			testID:      "missing-paths/case998",
+			execErr:     fmt.Errorf("some random element not found at simple path error"),
+			expectPass:  true,
+			isUndefined: true,
+			want:        harnessOutcome{Failed: true, Message: "runCase failed: some random element not found at simple path error"},
+		},
+		{
+			name:        "Plain error mimicking invalid path",
+			testID:      "missing-paths/case997",
+			execErr:     fmt.Errorf("some invalid path error"),
+			expectPass:  true,
+			isUndefined: true,
+			want:        harnessOutcome{Failed: true, Message: "runCase failed: some invalid path error"},
+		},
+		{
+			name:       "Malformed dataset fixture load failure",
+			testID:     "test/setup_malformed",
+			setupErr:   fmt.Errorf("failed to unmarshal dataset: invalid character"),
+			expectPass: false,
+			want:       harnessOutcome{Failed: true, Message: "Setup failed: failed to unmarshal dataset: invalid character"},
+		},
+		{
+			name:       "Expected error code but got nil error",
+			testID:     "test/4",
+			scCode:     "T0410",
+			expectPass: true,
+			want:       harnessOutcome{Failed: true, Message: "Expected error T0410 but got nil"},
+		},
+		{
+			name:              "Missing fixture (unsupported)",
+			testID:            "comments/case003",
+			execErr:           fmt.Errorf("some unsupported error"),
+			expectPass:        true,
+			isUnsupported:     true,
+			unsupportedReason: "Function definition not implemented",
+			want:              harnessOutcome{Skipped: true, Message: "Unsupported test mechanism: Function definition not implemented (err: some unsupported error)"},
+		},
+	}
 
-	// Test setup error fails unconditionally even on expected-fail
-	outcome := evaluateHarnessOutcome("test/setup", nil, nil, "", false, false, "", false, fmt.Errorf("failed to read dataset"))
-	assert.True(t, outcome.Failed)
-	assert.Equal(t, "Setup failed: failed to read dataset", outcome.Message)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := evaluateHarnessOutcome(tt.testID, tt.execErr, tt.scCode, tt.expectPass, tt.isUnsupported, tt.unsupportedReason, tt.isUndefined, tt.setupErr)
+			if got != tt.want {
+				t.Errorf("evaluateHarnessOutcome() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
 
-	// Test normal expected failure runCase error
-	outcome = evaluateHarnessOutcome("test/1", nil, fmt.Errorf("evaluation error"), "", false, false, "", false, nil)
-	assert.True(t, outcome.Skipped)
-	assert.Equal(t, "Expected failure (runCase error): evaluation error", outcome.Message)
+func TestRunCaseDatasetErrors(t *testing.T) {
+	t.Run("missing dataset", func(t *testing.T) {
+		_, err := runCase(suiteCase{Dataset: "nonexistent"}, "1+1")
+		if err == nil {
+			t.Fatal("expected error for nonexistent dataset, got nil")
+		}
+		if !strings.Contains(err.Error(), "failed to read") {
+			t.Errorf("expected missing dataset error to contain 'failed to read', got: %v", err)
+		}
+	})
 
-	// Test new unexpected error
-	outcome = evaluateHarnessOutcome("test/2", nil, fmt.Errorf("evaluation error"), "", true, false, "", false, nil)
-	assert.True(t, outcome.Failed)
-	assert.Equal(t, "runCase failed: evaluation error", outcome.Message)
+	t.Run("malformed dataset", func(t *testing.T) {
+		_, err := runCase(suiteCase{Dataset: "malformed_test_dataset"}, "1+1")
+		if err == nil {
+			t.Fatal("expected error for malformed dataset, got nil")
+		}
+		if !strings.Contains(err.Error(), "failed to unmarshal") {
+			t.Errorf("expected malformed dataset error to contain 'failed to unmarshal', got: %v", err)
+		}
+	})
+}
 
-	// Test expected error code matching an error (success execution path)
-	outcome = evaluateHarnessOutcome("test/3", nil, fmt.Errorf("Argument 1 of function"), "T0410", true, false, "", false, nil)
-	assert.False(t, outcome.Failed, "Expected test/3 to not fail")
-	assert.False(t, outcome.Skipped, "Expected test/3 to not skip")
-	assert.Equal(t, "pass-execution-error", outcome.Message)
-
-	// Test expected error code missing incidental matching
-	// e.g. An unrelated error string simply contains "T0410" without the strict matching format
-	outcome = evaluateHarnessOutcome("test/3_incidental", nil, fmt.Errorf("Some unrelated failure referencing T0410 but not strictly"), "T0410", true, false, "", false, nil)
-	assert.True(t, outcome.Failed, "Expected test/3_incidental to fail due to mismatch")
-	assert.Equal(t, "Expected error T0410 but got different error: Some unrelated failure referencing T0410 but not strictly", outcome.Message)
-
-	// Test expected error code exact matching fallback "[T0410]"
-	outcome = evaluateHarnessOutcome("test/3_exact", nil, fmt.Errorf("[T0410] General evaluation failure"), "T0410", true, false, "", false, nil)
-	assert.False(t, outcome.Failed, "Expected test/3_exact to not fail")
-	assert.False(t, outcome.Skipped, "Expected test/3_exact to not skip")
-	assert.Equal(t, "pass-execution-error", outcome.Message)
-
-	// Test expected error code matching an error (expected failure unexpected pass)
-	outcome = evaluateHarnessOutcome("test/3b", nil, fmt.Errorf("Argument 1 of function"), "T0410", false, false, "", false, nil)
-	assert.True(t, outcome.Failed, "Expected test/3b to fail")
-	assert.True(t, strings.Contains(outcome.Message, "Unexpected pass!"), "Expected message to contain Unexpected pass! Message: %s", outcome.Message)
-
-	// Test WRONG expected error (wrong string)
-	outcome = evaluateHarnessOutcome("test/wrong", nil, fmt.Errorf("some random error"), "T0410", true, false, "", false, nil)
-	assert.True(t, outcome.Failed, "Expected test/wrong to fail")
-	assert.Equal(t, "Expected error T0410 but got different error: some random error", outcome.Message)
-
-	// Test WRONG expected error matching incidental prefix
-	outcome = evaluateHarnessOutcome("test/wrong_incidental", nil, fmt.Errorf("XT0410: unrelated error"), "T0410", true, false, "", false, nil)
-	assert.True(t, outcome.Failed, "Expected test/wrong_incidental to fail")
-	assert.Equal(t, "Expected error T0410 but got different error: XT0410: unrelated error", outcome.Message)
-
-	// Test expected failure WRONG expected error matching incidental prefix
-	outcome = evaluateHarnessOutcome("test/wrong_fail_incidental", nil, fmt.Errorf("XT0410: unrelated error"), "T0410", false, false, "", false, nil)
-	assert.True(t, outcome.Skipped, "Expected test/wrong_fail_incidental to skip")
-	assert.Equal(t, "Expected failure (wrong error): Expected T0410 but got: XT0410: unrelated error", outcome.Message)
-
-	// Test exact bounded match works
-	outcome = evaluateHarnessOutcome("test/exact_match", nil, fmt.Errorf("T0410: exact match error"), "T0410", true, false, "", false, nil)
-	assert.False(t, outcome.Failed, "Expected test/exact_match to not fail")
-	assert.False(t, outcome.Skipped, "Expected test/exact_match to not skip")
-
-	// Test WRONG expected error on an expected failure (should skip not unexpectedly pass)
-	outcome = evaluateHarnessOutcome("test/wrong_fail", nil, fmt.Errorf("some random error"), "T0410", false, false, "", false, nil)
-	assert.True(t, outcome.Skipped, "Expected test/wrong_fail to skip")
-	assert.Equal(t, "Expected failure (wrong error): Expected T0410 but got: some random error", outcome.Message)
-
-	// Test missing-paths with undefined evaluation
-	invalidPathErr := lookup.NewInvalidor("path", lookup.ErrNoSuchPath)
-	outcome = evaluateHarnessOutcome("missing-paths/case000", nil, invalidPathErr, "", true, false, "", true, nil)
-	assert.False(t, outcome.Failed)
-	assert.False(t, outcome.Skipped)
-
-	invalidPathErr2 := lookup.NewInvalidor("path", fmt.Errorf("element not found at simple path"))
-	outcome = evaluateHarnessOutcome("missing-paths/case001", nil, invalidPathErr2, "", true, false, "", true, nil)
-	assert.False(t, outcome.Failed)
-	assert.False(t, outcome.Skipped)
-
-	// Test real evaluator failure disguised as undefined should FAIL
-	realEvalErr := lookup.NewInvalidor("path", fmt.Errorf("evaluation failure"))
-	outcome = evaluateHarnessOutcome("missing-paths/case998", nil, realEvalErr, "", true, false, "", true, nil)
-	assert.True(t, outcome.Failed, "Expected case998 to fail")
-	assert.True(t, strings.Contains(outcome.Message, "runCase failed: evaluation failure"), "Expected string in: %s", outcome.Message)
-
-	// Test parsing failure with undefined result
-	parseErr := fmt.Errorf("parse failed: unexpected token")
-	outcome = evaluateHarnessOutcome("missing-paths/case999", nil, parseErr, "", true, false, "", true, nil)
-	assert.True(t, outcome.Failed)
-	assert.Equal(t, "runCase failed: parse failed: unexpected token", outcome.Message)
-
-	// Test plain error mimicking element not found text
-	plainErr := fmt.Errorf("some random element not found at simple path error")
-	outcome = evaluateHarnessOutcome("missing-paths/case998", nil, plainErr, "", true, false, "", true, nil)
-	assert.True(t, outcome.Failed)
-	assert.Equal(t, "runCase failed: some random element not found at simple path error", outcome.Message)
-
-	// Test plain error mimicking invalid path
-	plainErr2 := fmt.Errorf("some invalid path error")
-	outcome = evaluateHarnessOutcome("missing-paths/case997", nil, plainErr2, "", true, false, "", true, nil)
-	assert.True(t, outcome.Failed)
-	assert.Equal(t, "runCase failed: some invalid path error", outcome.Message)
-
-	// Test malformed dataset fixture load failure
-	outcome = evaluateHarnessOutcome("test/setup_malformed", nil, nil, "", false, false, "", false, fmt.Errorf("failed to unmarshal dataset: invalid character"))
-	assert.True(t, outcome.Failed)
-	assert.Equal(t, "Setup failed: failed to unmarshal dataset: invalid character", outcome.Message)
-
-	// Test actual runCase integration coverage for missing dataset
-	_, err := runCase(suiteCase{Dataset: "nonexistent"}, "1+1")
-	assert.NotNil(t, err)
-	assert.True(t, strings.Contains(err.Error(), "failed to read"))
-
-	// Test actual runCase integration coverage for malformed dataset (invalid JSON)
-	_, err = runCase(suiteCase{Dataset: "malformed_test_dataset"}, "1+1")
-	assert.NotNil(t, err)
-	assert.True(t, strings.Contains(err.Error(), "failed to unmarshal"))
-
-	// Test expected error code but got nil error
-	outcome = evaluateHarnessOutcome("test/4", nil, nil, "T0410", true, false, "", false, nil)
-	assert.True(t, outcome.Failed)
-	assert.Equal(t, "Expected error T0410 but got nil", outcome.Message)
-
-	// Test missing fixture (unsupported)
-	outcome = evaluateHarnessOutcome("comments/case003", nil, fmt.Errorf("some unsupported error"), "", true, true, "Function definition not implemented", false, nil)
-	assert.True(t, outcome.Skipped)
-	assert.Equal(t, "Unsupported test mechanism: Function definition not implemented (err: some unsupported error)", outcome.Message)
-
+func TestJSONNumberSanity(t *testing.T) {
 	outNum := 10
 	expectedNumStr := "10"
 	var expectedNum interface{}
 	dec := json.NewDecoder(strings.NewReader(expectedNumStr))
 	dec.UseNumber()
-	_ = dec.Decode(&expectedNum)
+	err := dec.Decode(&expectedNum)
+	if err != nil {
+		t.Fatalf("failed to decode JSON number: %v", err)
+	}
 
-	n, _ := expectedNum.(json.Number)
-	i, _ := n.Int64()
-	assert.Equal(t, int64(10), i)
-	assert.True(t, i == int64(outNum))
+	n, ok := expectedNum.(json.Number)
+	if !ok {
+		t.Fatalf("expected JSON number type, got %T", expectedNum)
+	}
+
+	i, err := n.Int64()
+	if err != nil {
+		t.Fatalf("failed to convert JSON number to int64: %v", err)
+	}
+
+	if i != int64(10) {
+		t.Errorf("expected int64 10, got %d", i)
+	}
+	if i != int64(outNum) {
+		t.Errorf("expected outNum matches decoded JSON number")
+	}
 }
