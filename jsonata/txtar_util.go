@@ -21,6 +21,7 @@ type suiteCase struct {
 	Data      interface{}            `json:"data"`
 	Bindings  map[string]interface{} `json:"bindings"`
 	Undefined bool                   `json:"undefinedResult"`
+	Code      string                 `json:"code"`
 }
 
 func parseTxtar(data []byte) ([]txtarCase, error) {

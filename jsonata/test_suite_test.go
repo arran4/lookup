@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/fs"
 	"path"
@@ -68,7 +69,8 @@ func runCase(c suiteCase, expr string) (interface{}, error) {
 	if res == nil {
 		return nil, nil
 	}
-	return res.Raw(), nil
+	// Return the Pathor directly so the caller can check if it's an error/Invalidor
+	return res, nil
 }
 
 func TestGroups(t *testing.T) {
@@ -83,14 +85,12 @@ func TestGroups(t *testing.T) {
 		}
 		groupName := strings.TrimSuffix(entry.Name(), ".txtar")
 		t.Run(groupName, func(t *testing.T) {
-			_, skipOnFail := groupStatus[groupName]
-			expectPass := !skipOnFail
-			runTxtarGroup(t, path.Join("testdata/test-suite/groups", entry.Name()), expectPass)
+			runTxtarGroup(t, path.Join("testdata/test-suite/groups", entry.Name()), groupName)
 		})
 	}
 }
 
-func runTxtarGroup(t *testing.T, filename string, expectPass bool) {
+func runTxtarGroup(t *testing.T, filename string, groupName string) {
 	data, err := fs.ReadFile(testData, filename)
 	if err != nil {
 		t.Fatalf("failed to read txtar file %s: %v", filename, err)
@@ -103,14 +103,13 @@ func runTxtarGroup(t *testing.T, filename string, expectPass bool) {
 
 	for _, c := range cases {
 		t.Run(c.Name, func(t *testing.T) {
-			if strings.Contains(filename, "comments.txtar") {
-				if c.Name == "case002" {
-					t.Skip("Skipping case002: Error expectation logic not implemented in test runner")
-				}
-				if c.Name == "case003" {
-					t.Skip("Skipping case003: Function definition not implemented")
-				}
+			testID := groupName + "/" + c.Name
+			if reason, ok := unsupportedTests[testID]; ok {
+				t.Skipf("Unsupported: %s", reason)
+				return
 			}
+
+			expectPass := !expectedFailures[testID]
 
 			var sc suiteCase
 			if err := json.Unmarshal([]byte(c.Input), &sc); err != nil {
@@ -121,20 +120,56 @@ func runTxtarGroup(t *testing.T, filename string, expectPass bool) {
 			defer func() {
 				if r := recover(); r != nil {
 					if expectPass {
-						t.Errorf("panic: %v", r)
+						t.Fatalf("panic: %v", r)
 					} else {
-						t.Skipf("panic: %v", r)
+						t.Skipf("Expected failure (panic): %v", r)
 					}
 				}
 			}()
 
-			out, err := runCase(sc, c.Expr)
-			if err != nil {
-				if expectPass {
-					t.Fatalf("runCase failed: %v", err)
+			res, err := runCase(sc, c.Expr)
+			var out interface{}
+			if res != nil {
+				if p, ok := res.(lookup.Pathor); ok {
+					out = p.Raw()
 				} else {
-					t.Skipf("runCase failed: %v", err)
+					out = res
 				}
+			}
+
+			// Setup errors, e.g. failing to read dataset
+			var setupErr error
+			if err != nil && (strings.Contains(err.Error(), "failed to read") || strings.Contains(err.Error(), "failed to unmarshal")) {
+				setupErr = err
+			}
+
+			// Some tests are meant to fail parsing or execution. In those cases sc.Code is set.
+			// Alternatively if out is an error/Invalidor it should be treated as an error.
+			var execErr error
+			if err != nil && setupErr == nil {
+				execErr = err
+			} else if resErr, ok := res.(error); ok {
+				execErr = resErr
+			}
+
+			// We delegate to a pure outcome evaluation function to make logic testable
+			isUnsupported := false
+			unsupportedReason := ""
+			if reason, ok := unsupportedTests[testID]; ok {
+				isUnsupported = true
+				unsupportedReason = reason
+			}
+
+			outcome := evaluateHarnessOutcome(testID, execErr, sc.Code, expectPass, isUnsupported, unsupportedReason, sc.Undefined, setupErr)
+
+			if outcome.Failed {
+				t.Fatalf("%s", outcome.Message)
+			}
+			if outcome.Skipped {
+				t.Skipf("%s", outcome.Message)
+			}
+			if outcome.Message != "" {
+				// This handles return paths logically where it was just an execution level failure/skip
 				return
 			}
 
@@ -149,35 +184,120 @@ func runTxtarGroup(t *testing.T, filename string, expectPass bool) {
 				}
 			}
 
-			if expectPass {
+			match := assert.ObjectsAreEqual(expected, out)
+			if !match {
 				if n, ok := expected.(json.Number); ok {
 					f, err := n.Float64()
 					if err == nil {
 						// Compare as float if actual is float
 						if fOut, ok := out.(float64); ok {
-							assert.InDelta(t, f, fOut, 0.0000001)
-							return
-						}
-						// Compare as int if actual is int
-						i, err := n.Int64()
-						if err == nil {
-							if iOut, ok := out.(int); ok {
-								assert.Equal(t, i, int64(iOut))
-								return
-							}
-							if iOut, ok := out.(int64); ok {
-								assert.Equal(t, i, iOut)
-								return
+							match = assert.ObjectsAreEqualValues(f, fOut) // approximation
+						} else {
+							i, err := n.Int64()
+							if err == nil {
+								if iOut, ok := out.(int); ok {
+									match = i == int64(iOut)
+								} else if iOut, ok := out.(int64); ok {
+									match = i == iOut
+								}
 							}
 						}
 					}
 				}
-				assert.Equal(t, expected, out)
+			}
+
+			if expectPass {
+				if !match {
+					t.Fatalf("Test failed. Expected: %v, Got: %v", expected, out)
+				}
 			} else {
-				if !assert.ObjectsAreEqual(expected, out) {
-					t.Skipf("Skipping failed test. Expected: %v, Got: %v", expected, out)
+				if match {
+					t.Fatalf("Unexpected pass! Test %s is marked as expected failure but it passed. Remove it from expectedFailures.", testID)
+				} else {
+					t.Skipf("Expected failure. Expected: %v, Got: %v", expected, out)
 				}
 			}
 		})
 	}
+}
+
+type harnessOutcome struct {
+	Failed  bool
+	Skipped bool
+	Message string
+}
+
+func evaluateHarnessOutcome(testID string, execErr error, scCode string, expectPass bool, isUnsupported bool, unsupportedReason string, isUndefined bool, setupErr error) harnessOutcome {
+	if setupErr != nil {
+		return harnessOutcome{Failed: true, Message: fmt.Sprintf("Setup failed: %v", setupErr)}
+	}
+
+	if isUnsupported {
+		return harnessOutcome{Skipped: true, Message: fmt.Sprintf("Unsupported test mechanism: %v (err: %v)", unsupportedReason, execErr)}
+	}
+
+	if scCode != "" {
+		if execErr == nil {
+			if expectPass {
+				return harnessOutcome{Failed: true, Message: fmt.Sprintf("Expected error %s but got nil", scCode)}
+			} else {
+				return harnessOutcome{Skipped: true, Message: fmt.Sprintf("Expected failure: Expected error %s but got nil", scCode)}
+			}
+		}
+
+		// The test expects an error code.
+		// Since we don't have all jsonata specific error codes built, we provide explicit
+		// support mappings or check if the exact error code is directly matched in our error strings.
+		matchedError := false
+		errStr := execErr.Error()
+
+		// If JSONata error codes aren't cleanly mapping to Go errors, specify precise fallbacks here.
+		if scCode == "T0410" && strings.Contains(errStr, "Argument 1 of function") {
+			matchedError = true
+		} else if scCode == "S0201" && strings.Contains(errStr, "syntax error") {
+			matchedError = true
+		} else if scCode == "S0106" && strings.Contains(errStr, "unclosed comment") {
+			matchedError = true
+		} else if strings.Contains(errStr, fmt.Sprintf("[%s]", scCode)) || strings.Contains(errStr, fmt.Sprintf(" %s:", scCode)) || strings.HasPrefix(errStr, fmt.Sprintf("%s:", scCode)) {
+			// General fallback for exactly structured JSONata error strings if they existed.
+			// Explicitly bounds tokens with prefixes/spaces to avoid incidental substrings like "XT0410"
+			matchedError = true
+		}
+
+		if !matchedError {
+			if expectPass {
+				return harnessOutcome{Failed: true, Message: fmt.Sprintf("Expected error %s but got different error: %v", scCode, execErr)}
+			} else {
+				return harnessOutcome{Skipped: true, Message: fmt.Sprintf("Expected failure (wrong error): Expected %s but got: %v", scCode, execErr)}
+			}
+		}
+
+		if !expectPass {
+			// If we expected the error and got the matching error, the test actually *passed*.
+			// If it's on the expectedFailures list, it's an unexpected pass!
+			return harnessOutcome{Failed: true, Message: fmt.Sprintf("Unexpected pass! Test %s is marked as expected failure but it produced expected error %s", testID, scCode)}
+		}
+		return harnessOutcome{Message: "pass-execution-error"} // Return a message to stop further assertions on outcome
+	}
+
+	if execErr != nil {
+		// Only ignore true MissingPath or explicitly undefined evaluation outcomes.
+		if isUndefined {
+			var invalidor *lookup.Invalidor
+			if errors.As(execErr, &invalidor) {
+				unwrapped := invalidor.Unwrap()
+				if errors.Is(unwrapped, lookup.ErrNoSuchPath) || strings.Contains(unwrapped.Error(), "element not found at simple path") {
+					return harnessOutcome{} // Valid undefined path result, pass for assertion phase
+				}
+			}
+		}
+
+		if expectPass {
+			return harnessOutcome{Failed: true, Message: fmt.Sprintf("runCase failed: %v", execErr)}
+		} else {
+			return harnessOutcome{Skipped: true, Message: fmt.Sprintf("Expected failure (runCase error): %v", execErr)}
+		}
+	}
+
+	return harnessOutcome{}
 }
