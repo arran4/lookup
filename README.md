@@ -352,17 +352,19 @@ With other modifiers `Scope.Current` may differ from `Scope.Position`.
 Two helper binaries make navigating YAML and JSON from the shell easy. Both use
 lookup's `SimplePath` syntax and share the same set of options.
 
-### yaml-simpe-path
+### yaml-simple-path
+
+*(Note: `yaml-simpe-path` is kept as a compatibility alias.)*
 
 Reads one or more YAML documents and prints selected values. The interface is
 inspired by classic Unix text processing tools with jq-style niceties.
 
 ```
-Usage: yaml-simpe-path [options] PATH [PATH ...]
+Usage: yaml-simple-path [options] PATH [PATH ...]
 
 Options:
   -f string   YAML file to read (default stdin)
-  -e string   simple path query (can be repeated)
+  -e string   simple path query (can be repeated; processes multiple queries before positional paths)
   -d string   output delimiter (default "\n")
   -json       output as JSON
   -yaml       output as YAML (default)
@@ -372,6 +374,7 @@ Options:
   -n          prefix results with their index
   -0          use NUL as output delimiter
   -count      only print the number of matched results
+  -strict     strict mode: exit non-zero for invalid queries, missing paths, or evaluation errors
 ```
 
 Example:
@@ -384,11 +387,13 @@ spec:
 metadata:
   name: prod-service
 EOF
-$ yaml-simpe-path -f doc.yaml .spec.replicas
+$ yaml-simple-path -f doc.yaml .spec.replicas
 3
 ```
 
-### json-simpe-path
+### json-simple-path
+
+*(Note: `json-simpe-path` is kept as a compatibility alias.)*
 
 Operates on JSON input with the same flags. It defaults to JSON output but can
 emit YAML when `-yaml` is specified.
@@ -397,7 +402,7 @@ emit YAML when `-yaml` is specified.
 $ cat <<'EOF' > doc.json
 {"name":"foo","spec":{"replicas":3},"metadata":{"name":"prod-service"}}
 EOF
-$ json-simpe-path -f doc.json .spec.replicas
+$ json-simple-path -f doc.json .spec.replicas
 3
 ```
 

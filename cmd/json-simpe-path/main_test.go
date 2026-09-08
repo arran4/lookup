@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/arran4/lookup/cmd/internal/cli"
 )
 
 const exampleJSON = `{"name":"foo","spec":{"replicas":3},"metadata":{"name":"prod-service"}}`
@@ -33,7 +35,7 @@ func TestExamples(t *testing.T) {
 	for _, c := range cases {
 		var in io.Reader = bytes.NewBufferString(c.stdin)
 		var out bytes.Buffer
-		err := run(c.args, in, &out, io.Discard)
+		err := cli.Run("json-simpe-path", c.args, in, &out, io.Discard, "JSON")
 		if err != nil {
 			t.Fatalf("%s: %v", c.name, err)
 		}

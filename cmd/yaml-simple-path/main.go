@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	if err := cli.Run("json-simpe-path", os.Args[1:], os.Stdin, os.Stdout, os.Stderr, "JSON"); err != nil {
+	if err := cli.Run("yaml-simple-path", os.Args[1:], os.Stdin, os.Stdout, os.Stderr, "YAML"); err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
