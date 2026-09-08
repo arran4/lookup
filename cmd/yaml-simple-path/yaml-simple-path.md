@@ -1,4 +1,4 @@
-% YAML-SIMPE-PATH(1) go2man
+% YAML-SIMPLE-PATH(1) go2man
 % Auto-generated
 % Jun 2025
 

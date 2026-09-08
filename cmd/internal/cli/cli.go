@@ -32,13 +32,25 @@ Options:
 `, fs.Name(), defaultFormat)
 }
 
+type stringSlice []string
+
+func (i *stringSlice) String() string {
+	return strings.Join(*i, " ")
+}
+
+func (i *stringSlice) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
 // Run executes the CLI logic for querying JSON or YAML files.
 func Run(name string, args []string, stdin io.Reader, stdout, stderr io.Writer, defaultFormat string) error {
 	fs := flag.NewFlagSet(name, flag.ContinueOnError)
 	fs.SetOutput(stderr)
 
 	file := fs.String("f", "", "input file")
-	queryFlag := fs.String("e", "", "simple path query")
+	var queryFlags stringSlice
+	fs.Var(&queryFlags, "e", "simple path query")
 	delim := fs.String("d", "\n", "output delimiter")
 	jsonOut := fs.Bool("json", false, "output JSON")
 	yamlOut := fs.Bool("yaml", false, "output YAML")
@@ -56,10 +68,24 @@ func Run(name string, args []string, stdin io.Reader, stdout, stderr io.Writer, 
 	}
 
 	queries := []string{}
-	if *queryFlag != "" {
-		queries = append(queries, *queryFlag)
+	if len(queryFlags) > 0 {
+		queries = append(queries, queryFlags...)
 	}
 	queries = append(queries, fs.Args()...)
+
+	outFlags := 0
+	if *jsonOut {
+		outFlags++
+	}
+	if *yamlOut {
+		outFlags++
+	}
+	if *rawOut {
+		outFlags++
+	}
+	if *strictMode && outFlags > 1 {
+		return fmt.Errorf("conflicting output flags: -json, -yaml, and -raw are mutually exclusive in strict mode")
+	}
 	if len(queries) == 0 {
 		fs.Usage()
 		return fmt.Errorf("no query provided")
@@ -138,9 +164,8 @@ func Run(name string, args []string, stdin io.Reader, stdout, stderr io.Writer, 
 
 			if _, isInvalidor := res.(*lookup.Invalidor); isInvalidor {
 				if *strictMode {
-					// Extract the underlying error if possible, otherwise generic error
-					errVal := res.Raw()
-					if err, ok := errVal.(error); ok {
+					// Extract the underlying error if possible
+					if err, ok := res.(error); ok {
 						return fmt.Errorf("evaluation error: %w", err)
 					}
 					return fmt.Errorf("missing path or evaluation error")
@@ -169,24 +194,24 @@ func Run(name string, args []string, stdin io.Reader, stdout, stderr io.Writer, 
 			if *number {
 				_, _ = fmt.Fprintf(stdout, "%d:", index)
 			}
-			switch {
-			case *rawOut:
+			if *rawOut {
 				_, _ = fmt.Fprint(stdout, fmt.Sprint(val))
-			case *jsonOut:
-				b, err := json.Marshal(val)
-				if err != nil {
-					return fmt.Errorf("json encode: %w", err)
+			} else if defaultFormat == "YAML" {
+				if *jsonOut {
+					b, err := json.Marshal(val)
+					if err != nil {
+						return fmt.Errorf("json encode: %w", err)
+					}
+					_, _ = fmt.Fprint(stdout, string(b))
+				} else {
+					b, err := yaml.Marshal(val)
+					if err != nil {
+						return fmt.Errorf("yaml encode: %w", err)
+					}
+					_, _ = fmt.Fprint(stdout, strings.TrimSuffix(string(b), "\n"))
 				}
-				_, _ = fmt.Fprint(stdout, string(b))
-			case *yamlOut:
-				b, err := yaml.Marshal(val)
-				if err != nil {
-					return fmt.Errorf("yaml encode: %w", err)
-				}
-				_, _ = fmt.Fprint(stdout, strings.TrimSuffix(string(b), "\n"))
-			default:
-				// Default format fallback
-				if defaultFormat == "YAML" {
+			} else { // JSON default format
+				if *yamlOut {
 					b, err := yaml.Marshal(val)
 					if err != nil {
 						return fmt.Errorf("yaml encode: %w", err)

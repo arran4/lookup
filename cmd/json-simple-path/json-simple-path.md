@@ -1,4 +1,4 @@
-% JSON-SIMPE-PATH(1) go2man
+% JSON-SIMPLE-PATH(1) go2man
 % Auto-generated
 % Jun 2025
 
