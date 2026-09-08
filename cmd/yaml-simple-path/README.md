@@ -17,9 +17,10 @@ Options:
   -n          prefix results with their index
   -0          use NUL as output delimiter
   -count      only print the number of matched results
+  -strict     strict mode: exit non-zero for invalid queries, missing paths, evaluation errors, or conflicting output flags
 ```
 
-The tool expects one or more lookup paths. If `-e` is supplied the flag value is treated as the first query followed by any additional paths on the command line. Each YAML document in the input stream is decoded in turn and every query is executed against it.
+The tool expects one or more lookup paths. If `-e` is supplied, each occurrence is added in order as a query, followed by any additional positional query paths from the command line. Each YAML document in the input stream is decoded in turn and every query is executed against it.
 
 Examples:
 
