@@ -576,7 +576,7 @@ jobs:
           version: '~> v2'
           args: check
 
-     - name: Verify GoReleaser artifacts
+      - name: Verify GoReleaser artifacts
         run: |
           set -euo pipefail
 
