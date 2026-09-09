@@ -1,77 +1,133 @@
 version: 2
 project_name: lookup
 builds:
-  - id: json-simple-path
-    main: ./cmd/json-simple-path
-    binary: json-simple-path
-    env:
-      - CGO_ENABLED=0
-  - id: yaml-simple-path
-    main: ./cmd/yaml-simple-path
-    binary: yaml-simple-path
-    env:
-      - CGO_ENABLED=0
-  - id: json-simpe-path
-    main: ./cmd/json-simpe-path
-    binary: json-simpe-path
-    env:
-      - CGO_ENABLED=0
-  - id: yaml-simpe-path
-    main: ./cmd/yaml-simpe-path
-    binary: yaml-simpe-path
-    env:
-      - CGO_ENABLED=0
+- id: json-simple-path
+  main: ./cmd/json-simple-path
+  binary: json-simple-path
+  env:
+  - CGO_ENABLED=0
+  goos:
+  - linux
+  - darwin
+  - windows
+  - android
+  goarch:
+  - amd64
+  - arm64
+  - '386'
+  ignore:
+  - goos: android
+    goarch: amd64
+  - goos: android
+    goarch: '386'
+- id: yaml-simple-path
+  main: ./cmd/yaml-simple-path
+  binary: yaml-simple-path
+  env:
+  - CGO_ENABLED=0
+  goos:
+  - linux
+  - darwin
+  - windows
+  - android
+  goarch:
+  - amd64
+  - arm64
+  - '386'
+  ignore:
+  - goos: android
+    goarch: amd64
+  - goos: android
+    goarch: '386'
+- id: json-simpe-path
+  main: ./cmd/json-simpe-path
+  binary: json-simpe-path
+  env:
+  - CGO_ENABLED=0
+  goos:
+  - linux
+  - darwin
+  - windows
+  - android
+  goarch:
+  - amd64
+  - arm64
+  - '386'
+  ignore:
+  - goos: android
+    goarch: amd64
+  - goos: android
+    goarch: '386'
+- id: yaml-simpe-path
+  main: ./cmd/yaml-simpe-path
+  binary: yaml-simpe-path
+  env:
+  - CGO_ENABLED=0
+  goos:
+  - linux
+  - darwin
+  - windows
+  - android
+  goarch:
+  - amd64
+  - arm64
+  - '386'
+  ignore:
+  - goos: android
+    goarch: amd64
+  - goos: android
+    goarch: '386'
 archives:
-  - id: json
-    builds: [json-simple-path, json-simpe-path]
-    name_template: "{{ .ProjectName }}_{{ .Version }}_json_{{ .Os }}_{{ .Arch }}"
-    format_overrides:
-      - goos: windows
-        format: zip
-  - id: yaml
-    builds: [yaml-simple-path, yaml-simpe-path]
-    name_template: "{{ .ProjectName }}_{{ .Version }}_yaml_{{ .Os }}_{{ .Arch }}"
-    format_overrides:
-      - goos: windows
-        format: zip
+- id: json
+  ids:
+  - json-simple-path
+  - json-simpe-path
+  name_template: '{{ .ProjectName }}_{{ .Version }}_json_{{ .Os }}_{{ .Arch }}'
+  format_overrides:
+  - goos: windows
+    formats:
+    - zip
+  files:
+  - man/json*.1
+- id: yaml
+  ids:
+  - yaml-simple-path
+  - yaml-simpe-path
+  name_template: '{{ .ProjectName }}_{{ .Version }}_yaml_{{ .Os }}_{{ .Arch }}'
+  format_overrides:
+  - goos: windows
+    formats:
+    - zip
+  files:
+  - man/yaml*.1
 checksum:
   name_template: checksums.txt
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: '{{ .Tag }}-next'
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
-man_pages:
-  - source: man/json-simple-path.1
-    target: json-simple-path.1
-    builds: [json-simple-path]
-  - source: man/yaml-simple-path.1
-    target: yaml-simple-path.1
-    builds: [yaml-simple-path]
-  - source: man/json-simpe-path.1
-    target: json-simpe-path.1
-    builds: [json-simpe-path]
-  - source: man/yaml-simpe-path.1
-    target: yaml-simpe-path.1
-    builds: [yaml-simpe-path]
+    - '^docs:'
+    - '^test:'
 nfpms:
-  - vendor: Ubels Software Development
-    homepage: https://github.com/arran4/
-    maintainer: Arran Ubels <arran@ubels.com.au>
-    description: NA
-    license: Private
-    formats:
-      - apk
-      - deb
-      - rpm
-      - termux.deb
-      - archlinux
-    release: 1
-    section: default
-    priority: extra
+- vendor: Ubels Software Development
+  homepage: https://github.com/arran4/lookup
+  maintainer: Arran Ubels <arran@ubels.com.au>
+  description: Command-line tool to query JSON and YAML files using lookup paths
+  license: BSD-3-Clause
+  formats:
+  - apk
+  - deb
+  - rpm
+  - termux.deb
+  - archlinux
+  release: 1
+  section: default
+  priority: extra
+  contents:
+  - src: man/*.1
+    dst: /usr/share/man/man1
 release:
   github:
     owner: arran4
