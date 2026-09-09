@@ -552,7 +552,7 @@ jobs:
   goreleaser-check:
     name: GoReleaser Check
     needs: [route, discover]
-    if: ${{ needs.discover.outputs.has_go == 'true' && (needs.route.outputs.run_release == 'true' || needs.route.outputs.run_code_checks == 'true') }}
+    if: ${{ needs.discover.outputs.has_go == 'true' && (needs.route.outputs.run_release == 'true' || (needs.route.outputs.run_code_checks == 'true' && github.event_name != 'schedule')) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -576,40 +576,46 @@ jobs:
           version: '~> v2'
           args: check
 
-      - name: Verify GoReleaser artifacts
+     - name: Verify GoReleaser artifacts
         run: |
-          echo "Verifying generated archives..."
-          ls -l dist/*.tar.gz dist/*.zip || false
+          set -euo pipefail
 
-          echo "Verifying generated binaries..."
-          ls -l dist/*/json-simple-path* || false
+          echo "Verifying generated archives..."
+          ls -l dist/*.tar.gz dist/*.zip > /dev/null
+
+          echo "Verifying generated binaries in dist/..."
+          ls -l dist/*/json-simple-path* > /dev/null
 
           echo "Verifying checksums..."
-          test -f dist/checksums.txt || false
+          test -f dist/checksums.txt
 
           echo "Verifying packages..."
-          ls -l dist/*.deb dist/*.rpm dist/*.apk dist/*.pkg.tar.zst || false
+          ls -l dist/*.deb dist/*.rpm dist/*.apk dist/*.pkg.tar.zst > /dev/null
 
           echo "Verifying termux.deb packages..."
-          ls -l dist/*.termux.deb || false
+          ls -l dist/*.termux.deb > /dev/null
 
           echo "Verifying contents inside an archive (json-simple-path linux amd64)"
-          tar -tvf dist/lookup_*_json_linux_amd64.tar.gz | grep "json-simple-path" || false
-          tar -tvf dist/lookup_*_json_linux_amd64.tar.gz | grep "json-simpe-path" || false
-          tar -tvf dist/lookup_*_json_linux_amd64.tar.gz | grep "man/json-simple-path.1" || false
-          tar -tvf dist/lookup_*_json_linux_amd64.tar.gz | grep "man/json-simpe-path.1" || false
+          tar -tvf dist/lookup_*_json_linux_amd64.tar.gz | grep -E " json-simple-path$" > /dev/null
+          tar -tvf dist/lookup_*_json_linux_amd64.tar.gz | grep -E " json-simpe-path$" > /dev/null
+          tar -tvf dist/lookup_*_json_linux_amd64.tar.gz | grep "man/json-simple-path.1" > /dev/null
+          tar -tvf dist/lookup_*_json_linux_amd64.tar.gz | grep "man/json-simpe-path.1" > /dev/null
 
           echo "Verifying contents inside an archive (yaml-simple-path linux amd64)"
-          tar -tvf dist/lookup_*_yaml_linux_amd64.tar.gz | grep "yaml-simple-path" || false
-          tar -tvf dist/lookup_*_yaml_linux_amd64.tar.gz | grep "yaml-simpe-path" || false
-          tar -tvf dist/lookup_*_yaml_linux_amd64.tar.gz | grep "man/yaml-simple-path.1" || false
-          tar -tvf dist/lookup_*_yaml_linux_amd64.tar.gz | grep "man/yaml-simpe-path.1" || false
+          tar -tvf dist/lookup_*_yaml_linux_amd64.tar.gz | grep -E " yaml-simple-path$" > /dev/null
+          tar -tvf dist/lookup_*_yaml_linux_amd64.tar.gz | grep -E " yaml-simpe-path$" > /dev/null
+          tar -tvf dist/lookup_*_yaml_linux_amd64.tar.gz | grep "man/yaml-simple-path.1" > /dev/null
+          tar -tvf dist/lookup_*_yaml_linux_amd64.tar.gz | grep "man/yaml-simpe-path.1" > /dev/null
 
-          echo "Verifying dpkg contents (json-simple-path linux amd64)"
-          dpkg-deb -c dist/lookup_*_linux_amd64.deb | grep "usr/share/man/man1/json-simple-path.1" || false
-          dpkg-deb -c dist/lookup_*_linux_amd64.deb | grep "usr/share/man/man1/json-simpe-path.1" || false
-          dpkg-deb -c dist/lookup_*_linux_amd64.deb | grep "usr/bin/json-simple-path" || false
-          dpkg-deb -c dist/lookup_*_linux_amd64.deb | grep "usr/bin/json-simpe-path" || false
+          echo "Verifying dpkg contents (json-simple-path linux amd64 deb)"
+          dpkg-deb -c dist/lookup_*_linux_amd64.deb | grep "usr/share/man/man1/json-simple-path.1" > /dev/null
+          dpkg-deb -c dist/lookup_*_linux_amd64.deb | grep "usr/share/man/man1/json-simpe-path.1" > /dev/null
+          dpkg-deb -c dist/lookup_*_linux_amd64.deb | grep -E "usr/bin/json-simple-path$" > /dev/null
+          dpkg-deb -c dist/lookup_*_linux_amd64.deb | grep -E "usr/bin/json-simpe-path$" > /dev/null
+
+          echo "Verifying termux.deb contents (json-simple-path android arm64 termux.deb)"
+          dpkg-deb -c dist/lookup_*_android_arm64.termux.deb | grep "data/data/com.termux/files/usr/share/man/man1/json-simple-path.1" > /dev/null
+          dpkg-deb -c dist/lookup_*_android_arm64.termux.deb | grep -E "data/data/com.termux/files/usr/bin/json-simple-path$" > /dev/null
 
           echo "All expected artifacts found."
 
@@ -620,7 +626,7 @@ jobs:
       !failure() && !cancelled() &&
       needs.route.outputs.run_release == 'true' &&
       needs.discover.result == 'success' &&
-      (needs.discover.outputs.has_go != 'true' || (needs.golangci.result == 'success' && needs.go-test.result == 'success' && needs.go-build-release.result == 'success' && (needs['goreleaser-check'].result == 'success' || needs['goreleaser-check'].result == 'skipped') && (needs.discover.outputs.profile != 'public' || needs.go-vet.result == 'success')))
+      (needs.discover.outputs.has_go != 'true' || (needs.golangci.result == 'success' && needs.go-test.result == 'success' && needs.go-build-release.result == 'success' && (needs['goreleaser-check'].result == 'success') && (needs.discover.outputs.profile != 'public' || needs.go-vet.result == 'success')))
     runs-on: ubuntu-latest
     steps:
       - run: echo "All required checks passed."

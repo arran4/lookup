@@ -127,7 +127,8 @@ nfpms:
   priority: extra
   contents:
   - src: man/*.1
-    dst: /usr/share/man/man1
+    dst: '{{ if eq .Format "termux.deb" }}/data/data/com.termux/files/usr/share/man/man1{{
+      else }}/usr/share/man/man1{{ end }}'
 release:
   github:
     owner: arran4
