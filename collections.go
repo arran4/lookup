@@ -214,6 +214,7 @@ func evaluateType(scope *Scope, pathor Pathor, i interface{}) Pathor {
 	return NewInvalidor(ExtractPath(pathor)+"[]", ErrUnknownIndexMode)
 }
 
+// Every returns true if every element in the array or slice matches the given expression. Evaluates to true for empty collections.
 func Every(e Runner) *everyFunc {
 	return &everyFunc{
 		expression: e,
@@ -245,6 +246,7 @@ func every(scope *Scope, everyThis Pathor) Pathor {
 	return NewConstantor(scope.Path(), every)
 }
 
+// Any returns true if any element in the array or slice matches the given expression. Evaluates to false for empty collections.
 func Any(e Runner) *anyFunc {
 	return &anyFunc{
 		expression: e,
@@ -440,7 +442,7 @@ func (f *firstFunc) Run(scope *Scope) Pathor {
 	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
 		return NewInvalidor(ExtractPath(scope.Position), ErrIndexOfNotArray)
 	}
-	if v.IsNil() {
+	if v.Kind() == reflect.Slice && v.IsNil() {
 		return NewInvalidor(scope.Path(), fmt.Errorf("nil element"))
 	}
 	basePath := scope.Path()
@@ -466,7 +468,7 @@ func (l *lastFunc) Run(scope *Scope) Pathor {
 	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
 		return NewInvalidor(ExtractPath(scope.Position), ErrIndexOfNotArray)
 	}
-	if v.IsNil() {
+	if v.Kind() == reflect.Slice && v.IsNil() {
 		return NewInvalidor(scope.Path(), fmt.Errorf("nil element"))
 	}
 	basePath := scope.Path()
@@ -511,7 +513,16 @@ func (rf *rangeFunc) Run(scope *Scope) Pathor {
 	if start < 0 || start > length || end < 0 || end > length || start > end {
 		return NewInvalidor(scope.Path()+"["+strconv.Itoa(start)+":"+strconv.Itoa(end)+"]", ErrIndexOutOfRange)
 	}
-	slice := v.Slice(start, end)
+	var slice reflect.Value
+	if v.Kind() == reflect.Array {
+		if !v.CanAddr() {
+			addrArray := reflect.New(v.Type()).Elem()
+			addrArray.Set(v)
+			v = addrArray
+		}
+	}
+	slice = v.Slice(start, end)
+
 	return &Reflector{path: scope.Path() + "[" + strconv.Itoa(start) + ":" + strconv.Itoa(end) + "]", v: slice}
 }
 
