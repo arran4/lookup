@@ -363,14 +363,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: [1.24.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version-file: go.mod
       - name: Cache-Go
         uses: actions/cache@v4
         with:
@@ -405,11 +404,25 @@ jobs:
           script: |
             const fs = require('fs');
             const bench = fs.readFileSync('bench.txt', 'utf8');
-            github.rest.issues.createComment({
+            const body = `Benchmark results (${process.env['RUNNER_OS']}):\n\n\`\`\`\n${bench}\n\`\`\``;
+            const comments = await github.rest.issues.listComments({
               ...context.repo,
               issue_number: context.issue.number,
-              body: `Benchmark results (${process.env['RUNNER_OS']}):\n\n\`\`\`\n${bench}\n\`\`\``
             });
+            const existing = comments.data.find(c => c.user.type === 'Bot' && c.body.includes('Benchmark results'));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                ...context.repo,
+                comment_id: existing.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
 
   go-vet:
     name: Go vet
@@ -535,14 +548,85 @@ jobs:
       - name: Build all binaries
         run: go build ./...
 
+
+  goreleaser-check:
+    name: GoReleaser Check
+    needs: [route, discover]
+    if: ${{ needs.discover.outputs.has_go == 'true' && (needs.route.outputs.run_release == 'true' || (needs.route.outputs.run_code_checks == 'true' && github.event_name != 'schedule')) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Run GoReleaser Check
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --snapshot --clean
+
+      - name: Run GoReleaser Check Config
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: check
+
+      - name: Verify GoReleaser artifacts
+        run: |
+          set -euo pipefail
+
+          echo "Verifying generated archives..."
+          ls -l dist/*.tar.gz dist/*.zip > /dev/null
+
+          echo "Verifying generated binaries in dist/..."
+          ls -l dist/*/json-simple-path* > /dev/null
+
+          echo "Verifying checksums..."
+          test -f dist/checksums.txt
+
+          echo "Verifying packages..."
+          ls -l dist/*.deb dist/*.rpm dist/*.apk dist/*.pkg.tar.zst > /dev/null
+
+          echo "Verifying termux.deb packages..."
+          ls -l dist/*.termux.deb > /dev/null
+
+          echo "Verifying contents inside an archive (json-simple-path linux amd64)"
+          tar -tvf dist/lookup_*_json_linux_amd64.tar.gz | grep -E " json-simple-path$" > /dev/null
+          tar -tvf dist/lookup_*_json_linux_amd64.tar.gz | grep -E " json-simpe-path$" > /dev/null
+          tar -tvf dist/lookup_*_json_linux_amd64.tar.gz | grep "man/json-simple-path.1" > /dev/null
+          tar -tvf dist/lookup_*_json_linux_amd64.tar.gz | grep "man/json-simpe-path.1" > /dev/null
+
+          echo "Verifying contents inside an archive (yaml-simple-path linux amd64)"
+          tar -tvf dist/lookup_*_yaml_linux_amd64.tar.gz | grep -E " yaml-simple-path$" > /dev/null
+          tar -tvf dist/lookup_*_yaml_linux_amd64.tar.gz | grep -E " yaml-simpe-path$" > /dev/null
+          tar -tvf dist/lookup_*_yaml_linux_amd64.tar.gz | grep "man/yaml-simple-path.1" > /dev/null
+          tar -tvf dist/lookup_*_yaml_linux_amd64.tar.gz | grep "man/yaml-simpe-path.1" > /dev/null
+
+          echo "Verifying dpkg contents (json-simple-path linux amd64 deb)"
+          dpkg-deb -c dist/lookup_*_linux_amd64.deb | grep "usr/share/man/man1/json-simple-path.1" > /dev/null
+          dpkg-deb -c dist/lookup_*_linux_amd64.deb | grep "usr/share/man/man1/json-simpe-path.1" > /dev/null
+          dpkg-deb -c dist/lookup_*_linux_amd64.deb | grep -E "usr/bin/json-simple-path$" > /dev/null
+          dpkg-deb -c dist/lookup_*_linux_amd64.deb | grep -E "usr/bin/json-simpe-path$" > /dev/null
+
+          echo "Verifying termux.deb contents (json-simple-path android arm64 termux.deb)"
+          dpkg-deb -c dist/lookup_*_android_arm64.termux.deb | grep "data/data/com.termux/files/usr/share/man/man1/json-simple-path.1" > /dev/null
+          dpkg-deb -c dist/lookup_*_android_arm64.termux.deb | grep -E "data/data/com.termux/files/usr/bin/json-simple-path$" > /dev/null
+
+          echo "All expected artifacts found."
+
   release-validation:
     name: Release Validation Gate
-    needs: [route, discover, golangci, go-test, go-vet, go-build-release]
+    needs: [route, discover, golangci, go-test, go-vet, go-build-release, goreleaser-check]
     if: |
       !failure() && !cancelled() &&
       needs.route.outputs.run_release == 'true' &&
       needs.discover.result == 'success' &&
-      (needs.discover.outputs.has_go != 'true' || (needs.golangci.result == 'success' && needs.go-test.result == 'success' && needs.go-build-release.result == 'success' && (needs.discover.outputs.profile != 'public' || needs.go-vet.result == 'success')))
+      (needs.discover.outputs.has_go != 'true' || (needs.golangci.result == 'success' && needs.go-test.result == 'success' && needs.go-build-release.result == 'success' && (needs['goreleaser-check'].result == 'success') && (needs.discover.outputs.profile != 'public' || needs.go-vet.result == 'success')))
     runs-on: ubuntu-latest
     steps:
       - run: echo "All required checks passed."
