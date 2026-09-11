@@ -153,7 +153,7 @@ func TestRelator_FromHere(t *testing.T) {
 		{name: "Array Field2 match look up only returns [true,true,false] because it contains one false", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Match(Any(IsZero(Result())))) }, want: []bool{true, true, false}},
 		{name: "Array Field2 match look up only returns [true,true,false]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Match(Every(IsZero(Result())))) }, fail: true},
 		{name: "Array Field2 match look up only returns [true,true,false]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2b").Find("Value1", Match(Any(IsZero(Result())))) }, want: []bool{false, false, false}},
-		{name: "Array Field2 match look up only returns [true,true,false]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2b").Find("Value1", Match(Every(IsZero(Result())))) }, fail: true},
+		{name: "Array Field2 match look up only returns [true,true,false]", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2b").Find("Value1", Match(Every(IsZero(Result())))) }, want: []bool{false, false, false}},
 		{name: "Array Field2 match look up succeeds because it contains a false", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2").Find("Value1", Match(IsZero(Result()))) }, want: []bool{true, true, false}},
 		{name: "Array Field2b match look up succeeds because an array is truthy", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2b").Find("Value1", Match(IsZero(Result()))) }, want: []bool{false, false, false}},
 		{name: "Array Field2e match look up succeeds because an array is truthy", resultFunc: func() Pathor { return Reflect(ds1).Find("Field2e").Find("Value1", Match(IsZero(Result()))) }, want: []bool{true, true, true}},

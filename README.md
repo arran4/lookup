@@ -177,8 +177,8 @@ Modifiers are `Runner` implementations that transform the current scope of a loo
 | `Map(r)` | Convert each element using `r`. |
 | `Contains(r)` | True if the current collection contains the result of `r`. |
 | `In(r)` | True if the current value is present in the collection returned by `r`. |
-| `Every(r)` | True if every element in scope matches `r`. |
-| `Any(r)` | True if any element in scope matches `r`. |
+| `Every(r)` | True if every element in scope matches `r` (true for empty collections). |
+| `Any(r)` | True if any element in scope matches `r` (false for empty collections). |
 | `Match(r)` | Proceed only if `r` evaluates to true. |
 | `Default(v)` | Use `v` whenever the lookup would result in an invalid value. |
 | `Error(err)` | Returns an invalid / failed result. |
