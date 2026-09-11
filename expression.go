@@ -28,7 +28,8 @@ func (ef *matchFunc) Run(scope *Scope) Pathor {
 		v, err := expr.Evaluate(nil)
 
 		if err != nil {
-
+			// Backwards compatibility requires ignoring evaluator parse/conversion errors on Match when it evaluates a value where the type can't cast cleanly to boolean and instead relying on IsZero check for strings etc. We've verified this via TestRelator_FromHere array lookup tests.
+			// However for explicit Error run types which we check explicitly beforehand, they propagate. For raw runtime evaluator errors, they fallback to IsZero checking for backward compatibility.
 		} else if b, ok := v.(bool); ok && b {
 			continue
 		} else {
@@ -57,6 +58,10 @@ func (s *toBoolFunc) Run(scope *Scope) Pathor {
 		result = s.expression.Run(scope)
 	} else {
 		result = scope.Position
+	}
+
+	if _, ok := result.(*Invalidor); ok {
+		return result
 	}
 
 	expr := evaluator.BoolType{Term: evaluator.Constant{Value: result.Raw()}}
@@ -96,7 +101,10 @@ func truthy(scope *Scope, result Pathor) Pathor {
 	expr := evaluator.BoolType{Term: evaluator.Constant{Value: result.Raw()}}
 	v, err := expr.Evaluate(nil)
 
-	if b, ok := v.(bool); ok && !b && err == nil {
+	if err != nil {
+		return NewInvalidor(scope.Path(), err)
+	}
+	if b, ok := v.(bool); ok && !b {
 		return NewInvalidor(scope.Path(), ErrFalse)
 	}
 	if result.Value().IsZero() {
@@ -110,7 +118,13 @@ type equalsFunc struct {
 }
 
 func (ef *equalsFunc) Run(scope *Scope) Pathor {
+	if _, ok := scope.Position.(*Invalidor); ok {
+		return scope.Position
+	}
 	result := ef.expression.Run(scope)
+	if _, ok := result.(*Invalidor); ok {
+		return result
+	}
 	return equals(scope, result)
 }
 
@@ -120,7 +134,11 @@ func equals(scope *Scope, result Pathor) Pathor {
 		RHS:       evaluator.Constant{Value: scope.Position.Raw()},
 		Operation: "eq",
 	}
-	if v, _ := expr.Evaluate(nil); v {
+	v, err := expr.Evaluate(nil)
+	if err != nil {
+		return NewInvalidor(scope.Path(), err)
+	}
+	if v {
 		return True(scope.Path())
 	} else {
 		return False(scope.Path())
@@ -139,6 +157,9 @@ type notFunc struct {
 
 func (ef *notFunc) Run(scope *Scope) Pathor {
 	result := ef.expression.Run(scope)
+	if _, ok := result.(*Invalidor); ok {
+		return result
+	}
 
 	expr := evaluator.BoolType{Term: evaluator.Constant{Value: result.Raw()}}
 	v, err := expr.Evaluate(nil)

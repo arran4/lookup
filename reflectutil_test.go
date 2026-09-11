@@ -243,3 +243,58 @@ func TestRunMethod(t *testing.T) {
 		}
 	})
 }
+
+func TestUnsignedMapKeyParsing(t *testing.T) {
+	type TestMap struct {
+		Uint8Map  map[uint8]string
+		Uint16Map map[uint16]string
+		UintMap   map[uint]string
+		Uint64Map map[uint64]string
+	}
+
+	testData := TestMap{
+		Uint8Map:  map[uint8]string{0: "zero", 255: "max8"},
+		Uint16Map: map[uint16]string{0: "zero", 65535: "max16"},
+		UintMap:   map[uint]string{123: "normal"},
+		Uint64Map: map[uint64]string{9223372036854775808: "large64"}, // > math.MaxInt64
+	}
+
+	tests := []struct {
+		name       string
+		mapName    string
+		key        string
+		want       interface{}
+		expectFail bool
+	}{
+		{"Uint8 zero", "Uint8Map", "0", "zero", false},
+		{"Uint8 max", "Uint8Map", "255", "max8", false},
+		{"Uint8 overflow", "Uint8Map", "256", nil, true}, // Invalid format for uint8
+		{"Uint8 negative", "Uint8Map", "-1", nil, true},
+
+		{"Uint16 max", "Uint16Map", "65535", "max16", false},
+		{"Uint16 overflow", "Uint16Map", "65536", nil, true},
+
+		{"Uint normal", "UintMap", "123", "normal", false},
+
+		{"Uint64 > MaxInt64", "Uint64Map", "9223372036854775808", "large64", false},
+
+		{"Uint invalid text", "UintMap", "abc", nil, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := Reflect(testData).Find(tt.mapName).Find(tt.key)
+			if tt.expectFail {
+				if _, ok := res.(*Invalidor); !ok {
+					t.Errorf("expected Invalidor but got %T (%v)", res, res.Raw())
+				}
+			} else {
+				if _, ok := res.(*Invalidor); ok {
+					t.Errorf("did not expect error, but got Invalidor: %v", res.Raw())
+				} else if res.Raw() != tt.want {
+					t.Errorf("expected %v, got %v", tt.want, res.Raw())
+				}
+			}
+		})
+	}
+}

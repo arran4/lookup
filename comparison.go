@@ -10,7 +10,14 @@ type evaluatorComparisonFunc struct {
 }
 
 func (ef *evaluatorComparisonFunc) Run(scope *Scope) Pathor {
+	if _, ok := scope.Position.(*Invalidor); ok {
+		return scope.Position
+	}
+
 	rhsResult := ef.rhs.Run(scope)
+	if _, ok := rhsResult.(*Invalidor); ok {
+		return rhsResult
+	}
 
 	expr := evaluator.ComparisonExpression{
 		LHS:       evaluator.Self{},
@@ -18,7 +25,11 @@ func (ef *evaluatorComparisonFunc) Run(scope *Scope) Pathor {
 		Operation: ef.op,
 	}
 
-	result, _ := expr.Evaluate(scope.Position.Raw())
+	result, err := expr.Evaluate(scope.Position.Raw())
+	if err != nil {
+		return NewInvalidor(scope.Path(), err)
+	}
+
 	if result {
 		return True(scope.Path())
 	}

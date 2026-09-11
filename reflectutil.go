@@ -296,7 +296,7 @@ func extractKey(path string, v reflect.Value, p string) (reflect.Value, Pathor) 
 			k = reflect.ValueOf(int64(v))
 		}
 	case reflect.Uint:
-		if v, err := strconv.ParseInt(path, 10, 64); err != nil {
+		if v, err := strconv.ParseUint(path, 10, 64); err != nil {
 			return reflect.Value{}, &Invalidor{
 				err:  fmt.Errorf("error looking up index of type %s value given was %#v and failed because %w", kt, path, err),
 				path: p,
@@ -305,7 +305,7 @@ func extractKey(path string, v reflect.Value, p string) (reflect.Value, Pathor) 
 			k = reflect.ValueOf(uint(v))
 		}
 	case reflect.Uint8:
-		if v, err := strconv.ParseInt(path, 10, 8); err != nil {
+		if v, err := strconv.ParseUint(path, 10, 8); err != nil {
 			return reflect.Value{}, &Invalidor{
 				err:  fmt.Errorf("error looking up index of type %s value given was %#v and failed because %w", kt, path, err),
 				path: p,
@@ -314,7 +314,7 @@ func extractKey(path string, v reflect.Value, p string) (reflect.Value, Pathor) 
 			k = reflect.ValueOf(uint8(v))
 		}
 	case reflect.Uint16:
-		if v, err := strconv.ParseInt(path, 10, 16); err != nil {
+		if v, err := strconv.ParseUint(path, 10, 16); err != nil {
 			return reflect.Value{}, &Invalidor{
 				err:  fmt.Errorf("error looking up index of type %s value given was %#v and failed because %w", kt, path, err),
 				path: p,
@@ -323,7 +323,7 @@ func extractKey(path string, v reflect.Value, p string) (reflect.Value, Pathor) 
 			k = reflect.ValueOf(uint16(v))
 		}
 	case reflect.Uint32:
-		if v, err := strconv.ParseInt(path, 10, 32); err != nil {
+		if v, err := strconv.ParseUint(path, 10, 32); err != nil {
 			return reflect.Value{}, &Invalidor{
 				err:  fmt.Errorf("error looking up index of type %s value given was %#v and failed because %w", kt, path, err),
 				path: p,
@@ -332,7 +332,7 @@ func extractKey(path string, v reflect.Value, p string) (reflect.Value, Pathor) 
 			k = reflect.ValueOf(uint32(v))
 		}
 	case reflect.Uint64:
-		if v, err := strconv.ParseInt(path, 10, 64); err != nil {
+		if v, err := strconv.ParseUint(path, 10, 64); err != nil {
 			return reflect.Value{}, &Invalidor{
 				err:  fmt.Errorf("error looking up index of type %s value given was %#v and failed because %w", kt, path, err),
 				path: p,
