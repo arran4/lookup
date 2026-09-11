@@ -40,6 +40,37 @@ func (s structWithUnexported) MethodThree() (int, int, int) {
 	return 1, 2, 3
 }
 
+type structWithError struct {
+	Value int
+}
+
+type customError struct {
+	msg string
+}
+
+func (e customError) Error() string {
+	return e.msg
+}
+
+func (s structWithError) MethodCustomErr(fail bool) (int, customError) {
+	if fail {
+		return 0, customError{msg: "failed"}
+	}
+	return s.Value, customError{}
+}
+
+type structWithMethod struct {
+	Value int
+}
+
+func (s structWithMethod) ValueMethod() int {
+	return s.Value * 10
+}
+
+func (s *structWithMethod) PointerMethod() int {
+	return s.Value * 100
+}
+
 func TestElementOf(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -133,14 +164,38 @@ func TestElementOf(t *testing.T) {
 		},
 		{
 			name:     "struct method returning value",
-			v:        2,
-			in:       structWithUnexported{Exported: 2},
+			v:        10, // Field is 2, method returns field * 5 = 10. Should match 10 via method, not field.
+			in:       structWithMethod{Value: 1},
 			expected: true,
 		},
 		{
 			name:     "struct method err nil",
 			v:        2,
 			in:       func() (int, error) { return structWithUnexported{Exported: 2}.MethodErr(false) },
+			expected: true,
+		},
+		{
+			name:     "struct method with non-nilable custom error (not failing)",
+			v:        5,
+			in:       structWithError{Value: 5},
+			expected: true, // Should find 5 via MethodCustomErr(false) returning (5, customError{})
+		},
+		{
+			name:     "struct method with non-nilable custom error (failing)",
+			v:        5,
+			in:       func() (int, customError) { return structWithError{Value: 5}.MethodCustomErr(true) },
+			expected: false,
+		},
+		{
+			name:     "value-receiver method",
+			v:        50,
+			in:       structWithMethod{Value: 5},
+			expected: true,
+		},
+		{
+			name:     "pointer-receiver method",
+			v:        500,
+			in:       &structWithMethod{Value: 5},
 			expected: true,
 		},
 	}

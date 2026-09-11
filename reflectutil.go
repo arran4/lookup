@@ -461,14 +461,19 @@ func runMethod(m reflect.Value, p string) Pathor {
 
 	p += "()"
 	mra := m.Call([]reflect.Value{})
-	if numOut == 2 && !mra[1].IsNil() {
-		err := fmt.Errorf("unknown error")
+	if numOut == 2 {
+		var err error
+		// Explicitly check for an error value, bypassing IsNil() which panics on non-nilable types
 		if e, ok := mra[1].Interface().(error); ok && e != nil {
 			err = e
+		} else if errInterface := mra[1].Interface(); errInterface != nil {
+			err = fmt.Errorf("unknown error")
 		}
-		return &Invalidor{
-			err:  err,
-			path: p,
+		if err != nil {
+			return &Invalidor{
+				err:  fmt.Errorf("invalid element at simple path %s method call returned error %w", p, err),
+				path: p,
+			}
 		}
 	}
 
@@ -579,13 +584,12 @@ func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
 				}
 			}
 		}
-		for i := 0; i < in.NumMethod(); i++ {
-			var f reflect.Value
-			if pv == nil {
-				f = in.Method(i)
-			} else {
-				f = pv.Method(i)
-			}
+		methodReceiver := in
+		if pv != nil {
+			methodReceiver = *pv
+		}
+		for i := 0; i < methodReceiver.NumMethod(); i++ {
+			f := methodReceiver.Method(i)
 			fr := runMethod(f, "")
 			if fr != nil && elementOf(v, fr.Value(), nil) {
 				return true
