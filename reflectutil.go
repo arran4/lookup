@@ -433,48 +433,52 @@ func structPath(prefix string, path string, v reflect.Value, pv *reflect.Value) 
 }
 
 // runMethod runs the method that's provided, if the definition is valid and then returns the appropriate Pathor or nil.
+// It supports functions with signatures:
+// - func() T
+// - func() (T, error)
 func runMethod(m reflect.Value, p string) Pathor {
 	if !m.IsValid() {
 		return nil
 	}
 	mt := m.Type()
-	outValuePass := true
-	switch mt.NumOut() {
-	case 2:
+
+	if mt.NumIn() != 0 {
+		return nil
+	}
+
+	numOut := mt.NumOut()
+	if numOut != 1 && numOut != 2 {
+		return nil
+	}
+
+	if numOut == 2 {
 		var e error = nil
 		errType := reflect.TypeOf((*error)(&e)).Elem()
-		mt.Out(1).AssignableTo(errType)
-		fallthrough
-	case 1:
-		switch mt.Out(0).Kind() {
-		case reflect.Invalid:
-		case reflect.Chan:
-		case reflect.Uintptr:
-		case reflect.UnsafePointer:
-		default:
-			outValuePass = true
+		if !mt.Out(1).AssignableTo(errType) {
+			return nil
 		}
 	}
-	if m.IsValid() && mt.NumIn() == 0 && outValuePass {
-		p += "()"
-		mra := m.Call([]reflect.Value{})
-		if len(mra) == 2 && !mra[1].IsNil() {
-			err := fmt.Errorf("unknown error")
-			if e, ok := mra[1].Interface().(error); ok {
-				err = e
-			}
-			return &Invalidor{
-				err:  fmt.Errorf("invalid element at simple path %s method call returned error %w", p, err),
-				path: p,
-			}
+
+	p += "()"
+	mra := m.Call([]reflect.Value{})
+	if numOut == 2 && !mra[1].IsNil() {
+		err := fmt.Errorf("unknown error")
+		if e, ok := mra[1].Interface().(error); ok && e != nil {
+			err = e
 		}
-		if len(mra) >= 1 {
-			return &Reflector{
-				path: p,
-				v:    mra[0],
-			}
+		return &Invalidor{
+			err:  err,
+			path: p,
 		}
 	}
+
+	if len(mra) >= 1 {
+		return &Reflector{
+			path: p,
+			v:    mra[0],
+		}
+	}
+
 	return nil
 }
 
@@ -495,7 +499,10 @@ func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
 		}
 	case reflect.Func:
 		r := runMethod(in, "")
-		return elementOf(r.Value(), in, nil)
+		if r == nil {
+			return false
+		}
+		return elementOf(v, r.Value(), nil)
 	case reflect.Map:
 		for _, k := range in.MapKeys() {
 			f := in.MapIndex(k)
@@ -504,7 +511,10 @@ func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
 			}
 		}
 	case reflect.Pointer:
-		return elementOf(v.Elem(), in.Elem(), &v)
+		if in.IsNil() {
+			return false
+		}
+		return elementOf(v, in.Elem(), &in)
 	case reflect.Slice:
 		if in.CanInterface() {
 			switch s := in.Interface().(type) {
@@ -563,19 +573,21 @@ func elementOf(v reflect.Value, in reflect.Value, pv *reflect.Value) bool {
 	case reflect.Struct:
 		for i := 0; i < in.NumField(); i++ {
 			f := in.Field(i)
-			if reflect.DeepEqual(v.Interface(), f.Interface()) {
-				return true
+			if f.CanInterface() {
+				if reflect.DeepEqual(v.Interface(), f.Interface()) {
+					return true
+				}
 			}
 		}
 		for i := 0; i < in.NumMethod(); i++ {
 			var f reflect.Value
 			if pv == nil {
-				f = v.Method(i)
+				f = in.Method(i)
 			} else {
 				f = pv.Method(i)
 			}
 			fr := runMethod(f, "")
-			if elementOf(fr.Value(), in, nil) {
+			if fr != nil && elementOf(v, fr.Value(), nil) {
 				return true
 			}
 		}
