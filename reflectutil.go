@@ -454,7 +454,7 @@ func runMethod(m reflect.Value, p string) Pathor {
 	if numOut == 2 {
 		var e error = nil
 		errType := reflect.TypeOf((*error)(&e)).Elem()
-		if !mt.Out(1).AssignableTo(errType) {
+		if mt.Out(1) != errType {
 			return nil
 		}
 	}
@@ -463,10 +463,9 @@ func runMethod(m reflect.Value, p string) Pathor {
 	mra := m.Call([]reflect.Value{})
 	if numOut == 2 {
 		var err error
-		// Explicitly check for an error value, bypassing IsNil() which panics on non-nilable types
 		if e, ok := mra[1].Interface().(error); ok && e != nil {
 			err = e
-		} else if errInterface := mra[1].Interface(); errInterface != nil {
+		} else if !mra[1].IsNil() {
 			err = fmt.Errorf("unknown error")
 		}
 		if err != nil {

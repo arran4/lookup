@@ -3,6 +3,7 @@ package lookup
 import (
 	"errors"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -175,18 +176,6 @@ func TestElementOf(t *testing.T) {
 			expected: true,
 		},
 		{
-			name:     "struct method with non-nilable custom error (not failing)",
-			v:        5,
-			in:       structWithError{Value: 5},
-			expected: true, // Should find 5 via MethodCustomErr(false) returning (5, customError{})
-		},
-		{
-			name:     "struct method with non-nilable custom error (failing)",
-			v:        5,
-			in:       func() (int, customError) { return structWithError{Value: 5}.MethodCustomErr(true) },
-			expected: false,
-		},
-		{
 			name:     "value-receiver method",
 			v:        50,
 			in:       structWithMethod{Value: 5},
@@ -218,4 +207,50 @@ func TestElementOf(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestRunMethod(t *testing.T) {
+	t.Run("rejects concrete custom error implementation", func(t *testing.T) {
+		called := false
+		f := func() (int, customError) {
+			called = true
+			return 1, customError{}
+		}
+
+		val := reflect.ValueOf(f)
+		res := runMethod(val, "func")
+		if res != nil {
+			t.Errorf("Expected runMethod to return nil for unsupported signature with concrete custom error, got %v", res)
+		}
+		if called {
+			t.Errorf("Expected runMethod to reject the function without calling it")
+		}
+	})
+
+	t.Run("wraps underlying error context", func(t *testing.T) {
+		sentinelErr := errors.New("my sentinel error")
+		f := func() (int, error) {
+			return 0, sentinelErr
+		}
+
+		val := reflect.ValueOf(f)
+		res := runMethod(val, "fName")
+		invalidor, ok := res.(*Invalidor)
+		if !ok {
+			t.Fatalf("Expected runMethod to return an Invalidor, got %T", res)
+		}
+
+		errResult := invalidor.err
+
+		// Ensure context is kept
+		expectedContext := "invalid element at simple path fName() method call returned error"
+		if !strings.Contains(errResult.Error(), expectedContext) {
+			t.Errorf("Expected error to contain context %q, but got %v", expectedContext, errResult)
+		}
+
+		// Ensure underlying error is preserved for errors.Is
+		if !errors.Is(errResult, sentinelErr) {
+			t.Errorf("Expected errors.Is to match sentinel error, but it did not. err = %v", errResult)
+		}
+	})
 }
