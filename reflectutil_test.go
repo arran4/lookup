@@ -41,23 +41,12 @@ func (s structWithUnexported) MethodThree() (int, int, int) {
 	return 1, 2, 3
 }
 
-type structWithError struct {
-	Value int
-}
-
 type customError struct {
 	msg string
 }
 
 func (e customError) Error() string {
 	return e.msg
-}
-
-func (s structWithError) MethodCustomErr(fail bool) (int, customError) {
-	if fail {
-		return 0, customError{msg: "failed"}
-	}
-	return s.Value, customError{}
 }
 
 type structWithMethod struct {
