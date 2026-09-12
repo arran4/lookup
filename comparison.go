@@ -1,8 +1,6 @@
 package lookup
 
-import (
-	"github.com/arran4/go-evaluator"
-)
+import ()
 
 type evaluatorComparisonFunc struct {
 	op  string
@@ -19,13 +17,7 @@ func (ef *evaluatorComparisonFunc) Run(scope *Scope) Pathor {
 		return rhsResult
 	}
 
-	expr := evaluator.ComparisonExpression{
-		LHS:       evaluator.Self{},
-		RHS:       evaluator.Constant{Value: rhsResult.Raw()},
-		Operation: ef.op,
-	}
-
-	result, err := expr.Evaluate(scope.Position.Raw())
+	result, err := evaluateComparison(ef.op, scope.Position.Raw(), rhsResult.Raw(), scope.Position)
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
 	}
@@ -36,6 +28,9 @@ func (ef *evaluatorComparisonFunc) Run(scope *Scope) Pathor {
 	return False(scope.Path())
 }
 
+// evaluateComparison uses evaluator.Compare directly. To ensure operand order matches existing evaluator behavior
+// where LHS is the scope / position and RHS is the argument (as verified via the original ComparisonExpression config),
+// we flip the arguments so evaluator.Compare(pos, rhs) is correct.
 func GreaterThan(e Runner) *evaluatorComparisonFunc {
 	return &evaluatorComparisonFunc{op: "gt", rhs: e}
 }

@@ -26,8 +26,14 @@ func TestEvaluatorErrorIntegrity(t *testing.T) {
 		{"ToBool with error runner", ToBool(errRunner), true},
 		{"Not with error runner", Not(errRunner), true},
 
+		// Boolean helpers type mismatch
+		{"Truthy unparsable bool", Truthy(Constant("invalid-bool")), true},
+		{"ToBool unparsable bool", ToBool(Constant("invalid-bool")), true},
+		{"Not unparsable bool", Not(Constant("invalid-bool")), true},
+
 		// Match
 		{"Match with error runner", Match(errRunner), true},
+		{"Match legacy string compat", Match(Constant("valid-but-not-bool")), false},
 	}
 
 	scope := NewScope(nil, Constant(5)) // Base value is 5 for comparison
@@ -96,6 +102,49 @@ func TestEvaluatorIfErrorIntegrity(t *testing.T) {
 		// NOTE: In the evaluator library, BoolType is forgiving and treats non-nil objects (like an array) as true.
 		// There is no explicit "type mismatch error" generated from Evaluate() for a boolean truthiness check on an array.
 		{"If condition type mismatch", If(Constant([]int{1, 2, 3}), Constant(1), Constant(2)), false},
+	}
+
+	scope := NewScope(nil, Constant(5)) // Base value is 5 for comparison
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := tt.runner.Run(scope)
+			_, isInvalidor := res.(*Invalidor)
+
+			if tt.expectErr && !isInvalidor {
+				t.Errorf("Expected an Invalidor error, but got %T (value: %v)", res, res.Raw())
+			} else if !tt.expectErr && isInvalidor {
+				t.Errorf("Did not expect an error, but got %v", res.Raw())
+			}
+		})
+	}
+}
+
+// A custom test runner that acts as an evaluator comparison target and deliberately returns an error.
+type errorComparator struct {
+	err error
+}
+
+func (e errorComparator) Compare(other interface{}) (int, error) {
+	return 0, e.err
+}
+
+func TestEvaluatorComparatorErrorIntegrity(t *testing.T) {
+	errComp := errorComparator{errors.New("intentional comparison error")}
+	invalidTypeRunner := Constant(errComp)
+
+	tests := []struct {
+		name      string
+		runner    Runner
+		expectErr bool
+	}{
+		// Comparison error propagation through evaluator.Compare
+		{"GreaterThan comparator error", GreaterThan(invalidTypeRunner), true},
+		{"LessThan comparator error", LessThan(invalidTypeRunner), true},
+		{"GreaterThanOrEqual comparator error", GreaterThanOrEqual(invalidTypeRunner), true},
+		{"LessThanOrEqual comparator error", LessThanOrEqual(invalidTypeRunner), true},
+		{"NotEquals comparator error", NotEquals(invalidTypeRunner), true},
+		{"Equals comparator error", Equals(invalidTypeRunner), true},
 	}
 
 	scope := NewScope(nil, Constant(5)) // Base value is 5 for comparison

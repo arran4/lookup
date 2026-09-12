@@ -129,12 +129,7 @@ func (ef *equalsFunc) Run(scope *Scope) Pathor {
 }
 
 func equals(scope *Scope, result Pathor) Pathor {
-	expr := evaluator.ComparisonExpression{
-		LHS:       evaluator.Constant{Value: result.Raw()},
-		RHS:       evaluator.Constant{Value: scope.Position.Raw()},
-		Operation: "eq",
-	}
-	v, err := expr.Evaluate(nil)
+	v, err := evaluateComparison("eq", result.Raw(), scope.Position.Raw(), scope.Position)
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
 	}

@@ -296,7 +296,7 @@ func extractKey(path string, v reflect.Value, p string) (reflect.Value, Pathor) 
 			k = reflect.ValueOf(int64(v))
 		}
 	case reflect.Uint:
-		if v, err := strconv.ParseUint(path, 10, 64); err != nil {
+		if v, err := strconv.ParseUint(path, 10, strconv.IntSize); err != nil {
 			return reflect.Value{}, &Invalidor{
 				err:  fmt.Errorf("error looking up index of type %s value given was %#v and failed because %w", kt, path, err),
 				path: p,
