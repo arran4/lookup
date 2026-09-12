@@ -164,3 +164,31 @@ func TestEvaluatorComparatorErrorIntegrity(t *testing.T) {
 		})
 	}
 }
+
+func TestEvaluatorMatchNamedStringCompat(t *testing.T) {
+	type MyString string
+
+	tests := []struct {
+		name      string
+		runner    Runner
+		expectErr bool
+	}{
+		{"Match legacy named string compat (non-empty)", Match(Constant(MyString("valid-but-not-bool"))), false},
+		{"Match legacy named string compat (empty)", Match(Constant(MyString(""))), true},
+	}
+
+	scope := NewScope(nil, Constant(5))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := tt.runner.Run(scope)
+			_, isInvalidor := res.(*Invalidor)
+
+			if tt.expectErr && !isInvalidor {
+				t.Errorf("Expected an Invalidor error, but got %T (value: %v)", res, res.Raw())
+			} else if !tt.expectErr && isInvalidor {
+				t.Errorf("Did not expect an error, but got %v", res.Raw())
+			}
+		})
+	}
+}

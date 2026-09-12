@@ -29,8 +29,9 @@ func (ef *matchFunc) Run(scope *Scope) Pathor {
 
 		if err != nil {
 			// Backwards compatibility requires ignoring evaluator parse/conversion errors on Match when it evaluates a value where the type can't cast cleanly to boolean and instead relying on IsZero check for strings etc. We've verified this via TestRelator_FromHere array lookup tests.
-			// Specifically, legacy string truthiness fallback.
-			if _, isString := result.Raw().(string); !isString {
+			// Specifically, legacy string truthiness fallback. Includes named string types.
+			isStringKind := result.Value().IsValid() && result.Value().Kind() == reflect.String
+			if !isStringKind {
 				return NewInvalidor(ExtractPath(scope.Position), err)
 			}
 		} else if b, ok := v.(bool); ok && b {

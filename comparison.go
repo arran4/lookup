@@ -26,9 +26,7 @@ func (ef *evaluatorComparisonFunc) Run(scope *Scope) Pathor {
 	return False(scope.Path())
 }
 
-// evaluateComparison uses evaluator.Compare directly. To ensure operand order matches existing evaluator behavior
-// where LHS is the scope / position and RHS is the argument (as verified via the original ComparisonExpression config),
-// we flip the arguments so evaluator.Compare(pos, rhs) is correct.
+// evaluateComparison uses evaluator.Compare directly.
 func GreaterThan(e Runner) *evaluatorComparisonFunc {
 	return &evaluatorComparisonFunc{op: "gt", rhs: e}
 }
