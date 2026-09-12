@@ -1,9 +1,5 @@
 package lookup
 
-import (
-	"github.com/arran4/go-evaluator"
-)
-
 type binaryComparisonFunc struct {
 	op    string
 	left  Runner
@@ -21,13 +17,7 @@ func (b *binaryComparisonFunc) Run(scope *Scope) Pathor {
 		return rightRes
 	}
 
-	expr := evaluator.ComparisonExpression{
-		LHS:       evaluator.Constant{Value: leftRes.Raw()},
-		RHS:       evaluator.Constant{Value: rightRes.Raw()},
-		Operation: b.op,
-	}
-
-	result, err := expr.Evaluate(nil)
+	result, err := evaluateComparison(b.op, leftRes.Raw(), rightRes.Raw())
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
 	}
