@@ -29,7 +29,10 @@ func (ef *matchFunc) Run(scope *Scope) Pathor {
 
 		if err != nil {
 			// Backwards compatibility requires ignoring evaluator parse/conversion errors on Match when it evaluates a value where the type can't cast cleanly to boolean and instead relying on IsZero check for strings etc. We've verified this via TestRelator_FromHere array lookup tests.
-			// However for explicit Error run types which we check explicitly beforehand, they propagate. For raw runtime evaluator errors, they fallback to IsZero checking for backward compatibility.
+			// Specifically, legacy string truthiness fallback.
+			if _, isString := result.Raw().(string); !isString {
+				return NewInvalidor(ExtractPath(scope.Position), err)
+			}
 		} else if b, ok := v.(bool); ok && b {
 			continue
 		} else {
@@ -129,7 +132,7 @@ func (ef *equalsFunc) Run(scope *Scope) Pathor {
 }
 
 func equals(scope *Scope, result Pathor) Pathor {
-	v, err := evaluateComparison("eq", result.Raw(), scope.Position.Raw(), scope.Position)
+	v, err := evaluateComparison("eq", result.Raw(), scope.Position.Raw())
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
 	}

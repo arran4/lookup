@@ -1,7 +1,5 @@
 package lookup
 
-import ()
-
 type binaryComparisonFunc struct {
 	op    string
 	left  Runner
@@ -19,7 +17,7 @@ func (b *binaryComparisonFunc) Run(scope *Scope) Pathor {
 		return rightRes
 	}
 
-	result, err := evaluateComparison(b.op, leftRes.Raw(), rightRes.Raw(), scope.Position)
+	result, err := evaluateComparison(b.op, leftRes.Raw(), rightRes.Raw())
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
 	}

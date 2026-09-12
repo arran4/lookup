@@ -34,6 +34,7 @@ func TestEvaluatorErrorIntegrity(t *testing.T) {
 		// Match
 		{"Match with error runner", Match(errRunner), true},
 		{"Match legacy string compat", Match(Constant("valid-but-not-bool")), false},
+		{"Match empty string fails", Match(Constant("")), true},
 	}
 
 	scope := NewScope(nil, Constant(5)) // Base value is 5 for comparison
@@ -138,16 +139,17 @@ func TestEvaluatorComparatorErrorIntegrity(t *testing.T) {
 		runner    Runner
 		expectErr bool
 	}{
-		// Comparison error propagation through evaluator.Compare
-		{"GreaterThan comparator error", GreaterThan(invalidTypeRunner), true},
-		{"LessThan comparator error", LessThan(invalidTypeRunner), true},
-		{"GreaterThanOrEqual comparator error", GreaterThanOrEqual(invalidTypeRunner), true},
-		{"LessThanOrEqual comparator error", LessThanOrEqual(invalidTypeRunner), true},
-		{"NotEquals comparator error", NotEquals(invalidTypeRunner), true},
+		// Comparison error propagation through evaluator.Compare (errComp is LHS here)
+		{"GreaterThan comparator error", GreaterThan(Constant(5)), true},
+		{"LessThan comparator error", LessThan(Constant(5)), true},
+		{"GreaterThanOrEqual comparator error", GreaterThanOrEqual(Constant(5)), true},
+		{"LessThanOrEqual comparator error", LessThanOrEqual(Constant(5)), true},
+		{"NotEquals comparator error", NotEquals(Constant(5)), true},
+		// For equals, we can put it on either side if it's BinaryEquals or we flip it for unary Equals. Unary equals: scope is RHS, runner is LHS.
 		{"Equals comparator error", Equals(invalidTypeRunner), true},
 	}
 
-	scope := NewScope(nil, Constant(5)) // Base value is 5 for comparison
+	scope := NewScope(nil, invalidTypeRunner) // Make errComp the base LHS value
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

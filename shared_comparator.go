@@ -5,20 +5,8 @@ import (
 	"github.com/arran4/go-evaluator"
 )
 
-func evaluateComparison(op string, lhs, rhs interface{}, pos Pathor) (bool, error) {
+func evaluateComparison(op string, lhs, rhs interface{}) (bool, error) {
 	comp, err := evaluator.Compare(lhs, rhs)
-
-	// Workaround for go-evaluator v0.0.2 behavior:
-	// Compare(A, B) does not correctly propagate the error when B implements Comparator but A doesn't,
-	// instead it returns -1, <nil>. We detect if RHS is the source of truth and retry properly if needed.
-	if err == nil {
-		if _, ok := lhs.(evaluator.Comparator); !ok {
-			if _, ok := rhs.(evaluator.Comparator); ok {
-				// To get the actual error from RHS, we need to call Compare on it directly
-				_, err = evaluator.Compare(rhs, lhs)
-			}
-		}
-	}
 
 	if err != nil {
 		return false, err

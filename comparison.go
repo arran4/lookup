@@ -1,7 +1,5 @@
 package lookup
 
-import ()
-
 type evaluatorComparisonFunc struct {
 	op  string
 	rhs Runner
@@ -17,7 +15,7 @@ func (ef *evaluatorComparisonFunc) Run(scope *Scope) Pathor {
 		return rhsResult
 	}
 
-	result, err := evaluateComparison(ef.op, scope.Position.Raw(), rhsResult.Raw(), scope.Position)
+	result, err := evaluateComparison(ef.op, scope.Position.Raw(), rhsResult.Raw())
 	if err != nil {
 		return NewInvalidor(scope.Path(), err)
 	}
