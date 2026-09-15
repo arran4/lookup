@@ -17,6 +17,9 @@ type Invalidor struct {
 // NewInvalidor creates an invalidator, there shouldn't be any real reason to do this but you have an option to. See
 // documentation for Invalidor for details
 func NewInvalidor(path string, err error) *Invalidor {
+	if err == nil {
+		err = ErrEvalFail
+	}
 	return &Invalidor{
 		err:  err,
 		path: path,
@@ -110,6 +113,9 @@ type errorFunc struct {
 }
 
 func Error(err error) *errorFunc {
+	if err == nil {
+		err = ErrEvalFail
+	}
 	return &errorFunc{err: err}
 }
 

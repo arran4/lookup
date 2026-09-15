@@ -37,16 +37,16 @@ func NewScopeWithContext(parent Pathor, position Pathor, ctx *evaluator.Context)
 }
 
 func (s *Scope) Copy() *Scope {
-	var ctx *evaluator.Context
-	if s != nil {
-		ctx = s.Context
+	if s == nil {
+		return nil
 	}
 	return &Scope{
-		Current: s.Current,
-		Parent:  s.Parent,
-		v:       s.v,
-		path:    s.path,
-		Context: ctx,
+		Current:  s.Current,
+		Parent:   s.Parent,
+		v:        s.v,
+		path:     s.path,
+		Position: s.Position,
+		Context:  s.Context,
 	}
 }
 
