@@ -7,13 +7,16 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"math"
+	"math/big"
 	"path"
+	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/arran4/go-evaluator"
 	"github.com/arran4/lookup"
-	"github.com/stretchr/testify/assert"
 )
 
 //go:embed testdata
@@ -184,27 +187,7 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				}
 			}
 
-			match := assert.ObjectsAreEqual(expected, out)
-			if !match {
-				if n, ok := expected.(json.Number); ok {
-					f, err := n.Float64()
-					if err == nil {
-						// Compare as float if actual is float
-						if fOut, ok := out.(float64); ok {
-							match = assert.ObjectsAreEqualValues(f, fOut) // approximation
-						} else {
-							i, err := n.Int64()
-							if err == nil {
-								if iOut, ok := out.(int); ok {
-									match = i == int64(iOut)
-								} else if iOut, ok := out.(int64); ok {
-									match = i == iOut
-								}
-							}
-						}
-					}
-				}
-			}
+			match := jsonataValuesEqual(expected, out)
 
 			if expectPass {
 				if !match {
@@ -300,4 +283,83 @@ func evaluateHarnessOutcome(testID string, execErr error, scCode string, expectP
 	}
 
 	return harnessOutcome{}
+}
+
+func jsonataValuesEqual(expected, actual interface{}) bool {
+	if reflect.DeepEqual(expected, actual) {
+		return true
+	}
+
+	// JSON numbers are semantically numbers regardless of the Go numeric
+	// representation chosen by the parser/evaluator.
+	if e, ok := jsonataNumericValue(expected); ok {
+		a, ok := jsonataNumericValue(actual)
+		return ok && e.Cmp(a) == 0
+	}
+
+	ev := reflect.ValueOf(expected)
+	av := reflect.ValueOf(actual)
+
+	if ev.IsValid() && av.IsValid() &&
+		(ev.Kind() == reflect.Slice || ev.Kind() == reflect.Array) &&
+		(av.Kind() == reflect.Slice || av.Kind() == reflect.Array) {
+		if ev.Len() != av.Len() {
+			return false
+		}
+		for i := 0; i < ev.Len(); i++ {
+			if !jsonataValuesEqual(ev.Index(i).Interface(), av.Index(i).Interface()) {
+				return false
+			}
+		}
+		return true
+	}
+
+	em, expectedIsMap := expected.(map[string]interface{})
+	am, actualIsMap := actual.(map[string]interface{})
+	if expectedIsMap || actualIsMap {
+		if !expectedIsMap || !actualIsMap || len(em) != len(am) {
+			return false
+		}
+
+		for key, expectedValue := range em {
+			actualValue, ok := am[key]
+			if !ok || !jsonataValuesEqual(expectedValue, actualValue) {
+				return false
+			}
+		}
+		return true
+	}
+
+	return false
+}
+
+func jsonataNumericValue(v interface{}) (*big.Rat, bool) {
+	var s string
+
+	switch n := v.(type) {
+	case json.Number:
+		s = n.String()
+
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64:
+		s = fmt.Sprint(n)
+
+	case float32:
+		if math.IsNaN(float64(n)) || math.IsInf(float64(n), 0) {
+			return nil, false
+		}
+		s = strconv.FormatFloat(float64(n), 'g', -1, 32)
+
+	case float64:
+		if math.IsNaN(n) || math.IsInf(n, 0) {
+			return nil, false
+		}
+		s = strconv.FormatFloat(n, 'g', -1, 64)
+
+	default:
+		return nil, false
+	}
+
+	r, ok := new(big.Rat).SetString(s)
+	return r, ok
 }
