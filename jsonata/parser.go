@@ -357,7 +357,7 @@ func (p *parser) parseTerm() (Node, error) {
 			}
 		}
 
-		return &LiteralNode{Value: litItems}, nil
+		return &LiteralNode{Value: &Array{Elements: litItems}}, nil
 	}
 
 	// Path

@@ -39,6 +39,14 @@ func compileBinary(n *BinaryNode) lookup.Runner {
 	left := compileNode(n.Left)
 	right := compileNode(n.Right)
 
+	// Adapter layer for generic operators:
+	// If the operator is not a JSONata-specific logic operator ("and", "or", ".."),
+	// materialize the operands before passing to generic lookup functions.
+	if n.Operator != "and" && n.Operator != "or" && n.Operator != ".." {
+		left = &materializeRunner{inner: left}
+		right = &materializeRunner{inner: right}
+	}
+
 	switch n.Operator {
 	case "&":
 		return lookup.StringConcat(left, right)
@@ -67,9 +75,9 @@ func compileBinary(n *BinaryNode) lookup.Runner {
 	case "in":
 		return lookup.BinaryIn(left, right)
 	case "and":
-		return lookup.BinaryAnd(left, right)
+		return &jsonataAndRunner{left: left, right: right}
 	case "or":
-		return lookup.BinaryOr(left, right)
+		return &jsonataOrRunner{left: left, right: right}
 	case "..":
 		return lookup.Sequence(left, right)
 	}
