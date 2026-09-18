@@ -141,13 +141,6 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 
 			res, err := runCase(sc, c.Expr)
 			var out interface{}
-			if res != nil {
-				if p, ok := res.(lookup.Pathor); ok {
-					out = p.Raw()
-				} else {
-					out = res
-				}
-			}
 
 			// Setup errors, e.g. failing to read dataset
 			var setupErr error

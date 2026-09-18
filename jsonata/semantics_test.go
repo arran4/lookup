@@ -10,7 +10,9 @@ import (
 func TestSemanticMissingPropertyVsNull(t *testing.T) {
 	data := `{"a": 1, "b": null}`
 	var v interface{}
-	json.Unmarshal([]byte(data), &v)
+	if err := json.Unmarshal([]byte(data), &v); err != nil {
+			t.Fatalf("failed to unmarshal test data: %v", err)
+		}
 	root := lookup.Reflect(v)
 
 	// Missing property
@@ -59,7 +61,9 @@ func TestSemanticSingletonSequence(t *testing.T) {
 func TestGenuineErrorSurvival(t *testing.T) {
 	data := `{"a": [1, 2, 3]}`
 	var v interface{}
-	json.Unmarshal([]byte(data), &v)
+	if err := json.Unmarshal([]byte(data), &v); err != nil {
+			t.Fatalf("failed to unmarshal test data: %v", err)
+		}
 	root := lookup.Reflect(v)
 
 	// In jsonata missing function evaluates to an error. Let's see.
@@ -86,7 +90,9 @@ func TestRegressionStringConcatSingleton(t *testing.T) {
 func TestRegressionPathFlattening(t *testing.T) {
 	data := `{"a": [[1, 2], [3, 4]]}`
 	var v interface{}
-	json.Unmarshal([]byte(data), &v)
+	if err := json.Unmarshal([]byte(data), &v); err != nil {
+			t.Fatalf("failed to unmarshal test data: %v", err)
+		}
 	root := lookup.Reflect(v)
 
 	// a[] should flatten to [1, 2, 3, 4] but since we don't have [] syntax implemented,
