@@ -198,7 +198,7 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 
 			// Apply final materialization boundary
 			var actualUndefined bool
-			out, actualUndefined = materializeHarnessValue(out)
+			out, actualUndefined = materializeHarnessValue(res) // Pass 'res' which is the raw interface/pathor
 
 			match := false
 			if sc.Undefined {
@@ -319,6 +319,13 @@ func evaluateHarnessOutcome(testID string, execErr error, scCode string, expectP
 
 
 func materializeHarnessValue(v interface{}) (value interface{}, undefined bool) {
+	// First check invalidors mapping to missing elements BEFORE raw extraction
+	if inv, ok := v.(*lookup.Invalidor); ok {
+		if IsUndefinedError(inv) {
+			return nil, true
+		}
+	}
+
 	if p, ok := v.(lookup.Pathor); ok {
 		v = p.Raw()
 	}
@@ -328,24 +335,12 @@ func materializeHarnessValue(v interface{}) (value interface{}, undefined bool) 
 		return nil, true
 	}
 
-	// Check invalidors mapping to missing elements
-	if inv, ok := v.(*lookup.Invalidor); ok {
-		if isUndefinedError(inv) {
-			return nil, true
-		}
-	}
-
 	// Check missing empty sequence mappings
 	if seq, ok := v.(*Sequence); ok && len(seq.Values) == 0 {
 		return nil, true
 	}
 
 	return v, false
-}
-
-func isUndefinedError(inv *lookup.Invalidor) bool {
-	errStr := inv.Error()
-	return errStr != "" && (strings.Contains(errStr, "element not found") || strings.Contains(errStr, "does not exist") || strings.Contains(errStr, "no such path"))
 }
 
 func jsonataValuesEqual(expected, actual interface{}) bool {

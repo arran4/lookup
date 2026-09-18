@@ -39,47 +39,38 @@ func compileBinary(n *BinaryNode) lookup.Runner {
 	left := compileNode(n.Left)
 	right := compileNode(n.Right)
 
-	// Adapter layer for generic operators:
-	// If the operator is not a JSONata-specific logic operator ("and", "or", ".."),
-	// materialize the operands before passing to generic lookup functions.
-	if n.Operator != "and" && n.Operator != "or" && n.Operator != ".." {
-		left = &materializeRunner{inner: left}
-		right = &materializeRunner{inner: right}
-	}
-
 	switch n.Operator {
-	case "&":
-		return lookup.StringConcat(left, right)
-	case "+":
-		return lookup.Add(left, right)
-	case "-":
-		return lookup.Subtract(left, right)
-	case "*":
-		return lookup.Multiply(left, right)
-	case "/":
-		return lookup.Divide(left, right)
-	case "%":
-		return lookup.Modulo(left, right)
-	case "=":
-		return lookup.BinaryEquals(left, right)
-	case "!=":
-		return lookup.BinaryNotEquals(left, right)
-	case ">":
-		return lookup.BinaryGreaterThan(left, right)
-	case "<":
-		return lookup.BinaryLessThan(left, right)
-	case ">=":
-		return lookup.BinaryGreaterThanOrEqual(left, right)
-	case "<=":
-		return lookup.BinaryLessThanOrEqual(left, right)
-	case "in":
-		return lookup.BinaryIn(left, right)
 	case "and":
 		return &jsonataAndRunner{left: left, right: right}
 	case "or":
 		return &jsonataOrRunner{left: left, right: right}
 	case "..":
-		return lookup.Sequence(left, right)
+		return lookup.Sequence(&materializeRunner{inner: left}, &materializeRunner{inner: right})
+	case "&", "+", "-", "*", "/", "%", "=", "!=", ">", "<", ">=", "<=", "in":
+		var generic lookup.Runner
+		ml := &materializeRunner{inner: left}
+		mr := &materializeRunner{inner: right}
+		switch n.Operator {
+		case "&": generic = lookup.StringConcat(ml, mr)
+		case "+": generic = lookup.Add(ml, mr)
+		case "-": generic = lookup.Subtract(ml, mr)
+		case "*": generic = lookup.Multiply(ml, mr)
+		case "/": generic = lookup.Divide(ml, mr)
+		case "%": generic = lookup.Modulo(ml, mr)
+		case "=": generic = lookup.BinaryEquals(ml, mr)
+		case "!=": generic = lookup.BinaryNotEquals(ml, mr)
+		case ">": generic = lookup.BinaryGreaterThan(ml, mr)
+		case "<": generic = lookup.BinaryLessThan(ml, mr)
+		case ">=": generic = lookup.BinaryGreaterThanOrEqual(ml, mr)
+		case "<=": generic = lookup.BinaryLessThanOrEqual(ml, mr)
+		case "in": generic = lookup.BinaryIn(ml, mr)
+		}
+		return &jsonataBinaryRunner{
+			operator: n.Operator,
+			left:     left,
+			right:    right,
+			generic:  generic,
+		}
 	}
 	// Fallback
 	return lookup.Error(fmt.Errorf("unsupported binary operator: %s", n.Operator))

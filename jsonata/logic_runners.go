@@ -2,7 +2,6 @@ package jsonata
 
 import (
 	"github.com/arran4/lookup"
-	"strings"
 )
 
 type jsonataAndRunner struct {
@@ -13,10 +12,10 @@ type jsonataAndRunner struct {
 func (r *jsonataAndRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	lRes := r.left.Run(scope)
 	if inv, ok := lRes.(*lookup.Invalidor); ok {
-		errStr := inv.Error()
-		if strings.Contains(errStr, "element not found") || strings.Contains(errStr, "does not exist") || strings.Contains(errStr, "no such path") {
-			return lookup.Reflect(false)
+		if !IsUndefinedError(inv) {
+			return inv
 		}
+		return lookup.Reflect(false)
 	}
 
 	lRaw := lRes.Raw()
@@ -26,10 +25,10 @@ func (r *jsonataAndRunner) Run(scope *lookup.Scope) lookup.Pathor {
 
 	rRes := r.right.Run(scope)
 	if inv, ok := rRes.(*lookup.Invalidor); ok {
-		errStr := inv.Error()
-		if strings.Contains(errStr, "element not found") || strings.Contains(errStr, "does not exist") || strings.Contains(errStr, "no such path") {
-			return lookup.Reflect(false)
+		if !IsUndefinedError(inv) {
+			return inv
 		}
+		return lookup.Reflect(false)
 	}
 	rRaw := rRes.Raw()
 	if !Truthy(rRaw) {
@@ -46,13 +45,24 @@ type jsonataOrRunner struct {
 
 func (r *jsonataOrRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	lRes := r.left.Run(scope)
-
-	lRaw := lRes.Raw()
-	if Truthy(lRaw) {
-		return lookup.Reflect(true)
+	if inv, ok := lRes.(*lookup.Invalidor); ok {
+		if !IsUndefinedError(inv) {
+			return inv
+		}
+	} else {
+		lRaw := lRes.Raw()
+		if Truthy(lRaw) {
+			return lookup.Reflect(true)
+		}
 	}
 
 	rRes := r.right.Run(scope)
+	if inv, ok := rRes.(*lookup.Invalidor); ok {
+		if !IsUndefinedError(inv) {
+			return inv
+		}
+		return lookup.Reflect(false)
+	}
 	rRaw := rRes.Raw()
 	if Truthy(rRaw) {
 		return lookup.Reflect(true)

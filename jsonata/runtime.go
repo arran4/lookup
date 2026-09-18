@@ -1,7 +1,10 @@
 package jsonata
 
 import (
+	"errors"
+	"github.com/arran4/lookup"
 	"reflect"
+	"strings"
 )
 
 // Undefined represents the JSONata concept of no value.
@@ -121,4 +124,16 @@ func Truthy(val interface{}) bool {
 		return rv.Len() > 0
 	}
 	return true
+}
+
+func IsUndefinedError(inv *lookup.Invalidor) bool {
+	if inv == nil {
+		return false
+	}
+	err := inv.Unwrap()
+	if errors.Is(err, lookup.ErrNoSuchPath) {
+		return true
+	}
+	errStr := inv.Error()
+	return errStr != "" && (strings.Contains(errStr, "element not found") || strings.Contains(errStr, "does not exist") || strings.Contains(errStr, "no such path"))
 }

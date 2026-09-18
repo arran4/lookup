@@ -3,7 +3,6 @@ package jsonata
 import (
 	"fmt"
 	"reflect"
-	"strings"
 
 	"github.com/arran4/go-evaluator"
 	"github.com/arran4/lookup"
@@ -17,8 +16,7 @@ func (r *jsonataRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	res := r.inner.Run(scope)
 
 	if inv, ok := res.(*lookup.Invalidor); ok {
-		errStr := inv.Error()
-		if strings.Contains(errStr, "element not found") || strings.Contains(errStr, "does not exist") || strings.Contains(errStr, "no such path") {
+		if IsUndefinedError(inv) {
 			return lookup.Reflect(Undefined{})
 		}
 		return inv
@@ -89,8 +87,7 @@ func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 			continue
 		}
 		if inv, ok := res.(*lookup.Invalidor); ok {
-			errStr := inv.Error()
-			if strings.Contains(errStr, "element not found") || strings.Contains(errStr, "does not exist") || strings.Contains(errStr, "no such path") {
+			if IsUndefinedError(inv) {
 				continue
 			}
 			return inv // real error, stop map evaluation
@@ -135,8 +132,7 @@ func (c *jsonataChain) Run(scope *lookup.Scope) lookup.Pathor {
 		return lookup.Reflect(Undefined{})
 	}
 	if inv, ok := res.(*lookup.Invalidor); ok {
-		errStr := inv.Error()
-		if strings.Contains(errStr, "element not found") || strings.Contains(errStr, "does not exist") || strings.Contains(errStr, "no such path") {
+		if IsUndefinedError(inv) {
 			return lookup.Reflect(Undefined{})
 		}
 		return inv
@@ -159,9 +155,7 @@ func (r *jsonataSingletonRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	if isNilOrNilPointer(curr) {
 		return r.inner.Run(scope)
 	}
-	if curr.IsNil() {
-		return r.inner.Run(scope)
-	}
+
 
 	if !curr.IsSlice() {
 		// Wrap in singleton slice
