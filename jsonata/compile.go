@@ -47,29 +47,10 @@ func compileBinary(n *BinaryNode) lookup.Runner {
 	case "..":
 		return lookup.Sequence(&materializeRunner{inner: left}, &materializeRunner{inner: right})
 	case "&", "+", "-", "*", "/", "%", "=", "!=", ">", "<", ">=", "<=", "in":
-		var generic lookup.Runner
-		ml := &materializeRunner{inner: left}
-		mr := &materializeRunner{inner: right}
-		switch n.Operator {
-		case "&": generic = lookup.StringConcat(ml, mr)
-		case "+": generic = lookup.Add(ml, mr)
-		case "-": generic = lookup.Subtract(ml, mr)
-		case "*": generic = lookup.Multiply(ml, mr)
-		case "/": generic = lookup.Divide(ml, mr)
-		case "%": generic = lookup.Modulo(ml, mr)
-		case "=": generic = lookup.BinaryEquals(ml, mr)
-		case "!=": generic = lookup.BinaryNotEquals(ml, mr)
-		case ">": generic = lookup.BinaryGreaterThan(ml, mr)
-		case "<": generic = lookup.BinaryLessThan(ml, mr)
-		case ">=": generic = lookup.BinaryGreaterThanOrEqual(ml, mr)
-		case "<=": generic = lookup.BinaryLessThanOrEqual(ml, mr)
-		case "in": generic = lookup.BinaryIn(ml, mr)
-		}
 		return &jsonataBinaryRunner{
 			operator: n.Operator,
 			left:     left,
 			right:    right,
-			generic:  generic,
 		}
 	}
 	// Fallback

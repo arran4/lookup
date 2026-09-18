@@ -11,8 +11,8 @@ func TestSemanticMissingPropertyVsNull(t *testing.T) {
 	data := `{"a": 1, "b": null}`
 	var v interface{}
 	if err := json.Unmarshal([]byte(data), &v); err != nil {
-			t.Fatalf("failed to unmarshal test data: %v", err)
-		}
+		t.Fatalf("failed to unmarshal test data: %v", err)
+	}
 	root := lookup.Reflect(v)
 
 	// Missing property
@@ -62,8 +62,8 @@ func TestGenuineErrorSurvival(t *testing.T) {
 	data := `{"a": [1, 2, 3]}`
 	var v interface{}
 	if err := json.Unmarshal([]byte(data), &v); err != nil {
-			t.Fatalf("failed to unmarshal test data: %v", err)
-		}
+		t.Fatalf("failed to unmarshal test data: %v", err)
+	}
 	root := lookup.Reflect(v)
 
 	// In jsonata missing function evaluates to an error. Let's see.
@@ -91,8 +91,8 @@ func TestRegressionPathFlattening(t *testing.T) {
 	data := `{"a": [[1, 2], [3, 4]]}`
 	var v interface{}
 	if err := json.Unmarshal([]byte(data), &v); err != nil {
-			t.Fatalf("failed to unmarshal test data: %v", err)
-		}
+		t.Fatalf("failed to unmarshal test data: %v", err)
+	}
 	root := lookup.Reflect(v)
 
 	// a[] should flatten to [1, 2, 3, 4] but since we don't have [] syntax implemented,
@@ -119,4 +119,63 @@ func TestRegressionArrayPreservationInsidePath(t *testing.T) {
 	flat := FlattenSequence(seq)
 	mat := Materialize(flat)
 	assert.Equal(t, []interface{}{1, []interface{}{2, 3}}, mat)
+}
+
+func TestTruthyDirectRecursive(t *testing.T) {
+	cases := []struct {
+		name     string
+		in       interface{}
+		expected bool
+	}{
+		{"Array{}", &Array{}, false},
+		{"Array{false, 0, \"\"}", &Array{Elements: []interface{}{false, 0, ""}}, false},
+		{"Array{false, 1}", &Array{Elements: []interface{}{false, 1}}, true},
+		{"Sequence{}", &Sequence{}, false},
+		{"Sequence{false, 0, \"\"}", &Sequence{Values: []interface{}{false, 0, ""}}, false},
+		{"Sequence{false, 1}", &Sequence{Values: []interface{}{false, 1}}, true},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			out := Truthy(tc.in)
+			if out != tc.expected {
+				t.Fatalf("Truthy(%v) = %v, expected %v", tc.in, out, tc.expected)
+			}
+		})
+	}
+}
+
+func TestJsonataValuesEqualDirect(t *testing.T) {
+	cases := []struct {
+		name     string
+		a        interface{}
+		b        interface{}
+		expected bool
+	}{
+		{"Nested numbers", []interface{}{1}, []interface{}{1.0}, true},
+		{"Shape mismatch", []interface{}{1}, 1, false},
+		{"Value mismatch", 1, 2, false},
+		{"Large integer", 9007199254740992, 9007199254740992, true}, // 2^53
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			out := jsonataValuesEqual(tc.a, tc.b)
+			if out != tc.expected {
+				t.Fatalf("jsonataValuesEqual(%v, %v) = %v, expected %v", tc.a, tc.b, out, tc.expected)
+			}
+		})
+	}
+}
+
+func TestHarnessUndefinedDistinction(t *testing.T) {
+	// missing input -> undefined
+	v, undef := materializeHarnessValue(Undefined{})
+	if v != nil || !undef {
+		t.Fatalf("materializeHarnessValue(Undefined{}) = %v, %v, expected nil, true", v, undef)
+	}
+
+	// explicit null -> JSON null
+	v, undef = materializeHarnessValue(nil)
+	if v != nil || undef {
+		t.Fatalf("materializeHarnessValue(nil) = %v, %v, expected nil, false", v, undef)
+	}
 }

@@ -36,7 +36,6 @@ type jsonataBinaryRunner struct {
 	operator string
 	left     lookup.Runner
 	right    lookup.Runner
-	generic  lookup.Runner
 }
 
 func (r *jsonataBinaryRunner) Run(scope *lookup.Scope) lookup.Pathor {
@@ -83,5 +82,5 @@ func (r *jsonataBinaryRunner) Run(scope *lookup.Scope) lookup.Pathor {
 		}
 	}
 
-	return r.generic.Run(scope)
+	return lookup.Error(nil).Run(scope)
 }

@@ -120,7 +120,9 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 			}
 
 			var rawMap map[string]interface{}
-			json.Unmarshal([]byte(c.Input), &rawMap)
+			if err := json.Unmarshal([]byte(c.Input), &rawMap); err != nil {
+				t.Fatalf("failed to unmarshal raw map: %v", err)
+			}
 			_, hasData := rawMap["data"]
 			_, hasDataset := rawMap["dataset"]
 			if !hasData && (!hasDataset || sc.Dataset == "") {
@@ -310,7 +312,6 @@ func evaluateHarnessOutcome(testID string, execErr error, scCode string, expectP
 	return harnessOutcome{}
 }
 
-
 func materializeHarnessValue(v interface{}) (value interface{}, undefined bool) {
 	// First check invalidors mapping to missing elements BEFORE raw extraction
 	if inv, ok := v.(*lookup.Invalidor); ok {
@@ -325,11 +326,6 @@ func materializeHarnessValue(v interface{}) (value interface{}, undefined bool) 
 
 	v = Materialize(v)
 	if _, ok := v.(Undefined); ok {
-		return nil, true
-	}
-
-	// Check missing empty sequence mappings
-	if seq, ok := v.(*Sequence); ok && len(seq.Values) == 0 {
 		return nil, true
 	}
 

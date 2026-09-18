@@ -93,7 +93,6 @@ func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 			return inv // real error, stop map evaluation
 		}
 
-
 		resRaw := res.Raw()
 		if _, ok := resRaw.(Undefined); ok {
 			continue
@@ -155,7 +154,6 @@ func (r *jsonataSingletonRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	if isNilOrNilPointer(curr) {
 		return r.inner.Run(scope)
 	}
-
 
 	if !curr.IsSlice() {
 		// Wrap in singleton slice
