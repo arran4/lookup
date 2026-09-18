@@ -18,16 +18,14 @@ func (r *materializeRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	}
 
 	if res == nil {
-		// Missing evaluation in inner path
-		return lookup.Reflect(Undefined{})
+		return lookup.NewInvalidor("", lookup.ErrNoSuchPath)
 	}
 
 	raw := res.Raw()
-	if _, ok := raw.(Undefined); ok {
-		return lookup.Reflect(Undefined{})
-	}
 
-	// Convert internal JSONata value (e.g. Sequence) to standard external value
 	mat := Materialize(raw)
+	if _, ok := mat.(Undefined); ok {
+		return lookup.NewInvalidor("", lookup.ErrNoSuchPath)
+	}
 	return lookup.Reflect(mat)
 }

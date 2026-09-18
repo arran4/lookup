@@ -72,7 +72,6 @@ var expectedFailures = map[string]bool{
 	"variables/case009":                   true,
 	"variables/case011":                   true,
 	"boolean-expresssions/case030":        true,
-
 	"errors/case005":                      true,
 	"errors/case000":                      true,
 	"errors/case019":                      true,
@@ -1075,7 +1074,6 @@ var expectedFailures = map[string]bool{
 	"function-signatures/case023":         true,
 	"numeric-operators/case005":           true,
 }
-
 var unsupportedTests = map[string]string{
 	"comments/case003": "Function definition not implemented",
 }

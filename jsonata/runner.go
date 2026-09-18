@@ -57,7 +57,7 @@ type jsonataMapRunner struct {
 func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	curr := scope.Current
 
-	if curr == nil || isNilOrNilPointer(curr) || curr.IsNil() {
+	if curr == nil || isNilOrNilPointer(curr) {
 		return lookup.Reflect(Undefined{})
 	}
 
@@ -95,9 +95,7 @@ func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 			}
 			return inv // real error, stop map evaluation
 		}
-		if res.IsNil() {
-			continue
-		}
+
 
 		resRaw := res.Raw()
 		if _, ok := resRaw.(Undefined); ok {

@@ -119,6 +119,15 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				t.Fatalf("invalid suite case config: %v", err)
 			}
 
+			var rawMap map[string]interface{}
+			json.Unmarshal([]byte(c.Input), &rawMap)
+			_, hasData := rawMap["data"]
+			_, hasDataset := rawMap["dataset"]
+			if !hasData && (!hasDataset || sc.Dataset == "") {
+				// No input provided!
+				sc.Data = Undefined{}
+			}
+
 			// Capture panic to treat as failure instead of crash
 			defer func() {
 				if r := recover(); r != nil {
@@ -187,11 +196,34 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				}
 			}
 
-			match := jsonataValuesEqual(expected, out)
+			// Apply final materialization boundary
+			var actualUndefined bool
+			out, actualUndefined = materializeHarnessValue(out)
+
+			match := false
+			if sc.Undefined {
+				match = actualUndefined
+			} else if actualUndefined {
+				match = false
+			} else {
+				match = jsonataValuesEqual(expected, out)
+			}
 
 			if expectPass {
 				if !match {
-					t.Fatalf("Test failed. Expected: %v, Got: %v", expected, out)
+					expectedStr := "null"
+					if sc.Undefined {
+						expectedStr = "undefined"
+					} else if expected != nil {
+						expectedStr = fmt.Sprintf("%v (%T)", expected, expected)
+					}
+					gotStr := "null"
+					if actualUndefined {
+						gotStr = "undefined"
+					} else if out != nil {
+						gotStr = fmt.Sprintf("%v (%T)", out, out)
+					}
+					t.Fatalf("\nTEST_ID: %s\nEXPR: %s\nEXPECTED_UNDEF: %v\nEXPECTED: %s\nFINAL_VALUE: %s\n---", testID, c.Expr, sc.Undefined, expectedStr, gotStr)
 				}
 			} else {
 				if match {
@@ -283,6 +315,37 @@ func evaluateHarnessOutcome(testID string, execErr error, scCode string, expectP
 	}
 
 	return harnessOutcome{}
+}
+
+
+func materializeHarnessValue(v interface{}) (value interface{}, undefined bool) {
+	if p, ok := v.(lookup.Pathor); ok {
+		v = p.Raw()
+	}
+
+	v = Materialize(v)
+	if _, ok := v.(Undefined); ok {
+		return nil, true
+	}
+
+	// Check invalidors mapping to missing elements
+	if inv, ok := v.(*lookup.Invalidor); ok {
+		if isUndefinedError(inv) {
+			return nil, true
+		}
+	}
+
+	// Check missing empty sequence mappings
+	if seq, ok := v.(*Sequence); ok && len(seq.Values) == 0 {
+		return nil, true
+	}
+
+	return v, false
+}
+
+func isUndefinedError(inv *lookup.Invalidor) bool {
+	errStr := inv.Error()
+	return errStr != "" && (strings.Contains(errStr, "element not found") || strings.Contains(errStr, "does not exist") || strings.Contains(errStr, "no such path"))
 }
 
 func jsonataValuesEqual(expected, actual interface{}) bool {

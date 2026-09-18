@@ -91,7 +91,8 @@ func (s *sumFunc) Call(args ...interface{}) (interface{}, error) {
 	}
 	arg := args[0]
 	if arg == nil {
-		return nil, nil
+		if len(args) > 1 { return nil, nil }
+		return Undefined{}, nil
 	}
 
 	val := 0.0
@@ -151,11 +152,12 @@ type maxFunc struct{}
 
 func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, nil
+		return Undefined{}, nil
 	}
 	arg := args[0]
 	if arg == nil {
-		return nil, nil
+		if len(args) > 1 { return nil, nil }
+		return Undefined{}, nil
 	}
 
 	var maxVal *float64
@@ -169,7 +171,8 @@ func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	switch v := arg.(type) {
 	case []interface{}:
 		if len(v) == 0 {
-			return nil, nil
+			if len(args) > 1 { return nil, nil }
+			return Undefined{}, nil
 		}
 		for _, item := range v {
 			f, ok := lookup.ToFloat(item)
@@ -187,7 +190,8 @@ func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	}
 
 	if maxVal == nil {
-		return nil, nil
+		if len(args) > 1 { return nil, nil }
+		return Undefined{}, nil
 	}
 	return *maxVal, nil
 }
@@ -196,11 +200,12 @@ type minFunc struct{}
 
 func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, nil
+		return Undefined{}, nil
 	}
 	arg := args[0]
 	if arg == nil {
-		return nil, nil
+		if len(args) > 1 { return nil, nil }
+		return Undefined{}, nil
 	}
 
 	var minVal *float64
@@ -214,7 +219,8 @@ func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	switch v := arg.(type) {
 	case []interface{}:
 		if len(v) == 0 {
-			return nil, nil
+			if len(args) > 1 { return nil, nil }
+			return Undefined{}, nil
 		}
 		for _, item := range v {
 			f, ok := lookup.ToFloat(item)
@@ -232,7 +238,8 @@ func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	}
 
 	if minVal == nil {
-		return nil, nil
+		if len(args) > 1 { return nil, nil }
+		return Undefined{}, nil
 	}
 	return *minVal, nil
 }
@@ -241,11 +248,12 @@ type averageFunc struct{}
 
 func (s *averageFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, nil
+		return Undefined{}, nil
 	}
 	arg := args[0]
 	if arg == nil {
-		return nil, nil
+		if len(args) > 1 { return nil, nil }
+		return Undefined{}, nil
 	}
 
 	sum := 0.0
@@ -254,7 +262,8 @@ func (s *averageFunc) Call(args ...interface{}) (interface{}, error) {
 	switch v := arg.(type) {
 	case []interface{}:
 		if len(v) == 0 {
-			return nil, nil
+			if len(args) > 1 { return nil, nil }
+			return Undefined{}, nil
 		}
 		for _, item := range v {
 			f, ok := lookup.ToFloat(item)
