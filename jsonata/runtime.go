@@ -1,11 +1,42 @@
 package jsonata
 
 import (
+	"encoding/json"
 	"errors"
-	"github.com/arran4/lookup"
+	"fmt"
+	"math"
+	"math/big"
 	"reflect"
+	"strconv"
 	"strings"
+
+	"github.com/arran4/lookup"
 )
+
+func jsonataNumericValue(v interface{}) (*big.Rat, bool) {
+	var s string
+	switch n := v.(type) {
+	case json.Number:
+		s = string(n)
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64:
+		s = fmt.Sprintf("%d", n)
+	case float32:
+		if math.IsNaN(float64(n)) || math.IsInf(float64(n), 0) {
+			return nil, false
+		}
+		s = strconv.FormatFloat(float64(n), 'g', -1, 32)
+	case float64:
+		if math.IsNaN(n) || math.IsInf(n, 0) {
+			return nil, false
+		}
+		s = strconv.FormatFloat(n, 'g', -1, 64)
+	default:
+		return nil, false
+	}
+	r, ok := new(big.Rat).SetString(s)
+	return r, ok
+}
 
 // Undefined represents the JSONata concept of no value.
 type Undefined struct{}
@@ -132,14 +163,12 @@ func Truthy(val interface{}) bool {
 		return false
 	case bool:
 		return v
-	case int:
-		return v != 0
-	case int64:
-		return v != 0
-	case float64:
-		return v != 0
 	case string:
 		return len(v) > 0
+	}
+
+	if n, ok := jsonataNumericValue(val); ok {
+		return n.Sign() != 0
 	}
 
 	rv := reflect.ValueOf(val)

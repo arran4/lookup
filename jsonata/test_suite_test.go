@@ -7,11 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"math"
-	"math/big"
 	"path"
 	"reflect"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -118,13 +115,6 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 			if err := json.Unmarshal([]byte(c.Input), &sc); err != nil {
 				t.Fatalf("invalid suite case config: %v", err)
 			}
-
-			var rawMap map[string]interface{}
-			if err := json.Unmarshal([]byte(c.Input), &rawMap); err != nil {
-				t.Fatalf("failed to unmarshal raw map: %v", err)
-			}
-			// We just keep the raw metadata but do not mutate sc.Data
-			_, _ = rawMap["data"]
 
 			// Capture panic to treat as failure instead of crash
 			defer func() {
@@ -374,35 +364,4 @@ func jsonataValuesEqual(expected, actual interface{}) bool {
 	}
 
 	return false
-}
-
-func jsonataNumericValue(v interface{}) (*big.Rat, bool) {
-	var s string
-
-	switch n := v.(type) {
-	case json.Number:
-		s = n.String()
-
-	case int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64:
-		s = fmt.Sprint(n)
-
-	case float32:
-		if math.IsNaN(float64(n)) || math.IsInf(float64(n), 0) {
-			return nil, false
-		}
-		s = strconv.FormatFloat(float64(n), 'g', -1, 32)
-
-	case float64:
-		if math.IsNaN(n) || math.IsInf(n, 0) {
-			return nil, false
-		}
-		s = strconv.FormatFloat(n, 'g', -1, 64)
-
-	default:
-		return nil, false
-	}
-
-	r, ok := new(big.Rat).SetString(s)
-	return r, ok
 }
