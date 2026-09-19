@@ -112,3 +112,21 @@ func (r *jsonataBinaryRunner) Run(scope *lookup.Scope) lookup.Pathor {
 
 	return lookup.NewInvalidor("", lookup.ErrEvalFail)
 }
+
+// jsonataSequenceRunner wraps a generic sequence (like range) and ensures its output is a JSONata Sequence.
+type jsonataSequenceRunner struct {
+	inner lookup.Runner
+}
+
+func (r *jsonataSequenceRunner) Run(scope *lookup.Scope) lookup.Pathor {
+	res := r.inner.Run(scope)
+	if inv, ok := res.(*lookup.Invalidor); ok {
+		return inv
+	}
+
+	raw := res.Raw()
+	if s, ok := raw.([]interface{}); ok {
+		return lookup.Reflect(&Sequence{Values: s})
+	}
+	return res
+}

@@ -456,7 +456,6 @@ var expectedFailures = map[string]bool{
 	"function-formatNumber/case012":       true,
 	"function-split/case007":              true,
 	"hof-single/case010":                  true,
-	"boolean-expresssions/case014":        true,
 	"function-formatNumber/case010":       true,
 	"function-round/case012":              true,
 	"comparison-operators/case019":        true,

@@ -151,9 +151,14 @@ type maxFunc struct{}
 
 func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, nil
+		return Undefined{}, nil
 	}
 	arg := args[0]
+	if _, ok := arg.(Undefined); ok {
+		if len(args) == 1 {
+			return Undefined{}, nil
+		}
+	}
 	if arg == nil {
 		return nil, nil
 	}
@@ -169,6 +174,9 @@ func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	switch v := arg.(type) {
 	case []interface{}:
 		if len(v) == 0 {
+			if len(args) == 1 {
+				return Undefined{}, nil
+			}
 			return nil, nil
 		}
 		for _, item := range v {
@@ -187,6 +195,9 @@ func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	}
 
 	if maxVal == nil {
+		if len(args) == 1 {
+			return Undefined{}, nil
+		}
 		return nil, nil
 	}
 	return *maxVal, nil
@@ -196,9 +207,14 @@ type minFunc struct{}
 
 func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, nil
+		return Undefined{}, nil
 	}
 	arg := args[0]
+	if _, ok := arg.(Undefined); ok {
+		if len(args) == 1 {
+			return Undefined{}, nil
+		}
+	}
 	if arg == nil {
 		return nil, nil
 	}
@@ -214,6 +230,9 @@ func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	switch v := arg.(type) {
 	case []interface{}:
 		if len(v) == 0 {
+			if len(args) == 1 {
+				return Undefined{}, nil
+			}
 			return nil, nil
 		}
 		for _, item := range v {
@@ -232,6 +251,9 @@ func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	}
 
 	if minVal == nil {
+		if len(args) == 1 {
+			return Undefined{}, nil
+		}
 		return nil, nil
 	}
 	return *minVal, nil
@@ -241,9 +263,14 @@ type averageFunc struct{}
 
 func (s *averageFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, nil
+		return Undefined{}, nil
 	}
 	arg := args[0]
+	if _, ok := arg.(Undefined); ok {
+		if len(args) == 1 {
+			return Undefined{}, nil
+		}
+	}
 	if arg == nil {
 		return nil, nil
 	}
@@ -254,6 +281,9 @@ func (s *averageFunc) Call(args ...interface{}) (interface{}, error) {
 	switch v := arg.(type) {
 	case []interface{}:
 		if len(v) == 0 {
+			if len(args) == 1 {
+				return Undefined{}, nil
+			}
 			return nil, nil
 		}
 		for _, item := range v {

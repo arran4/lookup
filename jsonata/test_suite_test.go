@@ -44,16 +44,22 @@ func parseJSON(data string) (interface{}, error) {
 	return v, nil
 }
 
-func runCase(c suiteCase, expr string) (interface{}, error) {
+func runCase(c suiteCase, expr string, undefinedInput bool) (interface{}, error) {
 	var data interface{}
 	var err error
-	if c.Data != nil {
+	if undefinedInput {
+		data = Undefined{}
+	} else if c.Data != nil {
 		data = c.Data
 	} else if c.Dataset != "" {
 		data, err = loadDataset(c.Dataset)
 		if err != nil {
 			return nil, err
 		}
+	} else {
+		// fallback for cases with data: null or dataset: null (which unmarshals to interface{}(nil))
+		// but since we checked undefinedInput explicitly, this really means explicit null.
+		data = nil
 	}
 
 	ast, err := Parse(expr)
@@ -116,6 +122,24 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				t.Fatalf("invalid suite case config: %v", err)
 			}
 
+			var rawMap map[string]json.RawMessage
+			if err := json.Unmarshal([]byte(c.Input), &rawMap); err != nil {
+				t.Fatalf("failed to unmarshal raw map: %v", err)
+			}
+
+			_, hasData := rawMap["data"]
+			datasetMsg, hasDataset := rawMap["dataset"]
+
+			undefinedInput := false
+			if !hasData {
+				if !hasDataset {
+					undefinedInput = true
+				} else if string(datasetMsg) == "null" || string(datasetMsg) == "\"\"" {
+					// The upstream test suite uses "dataset": "" to mean undefined input in some contexts.
+					undefinedInput = true
+				}
+			}
+
 			// Capture panic to treat as failure instead of crash
 			defer func() {
 				if r := recover(); r != nil {
@@ -127,7 +151,7 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				}
 			}()
 
-			res, err := runCase(sc, c.Expr)
+			res, err := runCase(sc, c.Expr, undefinedInput)
 			var out interface{}
 
 			// Setup errors, e.g. failing to read dataset

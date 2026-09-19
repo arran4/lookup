@@ -6,6 +6,7 @@ import (
 
 	"github.com/arran4/go-evaluator"
 	"github.com/arran4/lookup"
+	"strings"
 )
 
 type jsonataRunner struct {
@@ -17,6 +18,10 @@ func (r *jsonataRunner) Run(scope *lookup.Scope) lookup.Pathor {
 
 	if inv, ok := res.(*lookup.Invalidor); ok {
 		if IsUndefinedError(inv) {
+			return lookup.Reflect(Undefined{})
+		}
+		// In JSONata, querying a non-existent property on a scalar returns undefined instead of erroring
+		if strings.Contains(inv.Error(), "invalid element at simple path") && strings.Contains(inv.Error(), "expected array,slice,map,struct,func") {
 			return lookup.Reflect(Undefined{})
 		}
 		return inv
@@ -90,6 +95,9 @@ func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 			if IsUndefinedError(inv) {
 				continue
 			}
+			if strings.Contains(inv.Error(), "invalid element at simple path") && strings.Contains(inv.Error(), "expected array,slice,map,struct,func") {
+				continue
+			}
 			return inv // real error, stop map evaluation
 		}
 
@@ -132,6 +140,10 @@ func (c *jsonataChain) Run(scope *lookup.Scope) lookup.Pathor {
 	}
 	if inv, ok := res.(*lookup.Invalidor); ok {
 		if IsUndefinedError(inv) {
+			return lookup.Reflect(Undefined{})
+		}
+		// In JSONata, querying a non-existent property on a scalar returns undefined instead of erroring
+		if strings.Contains(inv.Error(), "invalid element at simple path") && strings.Contains(inv.Error(), "expected array,slice,map,struct,func") {
 			return lookup.Reflect(Undefined{})
 		}
 		return inv

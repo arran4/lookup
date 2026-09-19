@@ -45,7 +45,7 @@ func compileBinary(n *BinaryNode) lookup.Runner {
 	case "or":
 		return &jsonataOrRunner{left: left, right: right}
 	case "..":
-		return lookup.Sequence(&materializeRunner{inner: left}, &materializeRunner{inner: right})
+		return &jsonataSequenceRunner{inner: lookup.Sequence(&materializeRunner{inner: left}, &materializeRunner{inner: right})}
 	case "&", "+", "-", "*", "/", "%", "=", "!=", ">", "<", ">=", "<=", "in":
 		return &jsonataBinaryRunner{
 			operator: n.Operator,
@@ -58,7 +58,7 @@ func compileBinary(n *BinaryNode) lookup.Runner {
 }
 
 func compilePath(n *PathNode) lookup.Runner {
-	var r lookup.Runner = lookup.NewRelator()
+	var r lookup.Runner = nil
 	for _, step := range n.Steps {
 		// Prepare opts (Filters and Indices)
 		opts := []lookup.Runner{}
@@ -117,18 +117,11 @@ func compilePath(n *PathNode) lookup.Runner {
 			funcRunner := compileFunctionCall(step.FunctionCall)
 			stepRunner := applyOpts(funcRunner)
 
-			// If the function call is part of a path (e.g. foo.bar()),
-			// the function is executed.
-			// NOTE: In JSONata, functions like $substring are usually global or defined in scope,
-			// not methods on objects (unless purely method call syntax which JSONata is loose about).
-			// If the step name is empty, it means just apply logic.
-
-			// We should probably treat it similar to SubExpr or simple name but with execution.
-			// But wait, step.FunctionCall.Args are expressions evaluated in current scope.
-
-			// If this is part of a path chain, the previous result is current scope.
-
-			r = &jsonataChain{first: r, second: stepRunner}
+			if r == nil {
+				r = stepRunner
+			} else {
+				r = &jsonataChain{first: r, second: stepRunner}
+			}
 
 		} else if step.SubExpr != nil {
 			// SubExpression step: (expr).
@@ -138,42 +131,41 @@ func compilePath(n *PathNode) lookup.Runner {
 			// So we wrap in MapRunner.
 
 			subRunner := compileNode(step.SubExpr)
-			// Apply opts to the result of subExpr? `(expr)[0]`. Yes.
-
-			// Combine subRunner + opts
 			stepRunner := applyOpts(subRunner)
 
-			// Wrap in MapRunner to ensure iteration over current context
-			// We don't have a "Name" for this step, it's just a mapping.
-			// But MapRunner logic relies on nesting.
 			mapRunner := &jsonataMapRunner{
 				stepRunner: stepRunner,
-				name:       "", // Anonymous step
+				name:       "",
 			}
 
-			r = &jsonataChain{first: r, second: mapRunner}
+			if r == nil {
+				r = mapRunner
+			} else {
+				r = &jsonataChain{first: r, second: mapRunner}
+			}
 
 		} else if step.Name == "$" {
-			// $ refers to the query root.
 			chainStep := &jsonataChain{
 				first:  &rootRunner{},
 				second: lookup.Find("", opts...),
 			}
+			mapRunner := &jsonataMapRunner{
+				stepRunner: chainStep,
+				name:       "$",
+			}
 
-			r = &jsonataChain{
-				first: r,
-				second: &jsonataMapRunner{
-					stepRunner: chainStep,
-					name:       "$",
-				},
+			if r == nil {
+				r = mapRunner
+			} else {
+				r = &jsonataChain{first: r, second: mapRunner}
 			}
 
 		} else {
 			if step.Name == "" {
-				// Just apply opts to current context.
-				r = &jsonataChain{
-					first:  r,
-					second: lookup.Find("", opts...),
+				if r == nil {
+					r = lookup.Find("", opts...)
+				} else {
+					r = &jsonataChain{first: r, second: lookup.Find("", opts...)}
 				}
 			} else {
 				stepRunner := lookup.This(step.Name).Find("", opts...)
@@ -182,7 +174,11 @@ func compilePath(n *PathNode) lookup.Runner {
 					stepRunner: stepRunner,
 					name:       step.Name,
 				}
-				r = &jsonataChain{first: r, second: mapRunner}
+				if r == nil {
+					r = mapRunner
+				} else {
+					r = &jsonataChain{first: r, second: mapRunner}
+				}
 			}
 		}
 	}

@@ -457,7 +457,7 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 |---|---|---|---|
 | array-constructor | 6 | 15 | 0 |
 | blocks | 0 | 7 | 0 |
-| boolean-expresssions | 22 | 9 | 0 |
+| boolean-expresssions | 23 | 8 | 0 |
 | closures | 0 | 2 | 0 |
 | coalescing-operator | 0 | 13 | 0 |
 | comments | 3 | 0 | 1 |
