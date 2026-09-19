@@ -104,13 +104,37 @@ func Truthy(val interface{}) bool {
 		if len(v.Values) == 1 {
 			return Truthy(v.Values[0])
 		}
-		// A sequence with > 1 element is always true
-		return true
+		for _, item := range v.Values {
+			if Truthy(item) {
+				return true
+			}
+		}
+		return false
 	case *Array:
-		return len(v.Elements) > 0
+		if len(v.Elements) == 0 {
+			return false
+		}
+		for _, item := range v.Elements {
+			if Truthy(item) {
+				return true
+			}
+		}
+		return false
+	case []interface{}:
+		if len(v) == 0 {
+			return false
+		}
+		for _, item := range v {
+			if Truthy(item) {
+				return true
+			}
+		}
+		return false
 	case bool:
 		return v
 	case int:
+		return v != 0
+	case int64:
 		return v != 0
 	case float64:
 		return v != 0
@@ -120,9 +144,20 @@ func Truthy(val interface{}) bool {
 
 	rv := reflect.ValueOf(val)
 	switch rv.Kind() {
-	case reflect.Slice, reflect.Array, reflect.Map:
+	case reflect.Slice, reflect.Array:
+		if rv.Len() == 0 {
+			return false
+		}
+		for i := 0; i < rv.Len(); i++ {
+			if Truthy(rv.Index(i).Interface()) {
+				return true
+			}
+		}
+		return false
+	case reflect.Map:
 		return rv.Len() > 0
 	}
+
 	return true
 }
 
@@ -135,5 +170,5 @@ func IsUndefinedError(inv *lookup.Invalidor) bool {
 		return true
 	}
 	errStr := inv.Error()
-	return errStr != "" && (strings.Contains(errStr, "element not found") || strings.Contains(errStr, "does not exist") || strings.Contains(errStr, "no such path"))
+	return strings.Contains(errStr, "element not found at simple path")
 }

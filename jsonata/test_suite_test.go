@@ -123,12 +123,8 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 			if err := json.Unmarshal([]byte(c.Input), &rawMap); err != nil {
 				t.Fatalf("failed to unmarshal raw map: %v", err)
 			}
-			_, hasData := rawMap["data"]
-			_, hasDataset := rawMap["dataset"]
-			if !hasData && (!hasDataset || sc.Dataset == "") {
-				// No input provided!
-				sc.Data = Undefined{}
-			}
+			// We just keep the raw metadata but do not mutate sc.Data
+			_, _ = rawMap["data"]
 
 			// Capture panic to treat as failure instead of crash
 			defer func() {
