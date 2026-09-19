@@ -87,9 +87,15 @@ type sumFunc struct{}
 
 func (s *sumFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, nil // Or error? JSONata says returns undefined if empty.
+		return nil, fmt.Errorf("T0410: function requires 1 argument")
+	}
+	if len(args) > 1 {
+		return nil, fmt.Errorf("T0410: function requires 1 argument")
 	}
 	arg := args[0]
+	if _, ok := arg.(Undefined); ok {
+		return Undefined{}, nil
+	}
 	if arg == nil {
 		return nil, nil
 	}
@@ -133,9 +139,15 @@ func (s *countFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
 		return 0, nil
 	}
+	if len(args) > 1 {
+		return nil, fmt.Errorf("T0410: function requires 1 argument")
+	}
 	arg := args[0]
+	if _, ok := arg.(Undefined); ok {
+		return 0, nil
+	}
 	if arg == nil {
-		return 0, nil // nil is empty sequence?
+		return 1, nil // JSON null is a singleton element!
 	}
 
 	switch v := arg.(type) {
@@ -151,9 +163,15 @@ type maxFunc struct{}
 
 func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, nil
+		return Undefined{}, nil
+	}
+	if len(args) > 1 {
+		return nil, fmt.Errorf("T0410: function requires 1 argument")
 	}
 	arg := args[0]
+	if _, ok := arg.(Undefined); ok {
+		return Undefined{}, nil
+	}
 	if arg == nil {
 		return nil, nil
 	}
@@ -169,7 +187,7 @@ func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	switch v := arg.(type) {
 	case []interface{}:
 		if len(v) == 0 {
-			return nil, nil
+			return Undefined{}, nil
 		}
 		for _, item := range v {
 			f, ok := lookup.ToFloat(item)
@@ -187,7 +205,7 @@ func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	}
 
 	if maxVal == nil {
-		return nil, nil
+		return Undefined{}, nil
 	}
 	return *maxVal, nil
 }
@@ -196,9 +214,15 @@ type minFunc struct{}
 
 func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, nil
+		return Undefined{}, nil
+	}
+	if len(args) > 1 {
+		return nil, fmt.Errorf("T0410: function requires 1 argument")
 	}
 	arg := args[0]
+	if _, ok := arg.(Undefined); ok {
+		return Undefined{}, nil
+	}
 	if arg == nil {
 		return nil, nil
 	}
@@ -214,7 +238,7 @@ func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	switch v := arg.(type) {
 	case []interface{}:
 		if len(v) == 0 {
-			return nil, nil
+			return Undefined{}, nil
 		}
 		for _, item := range v {
 			f, ok := lookup.ToFloat(item)
@@ -232,7 +256,7 @@ func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	}
 
 	if minVal == nil {
-		return nil, nil
+		return Undefined{}, nil
 	}
 	return *minVal, nil
 }
@@ -241,9 +265,15 @@ type averageFunc struct{}
 
 func (s *averageFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, nil
+		return Undefined{}, nil
+	}
+	if len(args) > 1 {
+		return nil, fmt.Errorf("T0410: function requires 1 argument")
 	}
 	arg := args[0]
+	if _, ok := arg.(Undefined); ok {
+		return Undefined{}, nil
+	}
 	if arg == nil {
 		return nil, nil
 	}
@@ -254,7 +284,7 @@ func (s *averageFunc) Call(args ...interface{}) (interface{}, error) {
 	switch v := arg.(type) {
 	case []interface{}:
 		if len(v) == 0 {
-			return nil, nil
+			return Undefined{}, nil
 		}
 		for _, item := range v {
 			f, ok := lookup.ToFloat(item)

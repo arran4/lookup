@@ -8,12 +8,12 @@ import (
 	"fmt"
 	"io/fs"
 	"path"
+	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/arran4/go-evaluator"
 	"github.com/arran4/lookup"
-	"github.com/stretchr/testify/assert"
 )
 
 //go:embed testdata
@@ -44,16 +44,62 @@ func parseJSON(data string) (interface{}, error) {
 	return v, nil
 }
 
-func runCase(c suiteCase, expr string) (interface{}, error) {
-	var data interface{}
-	var err error
-	if c.Data != nil {
-		data = c.Data
-	} else if c.Dataset != "" {
-		data, err = loadDataset(c.Dataset)
-		if err != nil {
-			return nil, err
+// harnessInput retains metadata presence independently of its decoded value.
+type harnessInput struct {
+	kind    string
+	value   interface{}
+	dataset string
+}
+
+func decodeHarnessInput(metadata string) (harnessInput, error) {
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(metadata), &fields); err != nil {
+		return harnessInput{}, err
+	}
+	if data, ok := fields["data"]; ok {
+		value, err := parseJSON(string(data))
+		return harnessInput{kind: "data", value: value}, err
+	}
+	if dataset, ok := fields["dataset"]; ok {
+		if strings.TrimSpace(string(dataset)) == "null" {
+			return harnessInput{kind: "undefined"}, nil
 		}
+		var name string
+		if err := json.Unmarshal(dataset, &name); err != nil {
+			return harnessInput{}, err
+		}
+		return harnessInput{kind: "dataset", dataset: name}, nil
+	}
+	return harnessInput{kind: "absent"}, nil
+}
+
+func (input harnessInput) resolve() (interface{}, error) {
+	switch input.kind {
+	case "data":
+		return input.value, nil
+	case "undefined":
+		return Undefined{}, nil
+	case "dataset":
+		return loadDataset(input.dataset)
+	default:
+		return nil, fmt.Errorf("absent input metadata")
+	}
+}
+
+// Legacy txtar imports lost input metadata (issue #99). Only this compatibility
+// boundary maps omitted metadata and empty dataset names to undefined; neither
+// is the canonical upstream dataset:null representation.
+func legacyTxtarInput(input harnessInput) harnessInput {
+	if input.kind == "absent" || (input.kind == "dataset" && input.dataset == "") {
+		return harnessInput{kind: "undefined"}
+	}
+	return input
+}
+
+func runCase(input harnessInput, expr string) (interface{}, error) {
+	data, err := input.resolve()
+	if err != nil {
+		return nil, err
 	}
 
 	ast, err := Parse(expr)
@@ -116,6 +162,11 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				t.Fatalf("invalid suite case config: %v", err)
 			}
 
+			input, err := decodeHarnessInput(c.Input)
+			if err != nil {
+				t.Fatalf("invalid input metadata: %v", err)
+			}
+
 			// Capture panic to treat as failure instead of crash
 			defer func() {
 				if r := recover(); r != nil {
@@ -127,15 +178,8 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				}
 			}()
 
-			res, err := runCase(sc, c.Expr)
+			res, err := runCase(legacyTxtarInput(input), c.Expr)
 			var out interface{}
-			if res != nil {
-				if p, ok := res.(lookup.Pathor); ok {
-					out = p.Raw()
-				} else {
-					out = res
-				}
-			}
 
 			// Setup errors, e.g. failing to read dataset
 			var setupErr error
@@ -184,31 +228,34 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				}
 			}
 
-			match := assert.ObjectsAreEqual(expected, out)
-			if !match {
-				if n, ok := expected.(json.Number); ok {
-					f, err := n.Float64()
-					if err == nil {
-						// Compare as float if actual is float
-						if fOut, ok := out.(float64); ok {
-							match = assert.ObjectsAreEqualValues(f, fOut) // approximation
-						} else {
-							i, err := n.Int64()
-							if err == nil {
-								if iOut, ok := out.(int); ok {
-									match = i == int64(iOut)
-								} else if iOut, ok := out.(int64); ok {
-									match = i == iOut
-								}
-							}
-						}
-					}
-				}
+			// Apply final materialization boundary
+			var actualUndefined bool
+			out, actualUndefined = materializeHarnessValue(res) // Pass 'res' which is the raw interface/pathor
+
+			match := false
+			if sc.Undefined {
+				match = actualUndefined
+			} else if actualUndefined {
+				match = false
+			} else {
+				match = jsonataValuesEqual(expected, out)
 			}
 
 			if expectPass {
 				if !match {
-					t.Fatalf("Test failed. Expected: %v, Got: %v", expected, out)
+					expectedStr := "null"
+					if sc.Undefined {
+						expectedStr = "undefined"
+					} else if expected != nil {
+						expectedStr = fmt.Sprintf("%v (%T)", expected, expected)
+					}
+					gotStr := "null"
+					if actualUndefined {
+						gotStr = "undefined"
+					} else if out != nil {
+						gotStr = fmt.Sprintf("%v (%T)", out, out)
+					}
+					t.Fatalf("\nTEST_ID: %s\nEXPR: %s\nEXPECTED_UNDEF: %v\nEXPECTED: %s\nFINAL_VALUE: %s\n---", testID, c.Expr, sc.Undefined, expectedStr, gotStr)
 				}
 			} else {
 				if match {
@@ -285,8 +332,7 @@ func evaluateHarnessOutcome(testID string, execErr error, scCode string, expectP
 		if isUndefined {
 			var invalidor *lookup.Invalidor
 			if errors.As(execErr, &invalidor) {
-				unwrapped := invalidor.Unwrap()
-				if errors.Is(unwrapped, lookup.ErrNoSuchPath) || strings.Contains(unwrapped.Error(), "element not found at simple path") {
+				if IsUndefinedError(invalidor) {
 					return harnessOutcome{} // Valid undefined path result, pass for assertion phase
 				}
 			}
@@ -300,4 +346,72 @@ func evaluateHarnessOutcome(testID string, execErr error, scCode string, expectP
 	}
 
 	return harnessOutcome{}
+}
+
+func materializeHarnessValue(v interface{}) (value interface{}, undefined bool) {
+	// First check invalidors mapping to missing elements BEFORE raw extraction
+	if inv, ok := v.(*lookup.Invalidor); ok {
+		if IsUndefinedError(inv) {
+			return nil, true
+		}
+	}
+
+	if p, ok := v.(lookup.Pathor); ok {
+		v = p.Raw()
+	}
+
+	v = Materialize(v)
+	if _, ok := v.(Undefined); ok {
+		return nil, true
+	}
+
+	return v, false
+}
+
+func jsonataValuesEqual(expected, actual interface{}) bool {
+	if reflect.DeepEqual(expected, actual) {
+		return true
+	}
+
+	// JSON numbers are semantically numbers regardless of the Go numeric
+	// representation chosen by the parser/evaluator.
+	if e, ok := jsonataNumericValue(expected); ok {
+		a, ok := jsonataNumericValue(actual)
+		return ok && e.Cmp(a) == 0
+	}
+
+	ev := reflect.ValueOf(expected)
+	av := reflect.ValueOf(actual)
+
+	if ev.IsValid() && av.IsValid() &&
+		(ev.Kind() == reflect.Slice || ev.Kind() == reflect.Array) &&
+		(av.Kind() == reflect.Slice || av.Kind() == reflect.Array) {
+		if ev.Len() != av.Len() {
+			return false
+		}
+		for i := 0; i < ev.Len(); i++ {
+			if !jsonataValuesEqual(ev.Index(i).Interface(), av.Index(i).Interface()) {
+				return false
+			}
+		}
+		return true
+	}
+
+	em, expectedIsMap := expected.(map[string]interface{})
+	am, actualIsMap := actual.(map[string]interface{})
+	if expectedIsMap || actualIsMap {
+		if !expectedIsMap || !actualIsMap || len(em) != len(am) {
+			return false
+		}
+
+		for key, expectedValue := range em {
+			actualValue, ok := am[key]
+			if !ok || !jsonataValuesEqual(expectedValue, actualValue) {
+				return false
+			}
+		}
+		return true
+	}
+
+	return false
 }

@@ -21,14 +21,13 @@ func TestRangeExecution(t *testing.T) {
 		{
 			name: "Single item range",
 			expr: "1..1",
-			// Note: Current implementation unwraps singleton arrays to the value itself.
-			// This might not be strictly JSONata compliant for explicit arrays, but is consistent with current runner behavior.
+			// A range produces a Sequence, so a singleton materializes as a scalar.
 			expected: 1,
 		},
 		{
 			name:     "Empty range (descending)",
 			expr:     "5..1",
-			expected: []interface{}{},
+			expected: Undefined{},
 		},
 		{
 			name:     "Range with arithmetic LHS",

@@ -14,18 +14,29 @@ type jsonataRunner struct {
 
 func (r *jsonataRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	res := r.inner.Run(scope)
-	if isNilOrNilPointer(res) {
-		return lookup.NewInvalidor("", fmt.Errorf("result is nil"))
+
+	if inv, ok := res.(*lookup.Invalidor); ok {
+		if IsUndefinedError(inv) {
+			return lookup.Reflect(Undefined{})
+		}
+		// In JSONata, querying a non-existent property on a scalar returns undefined instead of erroring
+		if isJSONataFieldNoMatch(inv) {
+			return lookup.Reflect(Undefined{})
+		}
+		return inv
 	}
 
-	// Singleton unwrapping: JSONata unwraps single-element arrays resulting from path expressions.
-	if res.IsSlice() {
-		slice, _ := res.AsSlice()
-		if len(slice) == 1 {
-			return lookup.Reflect(slice[0])
-		}
+	if res == nil {
+		return lookup.Reflect(Undefined{})
 	}
-	return res
+
+	raw := res.Raw()
+	if _, isUndef := raw.(Undefined); isUndef {
+		return lookup.Reflect(Undefined{})
+	}
+
+	mat := Materialize(raw)
+	return lookup.Reflect(mat)
 }
 
 type rootRunner struct{}
@@ -48,59 +59,69 @@ type jsonataMapRunner struct {
 func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	curr := scope.Current
 
-	if isNilOrNilPointer(curr) {
-		return lookup.NewInvalidor(r.name, fmt.Errorf("current context is nil"))
-	}
-	if curr.IsNil() {
-		return curr
+	if curr == nil || isNilOrNilPointer(curr) {
+		return lookup.Reflect(Undefined{})
 	}
 
-	if curr.IsSlice() {
-		slice, err := curr.AsSlice()
-		if err != nil {
-			return lookup.NewInvalidor(lookup.ExtractPath(curr), err)
+	raw := curr.Raw()
+	if _, ok := raw.(Undefined); ok {
+		return lookup.Reflect(Undefined{})
+	}
+
+	var items []interface{}
+
+	// Determine iteration strategy
+	if seq, ok := raw.(*Sequence); ok {
+		items = seq.Values
+	} else if arr, ok := raw.(*Array); ok {
+		items = arr.Elements
+	} else if curr.IsSlice() {
+		items, _ = curr.AsSlice()
+	} else {
+		items = []interface{}{raw}
+	}
+
+	var results []interface{}
+	for _, item := range items {
+		itemPathor := lookup.Reflect(item)
+		subScope := scope.Nest(itemPathor)
+		// Traverse nested input arrays here: generic lookup mapping aggregates
+		// errors and cannot reliably distinguish missing fields from failures.
+		var res lookup.Pathor
+		if r.name != "" && r.name != "$" && itemPathor.IsSlice() {
+			res = r.Run(subScope)
+		} else {
+			res = r.stepRunner.Run(subScope)
 		}
 
-		var results []interface{}
-		for _, item := range slice {
-			itemPathor := lookup.Reflect(item)
-
-			// We need to construct a scope where 'Current' is the item.
-			subScope := scope.Nest(itemPathor)
-
-			res := r.stepRunner.Run(subScope)
-
-			if !isNilOrNilPointer(res) {
-				if _, ok := res.(*lookup.Invalidor); ok {
-					continue
-				}
-				if res.IsNil() {
-					continue
-				}
-
-				if res.IsSlice() {
-					s, _ := res.AsSlice()
-					results = append(results, s...)
-				} else {
-					results = append(results, res.Raw())
-				}
+		if isNilOrNilPointer(res) {
+			continue
+		}
+		if inv, ok := res.(*lookup.Invalidor); ok {
+			if IsUndefinedError(inv) {
+				continue
 			}
+			if isJSONataFieldNoMatch(inv) {
+				continue
+			}
+			return inv // real error, stop map evaluation
 		}
-		if len(results) == 0 {
-			return lookup.NewInvalidor(r.name, fmt.Errorf("nothing found"))
+
+		resRaw := res.Raw()
+		if _, ok := resRaw.(Undefined); ok {
+			continue
 		}
-		return lookup.Reflect(results)
+
+		resRaw = pathResultValue(resRaw)
+		results = append(results, resRaw)
 	}
 
-	// Not a slice.
-	res := r.stepRunner.Run(scope)
-	if isNilOrNilPointer(res) {
-		return lookup.NewInvalidor(r.name, fmt.Errorf("nothing found"))
+	if len(results) == 0 {
+		return lookup.Reflect(Undefined{})
 	}
-	if _, ok := res.(*lookup.Invalidor); ok {
-		return res
-	}
-	return res
+
+	flat := FlattenSequence(results...)
+	return lookup.Reflect(flat)
 }
 
 // jsonataChain is a custom chain runner that uses Nest (setting Current) instead of Next (setting Position).
@@ -114,10 +135,20 @@ func (c *jsonataChain) Run(scope *lookup.Scope) lookup.Pathor {
 	res := c.first.Run(scope)
 
 	if isNilOrNilPointer(res) {
-		return lookup.NewInvalidor("", fmt.Errorf("chain broken"))
+		return lookup.Reflect(Undefined{})
 	}
-	if _, ok := res.(*lookup.Invalidor); ok {
-		return res
+	if inv, ok := res.(*lookup.Invalidor); ok {
+		if IsUndefinedError(inv) {
+			return lookup.Reflect(Undefined{})
+		}
+		// In JSONata, querying a non-existent property on a scalar returns undefined instead of erroring
+		if isJSONataFieldNoMatch(inv) {
+			return lookup.Reflect(Undefined{})
+		}
+		return inv
+	}
+	if _, ok := res.Raw().(Undefined); ok {
+		return lookup.Reflect(Undefined{})
 	}
 
 	return c.second.Run(scope.Nest(res))
@@ -132,9 +163,6 @@ type jsonataSingletonRunner struct {
 func (r *jsonataSingletonRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	curr := scope.Current
 	if isNilOrNilPointer(curr) {
-		return r.inner.Run(scope)
-	}
-	if curr.IsNil() {
 		return r.inner.Run(scope)
 	}
 
@@ -165,19 +193,11 @@ func (r *jsonataFunctionRunner) Run(scope *lookup.Scope) lookup.Pathor {
 
 	args := make([]interface{}, len(r.Args))
 	for i, arg := range r.Args {
-		res := arg.Run(scope)
-		if isNilOrNilPointer(res) {
-			args[i] = nil
-		} else {
-			if res.IsSlice() {
-				// JSONata functions often expect arguments to be unwrapped if singleton?
-				// Or raw values? evaluator.Function expects interface{}
-				// Let's pass the raw value (could be slice or single)
-				args[i] = res.Raw()
-			} else {
-				args[i] = res.Raw()
-			}
+		raw, inv := jsonataResult(arg.Run(scope))
+		if inv != nil {
+			return inv
 		}
+		args[i] = Materialize(raw)
 	}
 
 	res, err := fn.Call(args...)
@@ -196,4 +216,20 @@ func isNilOrNilPointer(i interface{}) bool {
 		return true
 	}
 	return false
+}
+
+func pathResultValue(raw interface{}) interface{} {
+	switch raw.(type) {
+	case *Sequence, *Array:
+		return raw
+	}
+	rv := reflect.ValueOf(raw)
+	if rv.IsValid() && (rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array) {
+		values := make([]interface{}, rv.Len())
+		for i := range values {
+			values[i] = rv.Index(i).Interface()
+		}
+		return &Sequence{Values: values}
+	}
+	return raw
 }

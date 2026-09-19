@@ -89,7 +89,8 @@ $average(1)
 {
   "dataset": "",
   "bindings": {},
-  "exprFile": "case008.JSONATA"
+  "exprFile": "case008.JSONATA",
+  "code": "T0410"
 }
 -- case008.JSONATA --
 $average([],[])
@@ -109,7 +110,8 @@ null
 {
   "dataset": "",
   "bindings": {},
-  "exprFile": "case010.JSONATA"
+  "exprFile": "case010.JSONATA",
+  "code": "T0410"
 }
 -- case010.JSONATA --
 $average([],[],[])
