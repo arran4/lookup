@@ -155,9 +155,7 @@ func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	}
 	arg := args[0]
 	if _, ok := arg.(Undefined); ok {
-		if len(args) == 1 {
-			return Undefined{}, nil
-		}
+		return Undefined{}, nil
 	}
 	if arg == nil {
 		return nil, nil
@@ -174,10 +172,7 @@ func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	switch v := arg.(type) {
 	case []interface{}:
 		if len(v) == 0 {
-			if len(args) == 1 {
-				return Undefined{}, nil
-			}
-			return nil, nil
+			return Undefined{}, nil
 		}
 		for _, item := range v {
 			f, ok := lookup.ToFloat(item)
@@ -195,10 +190,7 @@ func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	}
 
 	if maxVal == nil {
-		if len(args) == 1 {
-			return Undefined{}, nil
-		}
-		return nil, nil
+		return Undefined{}, nil
 	}
 	return *maxVal, nil
 }
@@ -211,9 +203,7 @@ func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	}
 	arg := args[0]
 	if _, ok := arg.(Undefined); ok {
-		if len(args) == 1 {
-			return Undefined{}, nil
-		}
+		return Undefined{}, nil
 	}
 	if arg == nil {
 		return nil, nil
@@ -230,10 +220,7 @@ func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	switch v := arg.(type) {
 	case []interface{}:
 		if len(v) == 0 {
-			if len(args) == 1 {
-				return Undefined{}, nil
-			}
-			return nil, nil
+			return Undefined{}, nil
 		}
 		for _, item := range v {
 			f, ok := lookup.ToFloat(item)
@@ -251,10 +238,7 @@ func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	}
 
 	if minVal == nil {
-		if len(args) == 1 {
-			return Undefined{}, nil
-		}
-		return nil, nil
+		return Undefined{}, nil
 	}
 	return *minVal, nil
 }
@@ -267,9 +251,7 @@ func (s *averageFunc) Call(args ...interface{}) (interface{}, error) {
 	}
 	arg := args[0]
 	if _, ok := arg.(Undefined); ok {
-		if len(args) == 1 {
-			return Undefined{}, nil
-		}
+		return Undefined{}, nil
 	}
 	if arg == nil {
 		return nil, nil
@@ -281,10 +263,7 @@ func (s *averageFunc) Call(args ...interface{}) (interface{}, error) {
 	switch v := arg.(type) {
 	case []interface{}:
 		if len(v) == 0 {
-			if len(args) == 1 {
-				return Undefined{}, nil
-			}
-			return nil, nil
+			return Undefined{}, nil
 		}
 		for _, item := range v {
 			f, ok := lookup.ToFloat(item)

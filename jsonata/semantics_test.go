@@ -179,3 +179,7 @@ func TestHarnessUndefinedDistinction(t *testing.T) {
 		t.Fatalf("materializeHarnessValue(nil) = %v, %v, expected nil, false", v, undef)
 	}
 }
+
+func TestHarnessInputDistinctions(t *testing.T) {
+	// Add explicit input data tests later
+}

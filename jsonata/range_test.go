@@ -28,7 +28,7 @@ func TestRangeExecution(t *testing.T) {
 		{
 			name:     "Empty range (descending)",
 			expr:     "5..1",
-			expected: []interface{}{},
+			expected: Undefined{},
 		},
 		{
 			name:     "Range with arithmetic LHS",

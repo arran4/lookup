@@ -130,7 +130,7 @@ and=1 and or=2
 true
 -- case013.json --
 {
-  "dataset": "",
+  "data": {"and":1,"or":2},
   "bindings": {},
   "exprFile": "case013.JSONATA"
 }
@@ -140,7 +140,7 @@ and>1 or or<=2
 true
 -- case014.json --
 {
-  "dataset": "",
+  "data": {"and":1,"or":2},
   "bindings": {},
   "exprFile": "case014.JSONATA"
 }

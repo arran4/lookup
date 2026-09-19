@@ -201,3 +201,13 @@ func IsUndefinedError(inv *lookup.Invalidor) bool {
 	errStr := inv.Error()
 	return strings.Contains(errStr, "element not found at simple path")
 }
+
+// isJSONataFieldNoMatch identifies when a generic runner attempt to traverse
+// a JSON scalar fails due to non-navigability.
+func isJSONataFieldNoMatch(inv *lookup.Invalidor) bool {
+	if inv == nil {
+		return false
+	}
+	errStr := inv.Error()
+	return strings.Contains(errStr, "invalid element at simple path") && strings.Contains(errStr, "expected array,slice,map,struct,func")
+}

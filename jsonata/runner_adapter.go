@@ -130,3 +130,20 @@ func (r *jsonataSequenceRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	}
 	return res
 }
+
+// jsonataFilterRunner intercepts generic lookup.Filter responses, translating
+// empty result evaluators to explicit absent mapping representations.
+type jsonataFilterRunner struct {
+	inner lookup.Runner
+}
+
+func (r *jsonataFilterRunner) Run(scope *lookup.Scope) lookup.Pathor {
+	res := r.inner.Run(scope)
+	if inv, ok := res.(*lookup.Invalidor); ok {
+		// Generic filter runner yields ErrEvalFail when no elements match the predicate
+		if inv.Unwrap() == lookup.ErrEvalFail {
+			return lookup.NewInvalidor("", lookup.ErrNoSuchPath)
+		}
+	}
+	return res
+}

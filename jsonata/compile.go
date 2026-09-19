@@ -91,7 +91,7 @@ func compilePath(n *PathNode) lookup.Runner {
 			} else {
 				fieldRunner = lookup.This(field)
 			}
-			filterRunner := lookup.Filter(fieldRunner.Find("", op))
+			filterRunner := &jsonataFilterRunner{inner: lookup.Filter(fieldRunner.Find("", op))}
 			opts = append(opts, &jsonataSingletonRunner{inner: filterRunner})
 		}
 
