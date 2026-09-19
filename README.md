@@ -515,7 +515,7 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 | function-substring | 17 | 2 | 0 |
 | function-substringAfter | 0 | 5 | 0 |
 | function-substringBefore | 0 | 5 | 0 |
-| function-sum | 2 | 5 | 0 |
+| function-sum | 3 | 4 | 0 |
 | function-tomillis | 0 | 13 | 0 |
 | function-trim | 0 | 3 | 0 |
 | function-typeOf | 0 | 13 | 0 |

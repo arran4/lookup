@@ -164,7 +164,6 @@ var expectedFailures = map[string]bool{
 	"function-string/case019":             true,
 	"function-string/case021":             true,
 	"function-sum/case005":                true,
-	"function-sum/case003":                true,
 	"function-tomillis/case008":           true,
 	"function-tomillis/case007":           true,
 	"function-tomillis/case009":           true,

@@ -38,7 +38,8 @@ Account.Order.(OrderID & ": " & $sum(Product.(Price*Quantity)))
 {
   "dataset": "dataset5__INPUT",
   "bindings": {},
-  "exprFile": "case003.JSONATA"
+  "exprFile": "case003.JSONATA",
+  "code": "T0410"
 }
 -- case003.JSONATA --
 $sum()

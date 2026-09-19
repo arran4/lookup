@@ -87,7 +87,7 @@ type sumFunc struct{}
 
 func (s *sumFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return Undefined{}, nil
+		return nil, fmt.Errorf("T0410: function requires 1 argument")
 	}
 	if len(args) > 1 {
 		return nil, fmt.Errorf("T0410: function requires 1 argument")
