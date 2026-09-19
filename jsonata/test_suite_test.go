@@ -44,22 +44,62 @@ func parseJSON(data string) (interface{}, error) {
 	return v, nil
 }
 
-func runCase(c suiteCase, expr string, undefinedInput bool) (interface{}, error) {
-	var data interface{}
-	var err error
-	if undefinedInput {
-		data = Undefined{}
-	} else if c.Data != nil {
-		data = c.Data
-	} else if c.Dataset != "" {
-		data, err = loadDataset(c.Dataset)
-		if err != nil {
-			return nil, err
+// harnessInput retains metadata presence independently of its decoded value.
+type harnessInput struct {
+	kind    string
+	value   interface{}
+	dataset string
+}
+
+func decodeHarnessInput(metadata string) (harnessInput, error) {
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(metadata), &fields); err != nil {
+		return harnessInput{}, err
+	}
+	if data, ok := fields["data"]; ok {
+		value, err := parseJSON(string(data))
+		return harnessInput{kind: "data", value: value}, err
+	}
+	if dataset, ok := fields["dataset"]; ok {
+		if strings.TrimSpace(string(dataset)) == "null" {
+			return harnessInput{kind: "undefined"}, nil
 		}
-	} else {
-		// fallback for cases with data: null or dataset: null (which unmarshals to interface{}(nil))
-		// but since we checked undefinedInput explicitly, this really means explicit null.
-		data = nil
+		var name string
+		if err := json.Unmarshal(dataset, &name); err != nil {
+			return harnessInput{}, err
+		}
+		return harnessInput{kind: "dataset", dataset: name}, nil
+	}
+	return harnessInput{kind: "absent"}, nil
+}
+
+func (input harnessInput) resolve() (interface{}, error) {
+	switch input.kind {
+	case "data":
+		return input.value, nil
+	case "undefined":
+		return Undefined{}, nil
+	case "dataset":
+		return loadDataset(input.dataset)
+	default:
+		return nil, fmt.Errorf("absent input metadata")
+	}
+}
+
+// Legacy txtar imports lost input metadata (issue #99). Only this compatibility
+// boundary maps omitted metadata and empty dataset names to undefined; neither
+// is the canonical upstream dataset:null representation.
+func legacyTxtarInput(input harnessInput) harnessInput {
+	if input.kind == "absent" || (input.kind == "dataset" && input.dataset == "") {
+		return harnessInput{kind: "undefined"}
+	}
+	return input
+}
+
+func runCase(input harnessInput, expr string) (interface{}, error) {
+	data, err := input.resolve()
+	if err != nil {
+		return nil, err
 	}
 
 	ast, err := Parse(expr)
@@ -122,22 +162,9 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				t.Fatalf("invalid suite case config: %v", err)
 			}
 
-			var rawMap map[string]json.RawMessage
-			if err := json.Unmarshal([]byte(c.Input), &rawMap); err != nil {
-				t.Fatalf("failed to unmarshal raw map: %v", err)
-			}
-
-			_, hasData := rawMap["data"]
-			datasetMsg, hasDataset := rawMap["dataset"]
-
-			undefinedInput := false
-			if !hasData {
-				if !hasDataset {
-					undefinedInput = true
-				} else if string(datasetMsg) == "null" || string(datasetMsg) == "\"\"" {
-					// The upstream test suite uses "dataset": "" to mean undefined input in some contexts.
-					undefinedInput = true
-				}
+			input, err := decodeHarnessInput(c.Input)
+			if err != nil {
+				t.Fatalf("invalid input metadata: %v", err)
 			}
 
 			// Capture panic to treat as failure instead of crash
@@ -151,7 +178,7 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 				}
 			}()
 
-			res, err := runCase(sc, c.Expr, undefinedInput)
+			res, err := runCase(legacyTxtarInput(input), c.Expr)
 			var out interface{}
 
 			// Setup errors, e.g. failing to read dataset
@@ -305,8 +332,7 @@ func evaluateHarnessOutcome(testID string, execErr error, scCode string, expectP
 		if isUndefined {
 			var invalidor *lookup.Invalidor
 			if errors.As(execErr, &invalidor) {
-				unwrapped := invalidor.Unwrap()
-				if errors.Is(unwrapped, lookup.ErrNoSuchPath) || strings.Contains(unwrapped.Error(), "element not found at simple path") {
+				if IsUndefinedError(invalidor) {
 					return harnessOutcome{} // Valid undefined path result, pass for assertion phase
 				}
 			}

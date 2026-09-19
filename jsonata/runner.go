@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"errors"
 	"github.com/arran4/go-evaluator"
 	"github.com/arran4/lookup"
 )
@@ -86,7 +85,14 @@ func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	for _, item := range items {
 		itemPathor := lookup.Reflect(item)
 		subScope := scope.Nest(itemPathor)
-		res := r.stepRunner.Run(subScope)
+		// Traverse nested input arrays here: generic lookup mapping aggregates
+		// errors and cannot reliably distinguish missing fields from failures.
+		var res lookup.Pathor
+		if r.name != "" && r.name != "$" && itemPathor.IsSlice() {
+			res = r.Run(subScope)
+		} else {
+			res = r.stepRunner.Run(subScope)
+		}
 
 		if isNilOrNilPointer(res) {
 			continue
@@ -96,9 +102,6 @@ func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 				continue
 			}
 			if isJSONataFieldNoMatch(inv) {
-				continue
-			}
-			if errors.Is(inv, lookup.ErrNoMatchesForQuery) {
 				continue
 			}
 			return inv // real error, stop map evaluation
@@ -190,17 +193,11 @@ func (r *jsonataFunctionRunner) Run(scope *lookup.Scope) lookup.Pathor {
 
 	args := make([]interface{}, len(r.Args))
 	for i, arg := range r.Args {
-		res := arg.Run(scope)
-		if res == nil {
-			args[i] = Undefined{}
-		} else {
-			raw := res.Raw()
-			if _, isUndef := raw.(Undefined); isUndef {
-				args[i] = raw
-			} else {
-				args[i] = Materialize(raw)
-			}
+		raw, inv := jsonataResult(arg.Run(scope))
+		if inv != nil {
+			return inv
 		}
+		args[i] = Materialize(raw)
 	}
 
 	res, err := fn.Call(args...)

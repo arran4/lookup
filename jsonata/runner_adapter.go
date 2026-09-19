@@ -1,7 +1,6 @@
 package jsonata
 
 import (
-	"errors"
 	"github.com/arran4/lookup"
 )
 
@@ -13,24 +12,11 @@ type materializeRunner struct {
 }
 
 func (r *materializeRunner) Run(scope *lookup.Scope) lookup.Pathor {
-	res := r.inner.Run(scope)
-
-	if inv, ok := res.(*lookup.Invalidor); ok {
+	raw, inv := jsonataResult(r.inner.Run(scope))
+	if inv != nil {
 		return inv
 	}
-
-	if res == nil {
-		return lookup.Reflect(Undefined{})
-	}
-
-	raw := res.Raw()
-	if _, ok := raw.(Undefined); ok {
-		return lookup.Reflect(Undefined{})
-	}
-
-	// Convert internal JSONata value (e.g. Sequence) to standard external value
-	mat := Materialize(raw)
-	return lookup.Reflect(mat)
+	return lookup.Reflect(Materialize(raw))
 }
 
 // jsonataBinaryRunner intercepts Undefined values to enforce JSONata operator rules
@@ -42,23 +28,15 @@ type jsonataBinaryRunner struct {
 }
 
 func (r *jsonataBinaryRunner) Run(scope *lookup.Scope) lookup.Pathor {
-	lRes := r.left.Run(scope)
-	if inv, ok := lRes.(*lookup.Invalidor); ok && !IsUndefinedError(inv) {
+	lRaw, inv := jsonataResult(r.left.Run(scope))
+	if inv != nil {
 		return inv
 	}
-	rRes := r.right.Run(scope)
-	if inv, ok := rRes.(*lookup.Invalidor); ok && !IsUndefinedError(inv) {
+	rRaw, inv := jsonataResult(r.right.Run(scope))
+	if inv != nil {
 		return inv
 	}
-
-	lRaw := Materialize(lRes.Raw())
-	if inv, ok := lRes.(*lookup.Invalidor); ok && IsUndefinedError(inv) {
-		lRaw = Undefined{}
-	}
-	rRaw := Materialize(rRes.Raw())
-	if inv, ok := rRes.(*lookup.Invalidor); ok && IsUndefinedError(inv) {
-		rRaw = Undefined{}
-	}
+	lRaw, rRaw = Materialize(lRaw), Materialize(rRaw)
 
 	_, lUndef := lRaw.(Undefined)
 	_, rUndef := rRaw.(Undefined)
@@ -122,31 +100,57 @@ type jsonataSequenceRunner struct {
 }
 
 func (r *jsonataSequenceRunner) Run(scope *lookup.Scope) lookup.Pathor {
-	res := r.inner.Run(scope)
-	if inv, ok := res.(*lookup.Invalidor); ok {
+	raw, inv := jsonataResult(r.inner.Run(scope))
+	if inv != nil {
 		return inv
 	}
-
-	raw := res.Raw()
-	if s, ok := raw.([]interface{}); ok {
-		return lookup.Reflect(&Sequence{Values: s})
-	}
-	return res
+	return lookup.Reflect(pathResultValue(raw))
 }
 
-// jsonataFilterRunner intercepts generic lookup.Filter responses, translating
-// empty result evaluators to explicit absent mapping representations.
-type jsonataFilterRunner struct {
-	inner lookup.Runner
-}
+// jsonataFilterRunner evaluates predicates itself because generic Filter merges
+// predicate errors and ordinary no-match into the same aggregate error.
+type jsonataFilterRunner struct{ predicate lookup.Runner }
 
 func (r *jsonataFilterRunner) Run(scope *lookup.Scope) lookup.Pathor {
-	res := r.inner.Run(scope)
-	if inv, ok := res.(*lookup.Invalidor); ok {
-		// Generic filter runner yields ErrEvalFail when no elements match the predicate
-		if errors.Is(inv, lookup.ErrEvalFail) {
-			return lookup.NewInvalidor("", lookup.ErrNoSuchPath)
+	raw, inv := jsonataResult(scope.Position)
+	if inv != nil {
+		return inv
+	}
+	var items []interface{}
+	switch v := pathResultValue(raw).(type) {
+	case Undefined:
+		return lookup.Reflect(v)
+	case *Sequence:
+		items = v.Values
+	case *Array:
+		items = v.Elements
+	default:
+		items = []interface{}{v}
+	}
+	var matches []interface{}
+	for _, item := range items {
+		value, inv := jsonataResult(r.predicate.Run(scope.Nest(lookup.Reflect(item))))
+		if inv != nil {
+			return inv
+		}
+		if Truthy(value) {
+			matches = append(matches, item)
 		}
 	}
-	return res
+	return lookup.Reflect(FlattenSequence(matches...))
+}
+
+// jsonataResult normalizes absent runner results at JSONata boundaries while
+// preserving explicit null and genuine evaluator errors.
+func jsonataResult(res lookup.Pathor) (interface{}, *lookup.Invalidor) {
+	if isNilOrNilPointer(res) {
+		return Undefined{}, nil
+	}
+	if inv, ok := res.(*lookup.Invalidor); ok {
+		if IsUndefinedError(inv) {
+			return Undefined{}, nil
+		}
+		return nil, inv
+	}
+	return res.Raw(), nil
 }

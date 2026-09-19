@@ -66,33 +66,12 @@ func compilePath(n *PathNode) lookup.Runner {
 			opts = append(opts, &jsonataSingletonRunner{inner: lookup.Index(*step.Index)})
 		}
 		if step.Filter != nil {
-			var op lookup.Runner
-			switch step.Filter.Operator {
-			case "=":
-				op = lookup.Equals(lookup.Constant(step.Filter.Value))
-			case "!=":
-				op = lookup.NotEquals(lookup.Constant(step.Filter.Value))
-			case ">":
-				op = lookup.GreaterThan(lookup.Constant(step.Filter.Value))
-			case "<":
-				op = lookup.LessThan(lookup.Constant(step.Filter.Value))
-			case ">=":
-				op = lookup.GreaterThanOrEqual(lookup.Constant(step.Filter.Value))
-			case "<=":
-				op = lookup.LessThanOrEqual(lookup.Constant(step.Filter.Value))
-			default:
-				op = lookup.Equals(lookup.Constant(step.Filter.Value))
+			var field lookup.Runner = lookup.This()
+			if step.Filter.Field != "$" {
+				field = &jsonataMapRunner{stepRunner: lookup.This(step.Filter.Field), name: step.Filter.Field}
 			}
-
-			field := step.Filter.Field
-			var fieldRunner *lookup.Relator
-			if field == "$" {
-				fieldRunner = lookup.This()
-			} else {
-				fieldRunner = lookup.This(field)
-			}
-			filterRunner := &jsonataFilterRunner{inner: lookup.Filter(fieldRunner.Find("", op))}
-			opts = append(opts, &jsonataSingletonRunner{inner: filterRunner})
+			predicate := &jsonataBinaryRunner{operator: step.Filter.Operator, left: field, right: lookup.Constant(step.Filter.Value)}
+			opts = append(opts, &jsonataFilterRunner{predicate: predicate})
 		}
 
 		// Helper to apply opts

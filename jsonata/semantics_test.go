@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/arran4/lookup"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -16,17 +17,17 @@ func TestSemanticMissingPropertyVsNull(t *testing.T) {
 	root := lookup.Reflect(v)
 
 	// Missing property
-	astC, _ := Parse("c")
+	astC, err := Parse("c")
+	require.NoError(t, err)
 	runnerC := Compile(astC)
 	resC := runnerC.Run(lookup.NewScope(nil, root))
 	matC := Materialize(resC.Raw())
 
-	if _, isUndef := matC.(Undefined); isUndef {
-		t.Logf("Warning: matC is Undefined.")
-	}
+	assert.IsType(t, Undefined{}, matC)
 
 	// Property with null
-	astB, _ := Parse("b")
+	astB, err := Parse("b")
+	require.NoError(t, err)
 	runnerB := Compile(astB)
 	resB := runnerB.Run(lookup.NewScope(nil, root))
 	matB := Materialize(resB.Raw())
@@ -67,7 +68,8 @@ func TestGenuineErrorSurvival(t *testing.T) {
 	root := lookup.Reflect(v)
 
 	// In jsonata missing function evaluates to an error. Let's see.
-	ast, _ := Parse("a.$missing_func()")
+	ast, err := Parse("a.$missing_func()")
+	require.NoError(t, err)
 	runner := Compile(ast)
 	res := runner.Run(lookup.NewScope(nil, root))
 
@@ -77,32 +79,33 @@ func TestGenuineErrorSurvival(t *testing.T) {
 }
 
 func TestRegressionStringConcatSingleton(t *testing.T) {
-	// String concatenation of singleton sequence should produce "helloworld", not struct formatting.
-	// Sequence{1} & Sequence{2} -> "12"
-	ast, _ := Parse(`"hello" & "world"`)
-	runner := Compile(ast)
+	runner := &jsonataBinaryRunner{operator: "&",
+		left:  lookup.Constant(&Sequence{Values: []interface{}{"hello"}}),
+		right: lookup.Constant(&Sequence{Values: []interface{}{"world"}}),
+	}
 	res := runner.Run(lookup.NewScope(nil, nil))
-
-	mat := Materialize(res.Raw())
-	assert.Equal(t, "helloworld", mat)
+	require.Equal(t, "helloworld", res.Raw())
 }
 
 func TestRegressionPathFlattening(t *testing.T) {
-	data := `{"a": [[1, 2], [3, 4]]}`
-	var v interface{}
-	if err := json.Unmarshal([]byte(data), &v); err != nil {
-		t.Fatalf("failed to unmarshal test data: %v", err)
+	for _, tc := range []struct {
+		name, expr  string
+		input, want interface{}
+	}{
+		{"mapped arrays", "rows.v", map[string]interface{}{"rows": []interface{}{map[string]interface{}{"v": []interface{}{1, 2}}, map[string]interface{}{"v": []interface{}{3, 4}}}}, []interface{}{1, 2, 3, 4}},
+		{"typed singleton", "rows.v", map[string]interface{}{"rows": []map[string]interface{}{{"v": []int{1}}}}, 1},
+		{"typed multiple", "rows.v", map[string]interface{}{"rows": []map[string]interface{}{{"v": []int{1, 2}}, {"v": []int{3, 4}}}}, []interface{}{1, 2, 3, 4}},
+		{"nested JSON arrays", "a", map[string]interface{}{"a": []interface{}{[]interface{}{1, 2}, []interface{}{3, 4}}}, []interface{}{[]interface{}{1, 2}, []interface{}{3, 4}}},
+		{"explicit Array in mapped sequence", "rows.v", map[string]interface{}{"rows": []map[string]interface{}{{"v": &Array{Elements: []interface{}{&Array{Elements: []interface{}{1, 2}}}}}, {"v": 3}}}, []interface{}{[]interface{}{[]interface{}{1, 2}}, 3}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			ast, err := Parse(tc.expr)
+			require.NoError(t, err)
+			res := Compile(ast).Run(lookup.NewScope(nil, lookup.Reflect(tc.input)))
+			require.NotNil(t, res)
+			require.Equal(t, tc.want, res.Raw()) // public result, without another Materialize call
+		})
 	}
-	root := lookup.Reflect(v)
-
-	// a[] should flatten to [1, 2, 3, 4] but since we don't have [] syntax implemented,
-	// let's test a general path navigation that yields a sequence of sequences.
-	ast, _ := Parse("a")
-	runner := Compile(ast)
-	res := runner.Run(lookup.NewScope(nil, root))
-
-	mat := Materialize(res.Raw())
-	assert.Equal(t, []interface{}{[]interface{}{1.0, 2.0}, []interface{}{3.0, 4.0}}, mat)
 }
 
 func TestRegressionUndefinedInSequence(t *testing.T) {
@@ -154,10 +157,17 @@ func TestJsonataValuesEqualDirect(t *testing.T) {
 		{"Nested numbers", []interface{}{1}, []interface{}{1.0}, true},
 		{"Shape mismatch", []interface{}{1}, 1, false},
 		{"Value mismatch", 1, 2, false},
-		{"Large integer", 9007199254740992, 9007199254740992, true}, // 2^53
+		{"Large integer", json.Number("9007199254740993"), int64(9007199254740993), true},
+		{"Adjacent large integer", json.Number("9007199254740993"), int64(9007199254740992), false},
+		{"Unsigned integer", json.Number("18446744073709551615"), uint64(18446744073709551615), true},
+		{"Float32", json.Number("1.5"), float32(1.5), true},
+		{"Nested objects", map[string]interface{}{"v": []interface{}{json.Number("2"), json.Number("3.5")}}, map[string]interface{}{"v": []interface{}{int32(2), float64(3.5)}}, true},
+		{"Missing object key", map[string]interface{}{"v": nil}, map[string]interface{}{"w": nil}, false},
+		{"Array length", []int{1}, []int{1, 2}, false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			require.Equal(t, tc.expected, jsonataValuesEqual(tc.b, tc.a), "reverse comparison")
 			out := jsonataValuesEqual(tc.a, tc.b)
 			if out != tc.expected {
 				t.Fatalf("jsonataValuesEqual(%v, %v) = %v, expected %v", tc.a, tc.b, out, tc.expected)
@@ -178,8 +188,4 @@ func TestHarnessUndefinedDistinction(t *testing.T) {
 	if v != nil || undef {
 		t.Fatalf("materializeHarnessValue(nil) = %v, %v, expected nil, false", v, undef)
 	}
-}
-
-func TestHarnessInputDistinctions(t *testing.T) {
-	// Add explicit input data tests later
 }

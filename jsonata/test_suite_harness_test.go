@@ -126,7 +126,7 @@ func TestHarnessSemantics(t *testing.T) {
 		{
 			name:        "Missing-paths with undefined evaluation legacy fallback",
 			testID:      "missing-paths/case001",
-			execErr:     lookup.NewInvalidor("path", fmt.Errorf("element not found at simple path")),
+			execErr:     lookup.NewInvalidor("path", fmt.Errorf("element not found at simple path path element was map expected string")),
 			expectPass:  true,
 			isUndefined: true,
 			want:        harnessOutcome{},
@@ -218,7 +218,7 @@ func TestRunCaseDatasetErrors(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := runCase(suiteCase{Dataset: tt.dataset}, "1+1", false)
+			_, err := runCase(harnessInput{kind: "dataset", dataset: tt.dataset}, "1+1")
 			if err == nil {
 				t.Fatalf("expected error for %s, got nil", tt.dataset)
 			}
@@ -247,5 +247,57 @@ func TestJSONNumberSanity(t *testing.T) {
 
 	if i != int64(10) {
 		t.Errorf("expected int64 10, got %d", i)
+	}
+}
+
+func TestHarnessInputDistinctions(t *testing.T) {
+	dataset, err := loadDataset("dataset0__INPUT")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		name, metadata, kind string
+		want                 interface{}
+		canonicalError       bool
+	}{
+		{"explicit null", `{"data":null}`, "data", nil, false},
+		{"data takes precedence", `{"data":null,"dataset":"nonexistent"}`, "data", nil, false},
+		{"undefined", `{"dataset":null}`, "undefined", Undefined{}, false},
+		{"named dataset", `{"dataset":"dataset0__INPUT"}`, "dataset", dataset, false},
+		{"absent metadata", `{}`, "absent", Undefined{}, true},
+		{"legacy empty dataset", `{"dataset":""}`, "dataset", Undefined{}, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			input, err := decodeHarnessInput(tc.metadata)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if input.kind != tc.kind {
+				t.Fatalf("kind = %q, want %q", input.kind, tc.kind)
+			}
+			value, err := input.resolve()
+			if (err != nil) != tc.canonicalError {
+				t.Fatalf("canonical resolve error = %v", err)
+			}
+			if !tc.canonicalError && !jsonataValuesEqual(tc.want, value) {
+				t.Fatalf("canonical value = %#v, want %#v", value, tc.want)
+			}
+			// Exercise the actual execution path and the public context result.
+			res, err := runCase(legacyTxtarInput(input), "$")
+			if err != nil {
+				t.Fatal(err)
+			}
+			actual, undefined := materializeHarnessValue(res)
+			_, wantUndefined := tc.want.(Undefined)
+			if undefined != wantUndefined {
+				t.Fatalf("undefined = %v, want %v", undefined, wantUndefined)
+			}
+			if !wantUndefined && !jsonataValuesEqual(tc.want, actual) {
+				t.Fatalf("context = %#v, want %#v", actual, tc.want)
+			}
+			if input.kind != tc.kind {
+				t.Fatal("legacy adapter mutated canonical state")
+			}
+		})
 	}
 }

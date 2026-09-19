@@ -198,16 +198,26 @@ func IsUndefinedError(inv *lookup.Invalidor) bool {
 	if errors.Is(err, lookup.ErrNoSuchPath) {
 		return true
 	}
-	errStr := inv.Error()
-	return strings.Contains(errStr, "element not found at simple path")
+	// Reflector's legacy map miss has no sentinel. Match its complete format,
+	// including the Invalidor path, rather than arbitrary error substrings.
+	for kind := reflect.Invalid; kind <= reflect.UnsafePointer; kind++ {
+		if inv.Error() == fmt.Sprintf("element not found at simple path %s element was map expected %s", strings.TrimRight(inv.Path(), "."), kind) {
+			return true
+		}
+	}
+	return false
 }
 
-// isJSONataFieldNoMatch identifies when a generic runner attempt to traverse
-// a JSON scalar fails due to non-navigability.
+// isJSONataFieldNoMatch recognizes only Reflector's scalar navigation error.
+// Method failures and arbitrary evaluator errors must remain errors.
 func isJSONataFieldNoMatch(inv *lookup.Invalidor) bool {
 	if inv == nil {
 		return false
 	}
-	errStr := inv.Error()
-	return strings.Contains(errStr, "invalid element at simple path") && strings.Contains(errStr, "expected array,slice,map,struct,func")
+	for _, kind := range []reflect.Kind{reflect.Invalid, reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr, reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128, reflect.String, reflect.Chan, reflect.UnsafePointer} {
+		if inv.Error() == fmt.Sprintf("invalid element at simple path %s element was %s expected array,slice,map,struct,func", strings.TrimRight(inv.Path(), "."), kind) {
+			return true
+		}
+	}
+	return false
 }
