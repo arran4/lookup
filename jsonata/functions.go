@@ -87,9 +87,15 @@ type sumFunc struct{}
 
 func (s *sumFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, nil // Or error? JSONata says returns undefined if empty.
+		return Undefined{}, nil
+	}
+	if len(args) > 1 {
+		return nil, fmt.Errorf("T0410: function requires 1 argument")
 	}
 	arg := args[0]
+	if _, ok := arg.(Undefined); ok {
+		return Undefined{}, nil
+	}
 	if arg == nil {
 		return nil, nil
 	}
@@ -133,9 +139,15 @@ func (s *countFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
 		return 0, nil
 	}
+	if len(args) > 1 {
+		return nil, fmt.Errorf("T0410: function requires 1 argument")
+	}
 	arg := args[0]
+	if _, ok := arg.(Undefined); ok {
+		return 0, nil
+	}
 	if arg == nil {
-		return 0, nil // nil is empty sequence?
+		return 1, nil // JSON null is a singleton element!
 	}
 
 	switch v := arg.(type) {
@@ -152,6 +164,9 @@ type maxFunc struct{}
 func (s *maxFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
 		return Undefined{}, nil
+	}
+	if len(args) > 1 {
+		return nil, fmt.Errorf("T0410: function requires 1 argument")
 	}
 	arg := args[0]
 	if _, ok := arg.(Undefined); ok {
@@ -201,6 +216,9 @@ func (s *minFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
 		return Undefined{}, nil
 	}
+	if len(args) > 1 {
+		return nil, fmt.Errorf("T0410: function requires 1 argument")
+	}
 	arg := args[0]
 	if _, ok := arg.(Undefined); ok {
 		return Undefined{}, nil
@@ -248,6 +266,9 @@ type averageFunc struct{}
 func (s *averageFunc) Call(args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
 		return Undefined{}, nil
+	}
+	if len(args) > 1 {
+		return nil, fmt.Errorf("T0410: function requires 1 argument")
 	}
 	arg := args[0]
 	if _, ok := arg.(Undefined); ok {

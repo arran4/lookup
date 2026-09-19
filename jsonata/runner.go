@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"errors"
 	"github.com/arran4/go-evaluator"
 	"github.com/arran4/lookup"
 )
@@ -35,7 +36,6 @@ func (r *jsonataRunner) Run(scope *lookup.Scope) lookup.Pathor {
 		return lookup.Reflect(Undefined{})
 	}
 
-	raw = pathResultValue(raw)
 	mat := Materialize(raw)
 	return lookup.Reflect(mat)
 }
@@ -98,6 +98,9 @@ func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 			if isJSONataFieldNoMatch(inv) {
 				continue
 			}
+			if errors.Is(inv, lookup.ErrNoMatchesForQuery) {
+				continue
+			}
 			return inv // real error, stop map evaluation
 		}
 
@@ -106,14 +109,7 @@ func (r *jsonataMapRunner) Run(scope *lookup.Scope) lookup.Pathor {
 			continue
 		}
 
-		if _, ok := resRaw.(*Sequence); !ok {
-			if _, ok := resRaw.(*Array); !ok {
-				if s, ok := resRaw.([]interface{}); ok {
-					resRaw = &Sequence{Values: s}
-				}
-			}
-		}
-
+		resRaw = pathResultValue(resRaw)
 		results = append(results, resRaw)
 	}
 

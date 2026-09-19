@@ -99,7 +99,8 @@ $max([-1,-5])
 {
   "dataset": "",
   "bindings": {},
-  "exprFile": "case009.JSONATA"
+  "exprFile": "case009.JSONATA",
+  "code": "T0410"
 }
 -- case009.JSONATA --
 $max([],[])
@@ -119,7 +120,8 @@ null
 {
   "dataset": "",
   "bindings": {},
-  "exprFile": "case011.JSONATA"
+  "exprFile": "case011.JSONATA",
+  "code": "T0410"
 }
 -- case011.JSONATA --
 $max([],[],[])
@@ -237,7 +239,8 @@ $min(1)
 {
   "dataset": "",
   "bindings": {},
-  "exprFile": "case022.JSONATA"
+  "exprFile": "case022.JSONATA",
+  "code": "T0410"
 }
 -- case022.JSONATA --
 $min([],[])
@@ -257,7 +260,8 @@ null
 {
   "dataset": "",
   "bindings": {},
-  "exprFile": "case024.JSONATA"
+  "exprFile": "case024.JSONATA",
+  "code": "T0410"
 }
 -- case024.JSONATA --
 $min([],[],[])

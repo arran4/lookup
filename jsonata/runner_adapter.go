@@ -1,6 +1,9 @@
 package jsonata
 
-import "github.com/arran4/lookup"
+import (
+	"errors"
+	"github.com/arran4/lookup"
+)
 
 // materializeRunner wraps a generic lookup runner and ensures that any
 // JSONata-specific semantics (Sequence/Array) are materialized into standard
@@ -141,7 +144,7 @@ func (r *jsonataFilterRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	res := r.inner.Run(scope)
 	if inv, ok := res.(*lookup.Invalidor); ok {
 		// Generic filter runner yields ErrEvalFail when no elements match the predicate
-		if inv.Unwrap() == lookup.ErrEvalFail {
+		if errors.Is(inv, lookup.ErrEvalFail) {
 			return lookup.NewInvalidor("", lookup.ErrNoSuchPath)
 		}
 	}

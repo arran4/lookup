@@ -457,7 +457,7 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 |---|---|---|---|
 | array-constructor | 6 | 15 | 0 |
 | blocks | 0 | 7 | 0 |
-| boolean-expresssions | 23 | 8 | 0 |
+| boolean-expresssions | 22 | 9 | 0 |
 | closures | 0 | 2 | 0 |
 | coalescing-operator | 0 | 13 | 0 |
 | comments | 3 | 0 | 1 |
@@ -515,7 +515,7 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 | function-substring | 17 | 2 | 0 |
 | function-substringAfter | 0 | 5 | 0 |
 | function-substringBefore | 0 | 5 | 0 |
-| function-sum | 3 | 4 | 0 |
+| function-sum | 2 | 5 | 0 |
 | function-tomillis | 0 | 13 | 0 |
 | function-trim | 0 | 3 | 0 |
 | function-typeOf | 0 | 13 | 0 |
