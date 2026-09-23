@@ -1,48 +1,38 @@
 -- case000.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
-  "exprFile": "case000.JSONATA"
+  "dataset": "dataset5",
+  "exprFile": "case000.JSONATA",
+  "unordered": true
 }
 -- case000.JSONATA --
 $keys(Account)
 -- case000_expected.json --
-[
-  "Account Name",
-  "Order"
-]
+["Account Name","Order"]
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
-  "exprFile": "case001.JSONATA"
+  "dataset": "dataset5",
+  "exprFile": "case001.JSONATA",
+  "unordered": true
 }
 -- case001.JSONATA --
 $keys(Account.Order.Product)
 -- case001_expected.json --
-[
-  "Product Name",
-  "ProductID",
-  "SKU",
-  "Description",
-  "Price",
-  "Quantity"
-]
+["Product Name","ProductID","SKU","Description","Price","Quantity"]
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case002.JSONATA",
   "undefinedResult": true
 }
 -- case002.JSONATA --
 $keys({})
--- case002_expected.json --
-null
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -51,34 +41,28 @@ $keys({"foo":{}})
 "foo"
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA",
   "undefinedResult": true
 }
 -- case004.JSONATA --
 $keys("foo")
--- case004_expected.json --
-null
 -- case005.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case005.JSONATA",
   "undefinedResult": true
 }
 -- case005.JSONATA --
 $keys(function(){1})
--- case005_expected.json --
-null
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case006.JSONATA",
   "undefinedResult": true
 }
 -- case006.JSONATA --
 $keys(["foo", "bar"])
--- case006_expected.json --
-null

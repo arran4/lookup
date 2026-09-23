@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@ $substring("hello world", 0, 5)
 "hello"
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +20,8 @@ $substring("hello world", -5, 5)
 "world"
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,19 +30,17 @@ $substring("hello world", 6)
 "world"
 -- case003.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case003.JSONATA",
   "undefinedResult": true
 }
 -- case003.JSONATA --
 $substring(blah, 6)
--- case003_expected.json --
-null
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -51,8 +49,8 @@ $substring('𝄞💩', 0, 2)
 "𝄞💩"
 -- case005.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -61,8 +59,8 @@ $substring('𝄞💩', 0, 1)
 "𝄞"
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -71,8 +69,8 @@ $substring('𝄞💩', 1, 1)
 "💩"
 -- case007.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
@@ -81,8 +79,8 @@ $substring("hello world", -5)
 "world"
 -- case008.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
@@ -91,8 +89,8 @@ $substring("hello world", -5, 5)
 "world"
 -- case009.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
@@ -101,8 +99,8 @@ $substring("hello world", -5, 4)
 "worl"
 -- case010.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
@@ -111,8 +109,8 @@ $substring("hello world", -5, 1)
 "w"
 -- case011.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
@@ -121,8 +119,8 @@ $substring("hello world", -5, 0)
 ""
 -- case012.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
@@ -131,8 +129,8 @@ $substring("hello world", -5, -1)
 ""
 -- case013.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --
@@ -141,8 +139,8 @@ $substring("hello world", 0, -6)
 ""
 -- case014.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
@@ -151,8 +149,8 @@ $substring("hello world", -100, 3)
 "hel"
 -- case015.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case015.JSONATA"
 }
 -- case015.JSONATA --
@@ -161,8 +159,8 @@ $substring("😂😁😀", -2, 1)
 "😁"
 -- case016.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case016.JSONATA"
 }
 -- case016.JSONATA --
@@ -171,8 +169,8 @@ $substring("😂😁😀", -3, 1)
 "😂"
 -- case017.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case017.JSONATA"
 }
 -- case017.JSONATA --
@@ -181,8 +179,8 @@ $substring("😂😁😀", -4, 1)
 "😂"
 -- case018.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case018.JSONATA"
 }
 -- case018.JSONATA --

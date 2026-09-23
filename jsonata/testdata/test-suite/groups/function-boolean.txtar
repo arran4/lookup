@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@ $boolean("Hello World")
 true
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +20,8 @@ $boolean("")
 false
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,8 +30,8 @@ $boolean(true)
 true
 -- case003.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -40,8 +40,8 @@ $boolean(false)
 false
 -- case004.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -50,8 +50,8 @@ $boolean(0)
 false
 -- case005.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -60,8 +60,8 @@ $boolean(10)
 true
 -- case006.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -70,8 +70,8 @@ $boolean(-0.5)
 true
 -- case007.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
@@ -80,8 +80,8 @@ $boolean(null)
 false
 -- case008.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
@@ -90,8 +90,8 @@ $boolean([])
 false
 -- case009.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
@@ -100,8 +100,8 @@ $boolean([0])
 false
 -- case010.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
@@ -110,8 +110,8 @@ $boolean([1])
 true
 -- case011.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
@@ -120,8 +120,8 @@ $boolean([1,2,3])
 true
 -- case012.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
@@ -130,8 +130,8 @@ $boolean([0,0])
 false
 -- case013.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --
@@ -140,8 +140,8 @@ $boolean([[]])
 false
 -- case014.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
@@ -150,8 +150,8 @@ $boolean([[null]])
 false
 -- case015.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case015.JSONATA"
 }
 -- case015.JSONATA --
@@ -160,8 +160,8 @@ $boolean([[[true]]])
 true
 -- case016.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case016.JSONATA"
 }
 -- case016.JSONATA --
@@ -170,8 +170,8 @@ $boolean({})
 false
 -- case017.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case017.JSONATA"
 }
 -- case017.JSONATA --
@@ -180,8 +180,8 @@ $boolean({"hello":"world"})
 true
 -- case018.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case018.JSONATA"
 }
 -- case018.JSONATA --
@@ -190,8 +190,8 @@ $boolean(Account)
 true
 -- case019.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case019.JSONATA"
 }
 -- case019.JSONATA --
@@ -200,19 +200,17 @@ $boolean(Account.Order.Product.Price)
 true
 -- case020.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case020.JSONATA",
   "undefinedResult": true
 }
 -- case020.JSONATA --
 $boolean(Account.blah)
--- case020_expected.json --
-null
 -- case021.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case021.JSONATA"
 }
 -- case021.JSONATA --
@@ -221,8 +219,8 @@ $boolean($boolean)
 false
 -- case022.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case022.JSONATA"
 }
 -- case022.JSONATA --
@@ -231,11 +229,10 @@ $boolean(function(){true})
 false
 -- case023.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case023.JSONATA"
 }
 -- case023.JSONATA --
 $boolean(2,3)
--- case023_expected.json --
-null

@@ -1,154 +1,107 @@
 -- case000.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
 foo.**.blah
 -- case000_expected.json --
-[
-  {
-    "baz": {
-      "fud": "hello"
-    }
-  },
-  {
-    "baz": {
-      "fud": "world"
-    }
-  },
-  {
-    "bazz": "gotcha"
-  }
-]
+[{"baz":{"fud":"hello"}},{"baz":{"fud":"world"}},{"bazz":"gotcha"}]
 -- case001.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
 foo.**.baz
 -- case001_expected.json --
-[
-  {
-    "fud": "hello"
-  },
-  {
-    "fud": "world"
-  }
-]
+[{"fud":"hello"},{"fud":"world"}]
 -- case002.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
 foo.**.fud
 -- case002_expected.json --
-[
-  "hello",
-  "world"
-]
+["hello","world"]
 -- case003.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
 "foo".**.fud
 -- case003_expected.json --
-[
-  "hello",
-  "world"
-]
+["hello","world"]
 -- case004.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
 foo.**."fud"
 -- case004_expected.json --
-[
-  "hello",
-  "world"
-]
+["hello","world"]
 -- case005.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
 "foo".**."fud"
 -- case005_expected.json --
-[
-  "hello",
-  "world"
-]
+["hello","world"]
 -- case006.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
 foo.*.**.fud
 -- case006_expected.json --
-[
-  "hello",
-  "world"
-]
+["hello","world"]
 -- case007.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
 foo.**.*.fud
 -- case007_expected.json --
-[
-  "hello",
-  "world"
-]
+["hello","world"]
 -- case008.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
 Account.Order.**.Colour
 -- case008_expected.json --
-[
-  "Purple",
-  "Orange",
-  "Purple",
-  "Black"
-]
+["Purple","Orange","Purple","Black"]
 -- case009.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
 foo.**.fud[0]
 -- case009_expected.json --
-[
-  "hello",
-  "world"
-]
+["hello","world"]
 -- case010.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
@@ -157,8 +110,8 @@ foo.**.fud[0]
 "hello"
 -- case011.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
@@ -167,38 +120,28 @@ foo.**.fud[0]
 "hello"
 -- case012.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
 **.Price
 -- case012_expected.json --
-[
-  34.45,
-  21.67,
-  34.45,
-  107.99
-]
+[34.45,21.67,34.45,107.99]
 -- case013.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --
 **.Price[0]
 -- case013_expected.json --
-[
-  34.45,
-  21.67,
-  34.45,
-  107.99
-]
+[34.45,21.67,34.45,107.99]
 -- case014.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
@@ -207,23 +150,19 @@ foo.**.fud[0]
 34.45
 -- case015.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case015.JSONATA",
   "undefinedResult": true
 }
 -- case015.JSONATA --
 Account.Order.blah.**
--- case015_expected.json --
-null
 -- case016.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case016.JSONATA",
   "undefinedResult": true
 }
 -- case016.JSONATA --
 **
--- case016_expected.json --
-null

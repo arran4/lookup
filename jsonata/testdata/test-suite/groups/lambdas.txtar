@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@ function($x){$x*$x}(5)
 25
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,19 +20,17 @@ function($x){$x>5 ? "foo"}(6)
 "foo"
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case002.JSONATA",
   "undefinedResult": true
 }
 -- case002.JSONATA --
 function($x){$x>5 ? "foo"}(3)
--- case002_expected.json --
-null
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -41,28 +39,18 @@ null
 24
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
 ($fibonacci := function($x){$x <= 1 ? $x : $fibonacci($x-1) + $fibonacci($x-2)}; [1,2,3,4,5,6,7,8,9].$fibonacci($))
 -- case004_expected.json --
-[
-  1,
-  1,
-  2,
-  3,
-  5,
-  8,
-  13,
-  21,
-  34
-]
+[1,1,2,3,5,8,13,21,34]
 -- case005.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -71,8 +59,8 @@ null
 21.67
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -81,8 +69,8 @@ null
 true
 -- case007.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
@@ -91,8 +79,8 @@ true
 false
 -- case008.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
@@ -101,81 +89,41 @@ false
 true
 -- case009.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
 (  $gcd := λ($a, $b){$b = 0 ? $a : $gcd($b, $a%$b) };  [$gcd(8,12), $gcd(9,12)])
 -- case009_expected.json --
-[
-  4,
-  3
-]
+[4,3]
 -- case010.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
 (  $range := function($start, $end, $step) { (    $step:=($step?$step:1);    $start+$step > $end ? $start : $append($start, $range($start+$step, $end, $step))   )};  $range(0,15))
 -- case010_expected.json --
-[
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  10,
-  11,
-  12,
-  13,
-  14,
-  15
-]
+[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
 -- case011.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
 (  $range := function($start, $end, $step) { (      $step:=($step?$step:1);        $start+$step > $end ? $start : $append($start, $range($start+$step, $end, $step))   )};  $range(0,15,2))
 -- case011_expected.json --
-[
-  0,
-  2,
-  4,
-  6,
-  8,
-  10,
-  12,
-  14
-]
+[0,2,4,6,8,10,12,14]
 -- case012.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
 ( $median := λ($x){$sort($x)[$count($x)/2]};  $median([5,4,3,2,1,6,7,8,1]) )
 -- case012_expected.json --
 4
--- case013.json --
-{
-  "dataset": "",
-  "bindings": {},
-  "exprFile": "case013.JSONATA",
-  "undefinedResult": true
-}
--- case013.JSONATA --
-( $f := function(){1}; $f.environment )
--- case013_expected.json --
-null

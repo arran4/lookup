@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@ true
 true
 -- case001.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +20,8 @@ false
 false
 -- case002.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,8 +30,8 @@ false or false
 false
 -- case003.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -40,8 +40,8 @@ false or true
 true
 -- case004.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -50,8 +50,8 @@ true or false
 true
 -- case005.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -60,8 +60,8 @@ true or true
 true
 -- case006.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -70,8 +70,8 @@ false and false
 false
 -- case007.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
@@ -80,8 +80,8 @@ false and true
 false
 -- case008.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
@@ -90,8 +90,8 @@ true and false
 false
 -- case009.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
@@ -100,8 +100,8 @@ true and true
 true
 -- case010.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
@@ -110,8 +110,8 @@ $not(false)
 true
 -- case011.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
@@ -120,8 +120,11 @@ $not(true)
 false
 -- case012.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": {
+    "and": 1,
+    "or": 2
+  },
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
@@ -130,8 +133,11 @@ and=1 and or=2
 true
 -- case013.json --
 {
-  "data": {"and":1,"or":2},
   "bindings": {},
+  "data": {
+    "and": 1,
+    "or": 2
+  },
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --
@@ -140,8 +146,11 @@ and>1 or or<=2
 true
 -- case014.json --
 {
-  "data": {"and":1,"or":2},
   "bindings": {},
+  "data": {
+    "and": 1,
+    "or": 2
+  },
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
@@ -150,8 +159,11 @@ and>1 or or!=2
 false
 -- case015.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": {
+    "and": 1,
+    "or": 2
+  },
   "exprFile": "case015.JSONATA"
 }
 -- case015.JSONATA --
@@ -160,20 +172,17 @@ and and and
 true
 -- case016.json --
 {
-  "dataset": "dataset11__INPUT",
   "bindings": {},
+  "dataset": "dataset11",
   "exprFile": "case016.JSONATA"
 }
 -- case016.JSONATA --
 $[].content.origin.$lowercase(name)
 -- case016_expected.json --
-[
-  "fakeintegrationname"
-]
+["fakeintegrationname"]
 -- case017.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": "null",
   "exprFile": "case017.JSONATA"
 }
 -- case017.JSONATA --
@@ -182,8 +191,7 @@ true or foo
 true
 -- case018.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": "null",
   "exprFile": "case018.JSONATA"
 }
 -- case018.JSONATA --
@@ -192,8 +200,7 @@ foo or true
 true
 -- case019.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": "null",
   "exprFile": "case019.JSONATA"
 }
 -- case019.JSONATA --
@@ -202,8 +209,7 @@ false or foo
 false
 -- case020.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": "null",
   "exprFile": "case020.JSONATA"
 }
 -- case020.JSONATA --
@@ -212,8 +218,7 @@ foo or false
 false
 -- case021.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": "null",
   "exprFile": "case021.JSONATA"
 }
 -- case021.JSONATA --
@@ -222,8 +227,7 @@ foo or bar
 false
 -- case022.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": "null",
   "exprFile": "case022.JSONATA"
 }
 -- case022.JSONATA --
@@ -232,8 +236,7 @@ true and foo
 false
 -- case023.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": "null",
   "exprFile": "case023.JSONATA"
 }
 -- case023.JSONATA --
@@ -242,8 +245,7 @@ foo and true
 false
 -- case024.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": "null",
   "exprFile": "case024.JSONATA"
 }
 -- case024.JSONATA --
@@ -252,8 +254,7 @@ false and foo
 false
 -- case025.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": "null",
   "exprFile": "case025.JSONATA"
 }
 -- case025.JSONATA --
@@ -262,8 +263,7 @@ foo and false
 false
 -- case026.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": "null",
   "exprFile": "case026.JSONATA"
 }
 -- case026.JSONATA --
@@ -272,19 +272,19 @@ foo and bar
 false
 -- case027.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": {},
   "exprFile": "case027.JSONATA",
   "undefinedResult": true
 }
 -- case027.JSONATA --
 $not(nothing)
--- case027_expected.json --
-null
 -- case028.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": {
+    "foo": ""
+  },
+  "description": "will not evaluate rhs (which would error) because lhs is true",
   "exprFile": "case028.JSONATA"
 }
 -- case028.JSONATA --
@@ -293,8 +293,10 @@ foo = '' or $number(foo) = 0
 true
 -- case029.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": {
+    "data": "15"
+  },
+  "description": "will not evaluate rhs (which would error) because lhs is false",
   "exprFile": "case029.JSONATA"
 }
 -- case029.JSONATA --
@@ -303,11 +305,12 @@ $type(data) = 'number' and data > 10
 false
 -- case030.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "code": "D3030",
+  "data": {
+    "age": "33 1/2"
+  },
+  "description": "throws error on right side of boolean expression (for CC of a catch)",
   "exprFile": "case030.JSONATA"
 }
 -- case030.JSONATA --
 $type(age) = 'number' or $number(age) > 0
--- case030_expected.json --
-null

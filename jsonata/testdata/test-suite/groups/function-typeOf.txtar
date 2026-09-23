@@ -1,18 +1,16 @@
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA",
   "undefinedResult": true
 }
 -- case001.JSONATA --
 ($var:= undefined; $type($var))
--- case001_expected.json --
-null
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -21,8 +19,8 @@ null
 "null"
 -- case003.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -31,8 +29,8 @@ null
 "number"
 -- case004.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -41,8 +39,8 @@ null
 "string"
 -- case005.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -51,8 +49,8 @@ null
 "boolean"
 -- case006.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -61,8 +59,8 @@ null
 "string"
 -- case007.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
@@ -71,8 +69,8 @@ null
 "array"
 -- case008.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
@@ -81,8 +79,8 @@ null
 "array"
 -- case009.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
@@ -91,8 +89,8 @@ null
 "array"
 -- case010.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
@@ -101,8 +99,8 @@ null
 "function"
 -- case011.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
@@ -111,8 +109,8 @@ null
 "function"
 -- case012.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
@@ -121,8 +119,8 @@ null
 "object"
 -- case013.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --

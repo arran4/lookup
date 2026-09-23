@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@ Account.Order[0].OrderID ~> $uppercase()
 "ORDER103"
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +20,8 @@ Account.Order[0].OrderID ~> $uppercase() ~> $lowercase()
 "order103"
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,8 +30,8 @@ Account.Order.OrderID ~> $join()
 "order103order104"
 -- case003.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -40,8 +40,8 @@ Account.Order.OrderID ~> $join(", ")
 "order103, order104"
 -- case004.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -50,8 +50,8 @@ Account.Order.Product.(Price * Quantity) ~> $sum()
 336.36
 -- case005.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -60,8 +60,8 @@ Account.Order.Product.(Price * Quantity) ~> $sum()
 "HELLO WORLD"
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -70,8 +70,8 @@ Account.Order.Product.(Price * Quantity) ~> $sum()
 "example"
 -- case007.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": "test",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
@@ -80,19 +80,17 @@ Account.Order.Product.(Price * Quantity) ~> $sum()
 ""
 -- case008.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": "test",
   "exprFile": "case008.JSONATA",
   "undefinedResult": true
 }
 -- case008.JSONATA --
 foo ~> $substringAfter("@") ~> $substringBefore(".")
--- case008_expected.json --
-null
 -- case009.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
@@ -101,24 +99,18 @@ null
 "example"
 -- case010.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
 ( $square := function($x){$x*$x}; [1..5] ~> $map($square) )
 -- case010_expected.json --
-[
-  1,
-  4,
-  9,
-  16,
-  25
-]
+[1,4,9,16,25]
 -- case011.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
@@ -127,8 +119,8 @@ null
 55
 -- case012.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
@@ -137,8 +129,8 @@ null
 "foo"
 -- case013.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --
@@ -147,8 +139,8 @@ null
 225
 -- case014.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
@@ -157,8 +149,8 @@ null
 "225"
 -- case015.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case015.JSONATA"
 }
 -- case015.JSONATA --
@@ -167,8 +159,8 @@ null
 225
 -- case016.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case016.JSONATA"
 }
 -- case016.JSONATA --
@@ -177,8 +169,8 @@ null
 55
 -- case017.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case017.JSONATA"
 }
 -- case017.JSONATA --
@@ -187,8 +179,8 @@ null
 14400
 -- case018.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case018.JSONATA"
 }
 -- case018.JSONATA --
@@ -197,8 +189,8 @@ null
 14400
 -- case019.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case019.JSONATA"
 }
 -- case019.JSONATA --
@@ -207,25 +199,20 @@ null
 336.36
 -- case020.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "code": "T2006",
+  "dataset": "dataset5",
   "exprFile": "case020.JSONATA"
 }
 -- case020.JSONATA --
 42 ~> "hello"
--- case020_expected.json --
-null
 -- case021.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case021.JSONATA"
 }
 -- case021.JSONATA --
 Account.Order.Product[$."Product Name" ~> /hat/i].ProductID
 -- case021_expected.json --
-[
-  858383,
-  858236,
-  858383
-]
+[858383,858236,858383]

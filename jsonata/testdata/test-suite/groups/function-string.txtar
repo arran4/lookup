@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@ $string(5)
 "5"
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +20,8 @@ $string(22/7)
 "3.14285714285714"
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,8 +30,8 @@ $string(1e100)
 "1e+100"
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -40,8 +40,8 @@ $string(1e-100)
 "1e-100"
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -50,8 +50,8 @@ $string(1e-6)
 "0.000001"
 -- case005.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -60,8 +60,8 @@ $string(1e-7)
 "1e-7"
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -70,8 +70,8 @@ $string(1e20)
 "100000000000000000000"
 -- case007.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
@@ -80,21 +80,18 @@ $string(1e21)
 "1e+21"
 -- case008.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
 Account.Order.$string($sum(Product.(Price* Quantity)))
 -- case008_expected.json --
-[
-  "90.57",
-  "245.79"
-]
+["90.57","245.79"]
 -- case009.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
@@ -103,8 +100,8 @@ $string(true)
 "true"
 -- case010.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
@@ -113,8 +110,8 @@ $string(false)
 "false"
 -- case011.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
@@ -123,19 +120,17 @@ $string(null)
 "null"
 -- case012.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case012.JSONATA",
   "undefinedResult": true
 }
 -- case012.JSONATA --
 $string(blah)
--- case012_expected.json --
-null
 -- case013.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --
@@ -144,8 +139,8 @@ $string($string)
 ""
 -- case014.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
@@ -154,8 +149,8 @@ $string(function(){true})
 ""
 -- case015.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case015.JSONATA"
 }
 -- case015.JSONATA --
@@ -164,8 +159,8 @@ $string(function(){1})
 ""
 -- case016.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case016.JSONATA"
 }
 -- case016.JSONATA --
@@ -174,8 +169,8 @@ $string({"string": "hello"})
 "{\"string\":\"hello\"}"
 -- case017.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case017.JSONATA"
 }
 -- case017.JSONATA --
@@ -184,8 +179,8 @@ $string(["string", 5])
 "[\"string\",5]"
 -- case018.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case018.JSONATA"
 }
 -- case018.JSONATA --
@@ -194,49 +189,44 @@ $string({  "string": "hello",  "number": 78.8 / 2,  "null":null,  "boolean": fal
 "{\"string\":\"hello\",\"number\":39.4,\"null\":null,\"boolean\":false,\"function\":\"\",\"lambda\":\"\",\"object\":{\"str\":\"another\",\"lambda2\":\"\"},\"array\":[]}"
 -- case019.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "D3001",
+  "dataset": null,
   "exprFile": "case019.JSONATA"
 }
 -- case019.JSONATA --
 $string(1/0)
--- case019_expected.json --
-null
 -- case020.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "D1001",
+  "dataset": null,
   "exprFile": "case020.JSONATA"
 }
 -- case020.JSONATA --
 $string({"inf": 1/0})
--- case020_expected.json --
-null
 -- case021.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case021.JSONATA"
 }
 -- case021.JSONATA --
 $string(2,3)
--- case021_expected.json --
-null
 -- case022.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case022.JSONATA",
   "undefinedResult": true
 }
 -- case022.JSONATA --
 $string()
--- case022_expected.json --
-null
 -- case023.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case023.JSONATA"
 }
 -- case023.JSONATA --
@@ -245,8 +235,8 @@ $string({"string": "hello"}, false)
 "{\"string\":\"hello\"}"
 -- case024.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case024.JSONATA"
 }
 -- case024.JSONATA --
@@ -255,8 +245,8 @@ $string({"string": "hello"}, true)
 "{\n  \"string\": \"hello\"\n}"
 -- case025.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case025.JSONATA"
 }
 -- case025.JSONATA --
@@ -265,8 +255,8 @@ $string(["string", 5], false)
 "[\"string\",5]"
 -- case026.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case026.JSONATA"
 }
 -- case026.JSONATA --
@@ -275,8 +265,8 @@ $string(["string", 5], true)
 "[\n  \"string\",\n  5\n]"
 -- case027.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case027.JSONATA"
 }
 -- case027.JSONATA --
@@ -285,8 +275,8 @@ $string({  "string": "hello",  "number": 78.8 / 2,  "null":null,  "boolean": fal
 "{\"string\":\"hello\",\"number\":39.4,\"null\":null,\"boolean\":false,\"function\":\"\",\"lambda\":\"\",\"object\":{\"str\":\"another\",\"lambda2\":\"\"},\"array\":[]}"
 -- case028.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case028.JSONATA"
 }
 -- case028.JSONATA --
@@ -295,21 +285,14 @@ $string({  "string": "hello",  "number": 78.8 / 2,  "null":null,  "boolean": fal
 "{\n  \"string\": \"hello\",\n  \"number\": 39.4,\n  \"null\": null,\n  \"boolean\": false,\n  \"function\": \"\",\n  \"lambda\": \"\",\n  \"object\": {\n    \"str\": \"another\",\n    \"lambda2\": \"\"\n  },\n  \"array\": []\n}"
 -- case029.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": [
+    4,
+    true
+  ],
   "exprFile": "case029.JSONATA"
 }
 -- case029.JSONATA --
 $string()
 -- case029_expected.json --
 "[4,true]"
--- case030.json --
-{
-  "dataset": "",
-  "bindings": {},
-  "exprFile": "case030.JSONATA"
-}
--- case030.JSONATA --
-$string(big_id)
--- case030_expected.json --
-"5890840712243076"

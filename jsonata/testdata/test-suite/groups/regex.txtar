@@ -1,47 +1,37 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
 $split("ababbxabbcc",/b+/)
 -- case000_expected.json --
-[
-  "a",
-  "a",
-  "xa",
-  "cc"
-]
+["a","a","xa","cc"]
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
 $split("ababbxabbcc",/b+/, 2)
 -- case001_expected.json --
-[
-  "a",
-  "a"
-]
+["a","a"]
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
 $split("ababbxabbcc",/d+/)
 -- case002_expected.json --
-[
-  "ababbxabbcc"
-]
+["ababbxabbcc"]
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -50,8 +40,8 @@ $contains("ababbxabbcc",/ab+/)
 true
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -60,8 +50,8 @@ $contains("ababbxabbcc",/ax+/)
 false
 -- case005.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -70,22 +60,18 @@ Account.Order.Product[$contains($."Product Name", /hat/)].ProductID
 858236
 -- case006.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
 Account.Order.Product[$contains($."Product Name", /hat/i)].ProductID
 -- case006_expected.json --
-[
-  858383,
-  858236,
-  858383
-]
+[858383,858236,858383]
 -- case007.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
@@ -94,8 +80,8 @@ $replace("ababbxabbcc",/b+/, "yy")
 "ayyayyxayycc"
 -- case008.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
@@ -104,8 +90,8 @@ $replace("ababbxabbcc",/b+/, "yy", 2)
 "ayyayyxabbcc"
 -- case009.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
@@ -114,8 +100,8 @@ $replace("ababbxabbcc",/b+/, "yy", 0)
 "ababbxabbcc"
 -- case010.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
@@ -124,8 +110,8 @@ $replace("ababbxabbcc",/d+/, "yy")
 "ababbxabbcc"
 -- case011.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
@@ -134,8 +120,8 @@ $replace("John Smith", /(\w+)\s(\w+)/, "$2, $1")
 "Smith, John"
 -- case012.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
@@ -144,8 +130,8 @@ $replace("265USD", /([0-9]+)USD/, "$$$1")
 "$265"
 -- case013.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --
@@ -154,8 +140,8 @@ $replace("265USD", /([0-9]+)USD/, "$w")
 "$w"
 -- case014.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
@@ -164,8 +150,8 @@ $replace("265USD", /([0-9]+)USD/, "$0 -> $$$1")
 "265USD -\u003e $265"
 -- case015.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case015.JSONATA"
 }
 -- case015.JSONATA --
@@ -174,8 +160,8 @@ $replace("265USD", /([0-9]+)USD/, "$0$1$2")
 "265USD265"
 -- case016.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case016.JSONATA"
 }
 -- case016.JSONATA --
@@ -184,8 +170,8 @@ $replace("abcd", /(ab)|(a)/, "[1=$1][2=$2]")
 "[1=ab][2=]cd"
 -- case017.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case017.JSONATA"
 }
 -- case017.JSONATA --
@@ -194,8 +180,8 @@ $replace("abracadabra", /bra/, "*")
 "a*cada*"
 -- case018.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case018.JSONATA"
 }
 -- case018.JSONATA --
@@ -204,8 +190,8 @@ $replace("abracadabra", /a.*a/, "*")
 "*"
 -- case019.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case019.JSONATA"
 }
 -- case019.JSONATA --
@@ -214,8 +200,8 @@ $replace("abracadabra", /a.*?a/, "*")
 "*c*bra"
 -- case020.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case020.JSONATA"
 }
 -- case020.JSONATA --
@@ -224,8 +210,8 @@ $replace("abracadabra", /a/, "")
 "brcdbr"
 -- case021.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case021.JSONATA"
 }
 -- case021.JSONATA --
@@ -234,18 +220,17 @@ $replace("abracadabra", /a(.)/, "a$1$1")
 "abbraccaddabbra"
 -- case022.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "D1004",
+  "dataset": null,
   "exprFile": "case022.JSONATA"
 }
 -- case022.JSONATA --
 $replace("abracadabra", /.*?/, "$1")
--- case022_expected.json --
-null
 -- case023.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case023.JSONATA"
 }
 -- case023.JSONATA --
@@ -254,8 +239,8 @@ $replace("AAAA", /A+/, "b")
 "b"
 -- case024.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case024.JSONATA"
 }
 -- case024.JSONATA --
@@ -264,8 +249,8 @@ $replace("AAAA", /A+?/, "b")
 "bbbb"
 -- case025.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case025.JSONATA"
 }
 -- case025.JSONATA --
@@ -274,8 +259,8 @@ $replace("darted", /^(.*?)d(.*)$/, "$1c$2")
 "carted"
 -- case026.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case026.JSONATA"
 }
 -- case026.JSONATA --
@@ -284,8 +269,8 @@ $replace("abcdefghijklmno", /(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)(l)(m)/, "$8$5$12$
 "hella8l3no"
 -- case027.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case027.JSONATA"
 }
 -- case027.JSONATA --
@@ -294,8 +279,8 @@ $replace("abcdefghijklmno", /xyz/, "$8$5$12$12$18$123")
 "abcdefghijklmno"
 -- case028.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case028.JSONATA"
 }
 -- case028.JSONATA --
@@ -304,8 +289,8 @@ $replace("abcdefghijklmno", /ijk/, "$8$5$12$12$18$123")
 "abcdefgh22823lmno"
 -- case029.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case029.JSONATA"
 }
 -- case029.JSONATA --
@@ -314,8 +299,8 @@ $replace("abcdefghijklmno", /(ijk)/, "$8$5$12$12$18$123")
 "abcdefghijk2ijk2ijk8ijk23lmno"
 -- case030.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case030.JSONATA"
 }
 -- case030.JSONATA --
@@ -324,8 +309,8 @@ $replace("abcdefghijklmno", /ijk/, "$x")
 "abcdefgh$xlmno"
 -- case031.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case031.JSONATA"
 }
 -- case031.JSONATA --
@@ -334,38 +319,28 @@ $replace("abcdefghijklmno", /(ijk)/, "$x$")
 "abcdefgh$x$lmno"
 -- case032.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case032.JSONATA"
 }
 -- case032.JSONATA --
 Account.Order.Product.$replace($."Product Name", /hat/i, function($match) { "foo" })
 -- case032_expected.json --
-[
-  "Bowler foo",
-  "Trilby foo",
-  "Bowler foo",
-  "Cloak"
-]
+["Bowler foo","Trilby foo","Bowler foo","Cloak"]
 -- case033.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case033.JSONATA"
 }
 -- case033.JSONATA --
 Account.Order.Product.$replace($."Product Name", /(h)(at)/i, function($match) { $uppercase($match.match) })
 -- case033_expected.json --
-[
-  "Bowler HAT",
-  "Trilby HAT",
-  "Bowler HAT",
-  "Cloak"
-]
+["Bowler HAT","Trilby HAT","Bowler HAT","Cloak"]
 -- case034.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case034.JSONATA"
 }
 -- case034.JSONATA --
@@ -374,63 +349,61 @@ $replace("temperature = 68F today", /(-?\d+(?:\.\d*)?)F\b/, function($m) { ($num
 "temperature = 20C today"
 -- case035.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "code": "D3012",
+  "dataset": "dataset5",
   "exprFile": "case035.JSONATA"
 }
 -- case035.JSONATA --
 Account.Order.Product.$replace($."Product Name", /hat/i, function($match) { true })
--- case035_expected.json --
-null
 -- case036.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "code": "D3012",
+  "dataset": "dataset5",
   "exprFile": "case036.JSONATA"
 }
 -- case036.JSONATA --
 Account.Order.Product.$replace($."Product Name", /hat/i, function($match) { 42 })
--- case036_expected.json --
-null
 -- case037.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": [
+    "Felicia Saunders",
+    "Jimmy Schultz",
+    "Dolores Figueroa",
+    "Craig Moreno",
+    "Lindsey Hall",
+    "Bonnie Russell",
+    "Kristin Stewart",
+    "Owen Reid",
+    "Brenda Sherman",
+    "Dwayne Baldwin"
+  ],
   "exprFile": "case037.JSONATA"
 }
 -- case037.JSONATA --
 $map($, $match(?, /^(\w*\s\w*)/)).match
 -- case037_expected.json --
-[
-  "Felicia Saunders",
-  "Jimmy Schultz",
-  "Dolores Figueroa",
-  "Craig Moreno",
-  "Lindsey Hall",
-  "Bonnie Russell",
-  "Kristin Stewart",
-  "Owen Reid",
-  "Brenda Sherman",
-  "Dwayne Baldwin"
-]
+["Felicia Saunders","Jimmy Schultz","Dolores Figueroa","Craig Moreno","Lindsey Hall","Bonnie Russell","Kristin Stewart","Owen Reid","Brenda Sherman","Dwayne Baldwin"]
 -- case038.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": [
+    "Felicia Saunders",
+    "Jimmy Schultz",
+    "Dolores Figueroa",
+    "Craig Moreno",
+    "Lindsey Hall",
+    "Bonnie Russell",
+    "Kristin Stewart",
+    "Owen Reid",
+    "Brenda Sherman",
+    "Dwayne Baldwin"
+  ],
   "exprFile": "case038.JSONATA"
 }
 -- case038.JSONATA --
 $map($, function($i){ $match($i, /^(\w*\s\w*)/) }).match
 -- case038_expected.json --
-[
-  "Felicia Saunders",
-  "Jimmy Schultz",
-  "Dolores Figueroa",
-  "Craig Moreno",
-  "Lindsey Hall",
-  "Bonnie Russell",
-  "Kristin Stewart",
-  "Owen Reid",
-  "Brenda Sherman",
-  "Dwayne Baldwin"
-]
+["Felicia Saunders","Jimmy Schultz","Dolores Figueroa","Craig Moreno","Lindsey Hall","Bonnie Russell","Kristin Stewart","Owen Reid","Brenda Sherman","Dwayne Baldwin"]

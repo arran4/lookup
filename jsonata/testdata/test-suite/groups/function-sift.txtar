@@ -1,91 +1,50 @@
 -- case000.json --
 {
-  "dataset": "dataset1__INPUT",
   "bindings": {},
+  "dataset": "dataset1",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
 $sift(λ($v){$v.**.Postcode})
 -- case000_expected.json --
-{
-  "Address": {
-    "City": "Winchester",
-    "Postcode": "SO21 2JN",
-    "Street": "Hursley Park"
-  },
-  "Other": {
-    "Alternative.Address": {
-      "City": "London",
-      "Postcode": "E1 6RF",
-      "Street": "Brick Lane"
-    },
-    "Misc": null,
-    "Over 18 ?": true
-  }
-}
+{"Address":{"City":"Winchester","Postcode":"SO21 2JN","Street":"Hursley Park"},"Other":{"Alternative.Address":{"City":"London","Postcode":"E1 6RF","Street":"Brick Lane"},"Misc":null,"Over 18 ?":true}}
 -- case001.json --
 {
-  "dataset": "dataset1__INPUT",
   "bindings": {},
+  "dataset": "dataset1",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
 **[*].$sift(λ($v){$v.Postcode})
 -- case001_expected.json --
-[
-  {
-    "Address": {
-      "City": "Winchester",
-      "Postcode": "SO21 2JN",
-      "Street": "Hursley Park"
-    }
-  },
-  {
-    "Alternative.Address": {
-      "City": "London",
-      "Postcode": "E1 6RF",
-      "Street": "Brick Lane"
-    }
-  }
-]
+[{"Address":{"City":"Winchester","Postcode":"SO21 2JN","Street":"Hursley Park"}},{"Alternative.Address":{"City":"London","Postcode":"E1 6RF","Street":"Brick Lane"}}]
 -- case002.json --
 {
-  "dataset": "dataset1__INPUT",
   "bindings": {},
+  "dataset": "dataset1",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
 $sift(λ($v, $k){$k ~> /^A/})
 -- case002_expected.json --
-{
-  "Address": {
-    "City": "Winchester",
-    "Postcode": "SO21 2JN",
-    "Street": "Hursley Park"
-  },
-  "Age": 28
-}
+{"Address":{"City":"Winchester","Postcode":"SO21 2JN","Street":"Hursley Park"},"Age":28}
 -- case003.json --
 {
-  "dataset": "dataset1__INPUT",
   "bindings": {},
+  "dataset": "dataset1",
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
 $sift({'a': 1, 'b': 0}, $boolean)
 -- case003_expected.json --
-{
-  "a": 1
-}
+{"a":1}
 -- case004.json --
 {
-  "dataset": "dataset1__INPUT",
   "bindings": {},
+  "dataset": "dataset1",
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
 $sift({'a': 'hello', 'b': 'world', 'hello': 'again'}, λ($v,$k,$o){$lookup($o, $v)})
 -- case004_expected.json --
-{
-  "a": "hello"
-}
+{"a":"hello"}

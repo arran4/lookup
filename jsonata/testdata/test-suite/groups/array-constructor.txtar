@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,123 +10,81 @@
 []
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
 [1]
 -- case001_expected.json --
-[
-  1
-]
+[1]
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
 [1, 2]
 -- case002_expected.json --
-[
-  1,
-  2
-]
+[1,2]
 -- case003.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
 [1, 2,3]
 -- case003_expected.json --
-[
-  1,
-  2,
-  3
-]
+[1,2,3]
 -- case004.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
 [1, 2, [3, 4]]
 -- case004_expected.json --
-[
-  1,
-  2,
-  [
-    3,
-    4
-  ]
-]
+[1,2,[3,4]]
 -- case005.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
 [1, "two", ["three", 4]]
 -- case005_expected.json --
-[
-  1,
-  "two",
-  [
-    "three",
-    4
-  ]
-]
+[1,"two",["three",4]]
 -- case006.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {
     "four": "four",
     "two": 2
   },
+  "dataset": "dataset5",
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
 [1, $two, ["three", $four]]
 -- case006_expected.json --
-[
-  1,
-  2,
-  [
-    "three",
-    "four"
-  ]
-]
+[1,2,["three","four"]]
 -- case007.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
 ["foo.bar", foo.bar, ["foo.baz", foo.blah.baz]]
 -- case007_expected.json --
-[
-  "foo.bar",
-  42,
-  [
-    "foo.baz",
-    {
-      "fud": "hello"
-    },
-    {
-      "fud": "world"
-    }
-  ]
-]
+["foo.bar",42,["foo.baz",{"fud":"hello"},{"fud":"world"}]]
 -- case008.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
@@ -135,21 +93,18 @@
 1
 -- case009.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
 [1, 2, [3, 4]][-1]
 -- case009_expected.json --
-[
-  3,
-  4
-]
+[3,4]
 -- case010.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
@@ -158,50 +113,28 @@
 4
 -- case011.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
 foo.blah.baz.[fud, fud]
 -- case011_expected.json --
-[
-  [
-    "hello",
-    "hello"
-  ],
-  [
-    "world",
-    "world"
-  ]
-]
+[["hello","hello"],["world","world"]]
 -- case012.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
 foo.blah.baz.[[fud, fud]]
 -- case012_expected.json --
-[
-  [
-    [
-      "hello",
-      "hello"
-    ]
-  ],
-  [
-    [
-      "world",
-      "world"
-    ]
-  ]
-]
+[[["hello","hello"]],[["world","world"]]]
 -- case013.json --
 {
-  "dataset": "dataset10__INPUT",
   "bindings": {},
+  "dataset": "dataset10",
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --
@@ -210,98 +143,75 @@ foo.blah.[baz].fud
 "hello"
 -- case014.json --
 {
-  "dataset": "dataset10__INPUT",
   "bindings": {},
+  "dataset": "dataset10",
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
 foo.blah.[baz, buz].fud
 -- case014_expected.json --
-[
-  "hello",
-  "world"
-]
+["hello","world"]
 -- case015.json --
 {
-  "dataset": "dataset1__INPUT",
   "bindings": {},
+  "dataset": "dataset1",
   "exprFile": "case015.JSONATA"
 }
 -- case015.JSONATA --
 [Address, Other."Alternative.Address"].City
 -- case015_expected.json --
-[
-  "Winchester",
-  "London"
-]
+["Winchester","London"]
 -- case016.json --
 {
-  "dataset": "dataset1__INPUT",
   "bindings": {},
+  "dataset": "dataset1",
   "exprFile": "case016.JSONATA"
 }
 -- case016.JSONATA --
 [Address, Other.`Alternative.Address`].City
 -- case016_expected.json --
-[
-  "Winchester",
-  "London"
-]
+["Winchester","London"]
 -- case017.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case017.JSONATA"
 }
 -- case017.JSONATA --
 [0,1,2,3,4,5,6,7,8,9][$ % 2 = 0]
 -- case017_expected.json --
-[
-  0,
-  2,
-  4,
-  6,
-  8
-]
+[0,2,4,6,8]
 -- case018.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case018.JSONATA"
 }
 -- case018.JSONATA --
 [1, 2, 3].$
 -- case018_expected.json --
-[
-  1,
-  2,
-  3
-]
+[1,2,3]
 -- case019.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": [],
   "exprFile": "case019.JSONATA"
 }
 -- case019.JSONATA --
 [1, 2, 3].$
 -- case019_expected.json --
-[
-  1,
-  2,
-  3
-]
+[1,2,3]
 -- case020.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": [
+    4,
+    5,
+    6
+  ],
   "exprFile": "case020.JSONATA"
 }
 -- case020.JSONATA --
 [1, 2, 3].$
 -- case020_expected.json --
-[
-  1,
-  2,
-  3
-]
+[1,2,3]

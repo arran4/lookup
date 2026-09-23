@@ -1,18 +1,24 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA",
   "undefinedResult": true
 }
 -- case000.JSONATA --
 nothing[x=6][y=3].number
--- case000_expected.json --
-null
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": {
+    "clues": [
+      {
+        "number": 7,
+        "x": 6,
+        "y": 3
+      }
+    ]
+  },
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -21,25 +27,26 @@ clues[x=6][y=3].number
 7
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": [
+    {
+      "number": 7,
+      "x": 6,
+      "y": 2
+    }
+  ],
   "exprFile": "case002.JSONATA",
   "undefinedResult": true
 }
 -- case002.JSONATA --
 $[x=6][y=3].number
--- case002_expected.json --
-null
 -- case003.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
 Account.Order.Product[$lowercase(Description.Colour) = "purple"][0].Price
 -- case003_expected.json --
-[
-  34.45,
-  34.45
-]
+[34.45,34.45]

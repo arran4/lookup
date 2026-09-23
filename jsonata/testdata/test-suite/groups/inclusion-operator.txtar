@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@
 true
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +20,8 @@ true
 false
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,8 +30,8 @@ false
 false
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -40,8 +40,8 @@ false
 true
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -50,8 +50,8 @@ in in ["hello", "world"]
 false
 -- case005.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -60,8 +60,8 @@ false
 false
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -70,21 +70,18 @@ false
 true
 -- case007.json --
 {
-  "dataset": "dataset6__INPUT",
   "bindings": {},
+  "dataset": "dataset6",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
 library.books["Aho" in authors].title
 -- case007_expected.json --
-[
-  "The AWK Programming Language",
-  "Compilers: Principles, Techniques, and Tools"
-]
+["The AWK Programming Language","Compilers: Principles, Techniques, and Tools"]
 -- case008.json --
 {
-  "dataset": "dataset7__INPUT",
   "bindings": {},
+  "dataset": "dataset7",
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
