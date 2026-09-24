@@ -4,7 +4,9 @@ import (
 	"archive/tar"
 	"bytes"
 	"compress/gzip"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -12,285 +14,306 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
+	"time"
 
 	"golang.org/x/tools/txtar"
 )
 
 const UpstreamRepo = "jsonata-js/jsonata"
-// v2.0.2 tag commit SHA
-const UpstreamRev = "2c12574e4c2cf27ab7fa1fbf09d84bf2c8f85f1c"
+
+// UpstreamRev is the commit to which upstream tag v2.0.2 resolves.
+const UpstreamRev = "9e4c1cbe97859d04bd32d194eb49c6f485e0ffea"
 
 type TestCase struct {
-	JSON    []byte
-	Expr    []byte
-	Result  []byte
+	JSON   []byte
+	Expr   []byte
+	Result []byte
 }
 
 func main() {
-	verifyOnly := false
-	if len(os.Args) > 1 && os.Args[1] == "verify" {
-		verifyOnly = true
-		log.Println("Running in read-only verification mode")
+	if len(os.Args) > 2 || (len(os.Args) == 2 && os.Args[1] != "verify") {
+		log.Fatal("usage: go run ./cmd/jsonata-import [verify]")
 	}
+	verify := len(os.Args) == 2
+	if err := run(verify); err != nil {
+		log.Fatal(err)
+	}
+}
 
-	err := run(verifyOnly)
+func repositoryRoot() (string, error) {
+	dir, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("Fatal error: %v", err)
+		return "", err
 	}
-	if verifyOnly {
-		log.Println("Verification passed. No drift detected.")
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir, nil
+		} else if !errors.Is(err, os.ErrNotExist) {
+			return "", err
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return "", fmt.Errorf("go.mod not found above working directory")
+		}
+		dir = parent
 	}
 }
 
 func run(verifyOnly bool) error {
+	root, err := repositoryRoot()
+	if err != nil {
+		return err
+	}
 	url := fmt.Sprintf("https://github.com/%s/archive/%s.tar.gz", UpstreamRepo, UpstreamRev)
-	log.Printf("Downloading %s", url)
-
-	resp, err := http.Get(url)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("bad status: %s", resp.Status)
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("upstream %s: %s", url, resp.Status)
 	}
+	outDir := filepath.Join(root, "jsonata", "testdata", "test-suite")
+	return importArchive(resp.Body, outDir, verifyOnly)
+}
 
-	gz, err := gzip.NewReader(resp.Body)
+// importArchive accepts a pinned upstream .tar.gz stream. Keeping I/O injected
+// makes conversion and verification testable without networking or tracked files.
+func importArchive(source io.Reader, outDir string, verifyOnly bool) error {
+	gz, err := gzip.NewReader(source)
 	if err != nil {
-		return err
+		return fmt.Errorf("open upstream archive: %w", err)
 	}
 	defer gz.Close()
-
 	tr := tar.NewReader(gz)
-
-	outDir := filepath.Join("jsonata", "testdata", "test-suite")
-	groupsDir := filepath.Join(outDir, "groups")
-	datasetsDir := filepath.Join(outDir, "datasets")
-
-	tests := make(map[string]map[string]*TestCase)
+	groups := make(map[string]map[string]*TestCase)
 	datasets := make(map[string][]byte)
-
 	for {
 		hdr, err := tr.Next()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
-			return err
+			return fmt.Errorf("read upstream archive: %w", err)
 		}
-
 		if hdr.Typeflag != tar.TypeReg {
 			continue
 		}
-
 		parts := strings.Split(hdr.Name, "/")
-		if len(parts) < 3 || parts[1] != "test" || parts[2] != "test-suite" {
+		if len(parts) < 4 || parts[1] != "test" || parts[2] != "test-suite" {
 			continue
 		}
-
-		subpath := strings.Join(parts[3:], "/")
-
 		data, err := io.ReadAll(tr)
 		if err != nil {
-			return err
+			return fmt.Errorf("read %s: %w", hdr.Name, err)
 		}
-
-		if len(data) > 0 && data[len(data)-1] != '\n' {
-			data = append(data, '\n')
-		}
-
-		if strings.HasPrefix(subpath, "datasets/") {
-			dsName := strings.TrimSuffix(strings.TrimPrefix(subpath, "datasets/"), ".json")
-			datasets[dsName] = data
+		data = withNewline(data)
+		subpath := parts[3:]
+		if len(subpath) == 2 && subpath[0] == "datasets" && strings.HasSuffix(subpath[1], ".json") {
+			name := strings.TrimSuffix(subpath[1], ".json")
+			if name == "" {
+				return fmt.Errorf("invalid dataset name: %s", hdr.Name)
+			}
+			datasets[name] = data
 			continue
 		}
-
-		if strings.HasPrefix(subpath, "groups/") {
-			groupPath := strings.TrimPrefix(subpath, "groups/")
-			groupParts := strings.Split(groupPath, "/")
-			if len(groupParts) != 2 {
-				continue
-			}
-			groupName := groupParts[0]
-			fileName := groupParts[1]
-
-			if tests[groupName] == nil {
-				tests[groupName] = make(map[string]*TestCase)
-			}
-
-			baseName := fileName
-			ext := ""
-			if idx := strings.LastIndex(fileName, "."); idx != -1 {
-				baseName = fileName[:idx]
-				ext = strings.ToLower(fileName[idx:])
-			}
-
-			isExpected := strings.HasSuffix(baseName, "_expected")
-			caseName := baseName
-			if isExpected {
-				caseName = strings.TrimSuffix(baseName, "_expected")
-			}
-
-			tc := tests[groupName][caseName]
-			if tc == nil {
-				tc = &TestCase{}
-				tests[groupName][caseName] = tc
-			}
-
-			if isExpected {
-				tc.Result = data
-			} else if ext == ".json" {
-				tc.JSON = data
-			} else if ext == ".jsonata" {
-				tc.Expr = data
-			}
+		if len(subpath) != 3 || subpath[0] != "groups" {
+			continue
+		}
+		group, filename := subpath[1], subpath[2]
+		base, ext := filename[:len(filename)-len(filepath.Ext(filename))], strings.ToLower(filepath.Ext(filename))
+		if ext != ".json" && ext != ".jsonata" {
+			continue
+		}
+		isExpected := strings.HasSuffix(base, "_expected")
+		if isExpected {
+			base = strings.TrimSuffix(base, "_expected")
+		}
+		if group == "" || base == "" {
+			return fmt.Errorf("invalid case name: %s", hdr.Name)
+		}
+		if groups[group] == nil {
+			groups[group] = make(map[string]*TestCase)
+		}
+		if groups[group][base] == nil {
+			groups[group][base] = &TestCase{}
+		}
+		tc := groups[group][base]
+		switch {
+		case isExpected:
+			tc.Result = data
+		case ext == ".json":
+			tc.JSON = data
+		case ext == ".jsonata":
+			tc.Expr = data
 		}
 	}
-
-	log.Printf("Found %d groups", len(tests))
-	log.Printf("Found %d datasets", len(datasets))
-
-	if !verifyOnly {
-		if err := os.MkdirAll(groupsDir, 0755); err != nil {
-			return fmt.Errorf("failed to create groups dir: %v", err)
-		}
-		if err := os.MkdirAll(datasetsDir, 0755); err != nil {
-			return fmt.Errorf("failed to create datasets dir: %v", err)
-		}
+	if len(groups) == 0 {
+		return fmt.Errorf("upstream archive contained no JSONata suite groups")
 	}
-
-	for dsName, dsData := range datasets {
-		p := filepath.Join(datasetsDir, dsName+".json")
-		if verifyOnly {
-			existing, err := os.ReadFile(p)
-			if err != nil {
-				return fmt.Errorf("dataset mismatch (missing or err): %s - %v", dsName, err)
-			}
-			if !bytes.Equal(existing, dsData) {
-				return fmt.Errorf("dataset mismatch (content diff): %s", dsName)
-			}
-		} else {
-			if err := os.WriteFile(p, dsData, 0644); err != nil {
-				return err
-			}
-			if err != nil {
-				return err
-			}
-		}
+	files := make(map[string][]byte)
+	for name, data := range datasets {
+		files[filepath.Join("datasets", name+".json")] = data
 	}
-
-	for groupName, groupTests := range tests {
+	for group, cases := range groups {
 		archive := new(txtar.Archive)
-
-		caseNames := make([]string, 0, len(groupTests))
-		for name := range groupTests {
-			caseNames = append(caseNames, name)
+		names := make([]string, 0, len(cases))
+		for name := range cases {
+			names = append(names, name)
 		}
-		sort.Strings(caseNames)
-
-		for _, caseName := range caseNames {
-			tc := groupTests[caseName]
-			if tc.JSON != nil {
-				var v interface{}
-				if err := json.Unmarshal(tc.JSON, &v); err == nil {
-					if _, ok := v.([]interface{}); ok {
-						continue
-					}
-
-					vMap, ok := v.(map[string]interface{})
-					if ok {
-						if expr, hasExpr := vMap["expr"]; hasExpr {
-							if tc.Expr == nil {
-								if s, ok := expr.(string); ok {
-									tc.Expr = []byte(s)
-								}
-							}
-							if _, ok := vMap["exprFile"]; !ok {
-								vMap["exprFile"] = caseName + ".JSONATA"
-							}
-							delete(vMap, "expr")
-						}
-
-						if res, hasRes := vMap["result"]; hasRes {
-							if tc.Result == nil {
-								if res == nil {
-									tc.Result = []byte("null\n")
-								} else if s, ok := res.(string); ok && s == "" {
-									if b, err := json.Marshal(res); err == nil {
-										tc.Result = b
-									}
-								} else {
-									if b, err := json.Marshal(res); err == nil {
-										tc.Result = b
-									}
-								}
-							}
-							delete(vMap, "result")
-						}
-
-						b, _ := json.MarshalIndent(vMap, "", "  ")
-						b = append(b, '\n')
-						archive.Files = append(archive.Files, txtar.File{
-							Name: caseName + ".json",
-							Data: b,
-						})
-					} else {
-						archive.Files = append(archive.Files, txtar.File{
-							Name: caseName + ".json",
-							Data: tc.JSON,
-						})
-					}
-				} else {
-					archive.Files = append(archive.Files, txtar.File{
-						Name: caseName + ".json",
-						Data: tc.JSON,
-					})
-				}
+		sort.Strings(names)
+		generated := make(map[string]bool)
+		for _, name := range names {
+			tc := cases[name]
+			if tc.JSON == nil {
+				return fmt.Errorf("%s/%s has no case JSON", group, name)
 			}
-			if tc.Expr != nil {
-				if len(tc.Expr) > 0 && tc.Expr[len(tc.Expr)-1] != '\n' {
-					tc.Expr = append(tc.Expr, '\n')
-				}
-				archive.Files = append(archive.Files, txtar.File{
-					Name: caseName + ".JSONATA",
-					Data: tc.Expr,
-				})
+			var value interface{}
+			dec := json.NewDecoder(bytes.NewReader(tc.JSON))
+			dec.UseNumber()
+			if err := dec.Decode(&value); err != nil {
+				return fmt.Errorf("decode %s/%s: %w", group, name, err)
 			}
-			if tc.Result != nil {
-				resultStr := strings.TrimSpace(string(tc.Result))
-				if resultStr != "" {
-					if len(tc.Result) > 0 && tc.Result[len(tc.Result)-1] != '\n' {
-						tc.Result = append(tc.Result, '\n')
-					}
-					archive.Files = append(archive.Files, txtar.File{
-						Name: caseName + "_expected.json",
-						Data: tc.Result,
-					})
+			var trailing interface{}
+			if err := dec.Decode(&trailing); !errors.Is(err, io.EOF) {
+				return fmt.Errorf("trailing JSON in %s/%s: %v", group, name, err)
+			}
+			if entries, ok := value.([]interface{}); ok {
+				if len(entries) == 0 {
+					return fmt.Errorf("empty case array in %s/%s", group, name)
 				}
+				for i, entry := range entries {
+					caseName := name + "_" + strconv.Itoa(i)
+					if err := appendCase(archive, caseName, entry, tc); err != nil {
+						return fmt.Errorf("%s/%s: %w", group, caseName, err)
+					}
+					generated[caseName] = true
+				}
+			} else {
+				if err := appendCase(archive, name, value, tc); err != nil {
+					return fmt.Errorf("%s/%s: %w", group, name, err)
+				}
+				generated[name] = true
 			}
 		}
+		if len(generated) == 0 {
+			return fmt.Errorf("no cases generated for group %s", group)
+		}
+		files[filepath.Join("groups", group+".txtar")] = txtar.Format(archive)
+	}
+	if err := synchronize(outDir, files, verifyOnly); err != nil {
+		return err
+	}
+	log.Printf("JSONata suite: %d groups, %d datasets, %d output files", len(groups), len(datasets), len(files))
+	return nil
+}
 
-		p := filepath.Join(groupsDir, groupName+".txtar")
-		expectedData := txtar.Format(archive)
-		if verifyOnly {
-			existing, err := os.ReadFile(p)
+func withNewline(data []byte) []byte {
+	if len(data) == 0 || data[len(data)-1] == '\n' {
+		return data
+	}
+	return append(data, '\n')
+}
+
+func appendCase(archive *txtar.Archive, name string, source interface{}, tc *TestCase) error {
+	metadata, isObject := source.(map[string]interface{})
+	if !isObject {
+		// A scalar case is input data, not valid harness metadata by itself.
+		metadata = map[string]interface{}{"data": source}
+	}
+	expr := tc.Expr
+	if len(expr) == 0 {
+		inline, ok := metadata["expr"]
+		if !ok {
+			return fmt.Errorf("missing expression")
+		}
+		text, ok := inline.(string)
+		if !ok {
+			return fmt.Errorf("expression must be a string")
+		}
+		expr = []byte(text)
+	}
+	delete(metadata, "expr")
+	metadata["exprFile"] = name + ".JSONATA"
+	result := tc.Result
+	if len(result) == 0 {
+		if inline, ok := metadata["result"]; ok {
+			var err error
+			result, err = json.Marshal(inline)
 			if err != nil {
-				return fmt.Errorf("group mismatch (missing or err): %s - %v", groupName, err)
-			}
-			if !bytes.Equal(existing, expectedData) {
-				return fmt.Errorf("group mismatch (content diff): %s", groupName)
-			}
-		} else {
-			if err := os.WriteFile(p, expectedData, 0644); err != nil {
-				return err
-			}
-			if err != nil {
-				return err
+				return fmt.Errorf("encode expected result: %w", err)
 			}
 		}
 	}
+	delete(metadata, "result")
+	encoded, err := json.MarshalIndent(metadata, "", "  ")
+	if err != nil {
+		return fmt.Errorf("encode metadata: %w", err)
+	}
+	archive.Files = append(archive.Files, txtar.File{Name: name + ".json", Data: withNewline(encoded)})
+	archive.Files = append(archive.Files, txtar.File{Name: name + ".JSONATA", Data: withNewline(expr)})
+	if len(bytes.TrimSpace(result)) > 0 {
+		archive.Files = append(archive.Files, txtar.File{Name: name + "_expected.json", Data: withNewline(result)})
+	}
+	return nil
+}
 
+func synchronize(outDir string, expected map[string][]byte, verifyOnly bool) error {
+	// Inspect the two managed directories rather than rewriting arbitrary files
+	// under the project tree. In verify mode not a single file is modified.
+	for _, kind := range []string{"groups", "datasets"} {
+		dir := filepath.Join(outDir, kind)
+		entries, err := os.ReadDir(dir)
+		if errors.Is(err, os.ErrNotExist) && !verifyOnly {
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				return fmt.Errorf("create %s: %w", dir, err)
+			}
+			continue
+		}
+		if err != nil {
+			return fmt.Errorf("read %s: %w", dir, err)
+		}
+		for _, entry := range entries {
+			if entry.IsDir() {
+				return fmt.Errorf("unexpected directory in managed suite: %s", entry.Name())
+			}
+			rel := filepath.Join(kind, entry.Name())
+			if _, ok := expected[rel]; !ok {
+				if verifyOnly {
+					return fmt.Errorf("stale fixture: %s", rel)
+				}
+				if err := os.Remove(filepath.Join(outDir, rel)); err != nil {
+					return fmt.Errorf("remove stale fixture %s: %w", rel, err)
+				}
+			}
+		}
+	}
+	paths := make([]string, 0, len(expected))
+	for p := range expected {
+		paths = append(paths, p)
+	}
+	sort.Strings(paths)
+	for _, rel := range paths {
+		p := filepath.Join(outDir, rel)
+		if verifyOnly {
+			actual, err := os.ReadFile(p)
+			if err != nil {
+				return fmt.Errorf("missing fixture %s: %w", rel, err)
+			}
+			if !bytes.Equal(actual, expected[rel]) {
+				return fmt.Errorf("fixture content differs: %s", rel)
+			}
+		} else if err := os.WriteFile(p, expected[rel], 0644); err != nil {
+			return fmt.Errorf("write fixture %s: %w", rel, err)
+		}
+	}
 	return nil
 }
