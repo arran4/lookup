@@ -220,6 +220,8 @@ func runTxtarGroup(t *testing.T, filename string, groupName string) {
 			var expected interface{}
 			if c.Expected == "" && sc.Undefined {
 				expected = nil
+			if c.Expected == "" && sc.Undefined {
+				expected = nil
 			} else if c.Expected == "null" && sc.Undefined {
 				expected = nil
 			} else {

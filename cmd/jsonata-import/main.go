@@ -153,8 +153,12 @@ func run(verifyOnly bool) error {
 	log.Printf("Found %d datasets", len(datasets))
 
 	if !verifyOnly {
-		os.MkdirAll(groupsDir, 0755)
-		os.MkdirAll(datasetsDir, 0755)
+		if err := os.MkdirAll(groupsDir, 0755); err != nil {
+			return fmt.Errorf("failed to create groups dir: %v", err)
+		}
+		if err := os.MkdirAll(datasetsDir, 0755); err != nil {
+			return fmt.Errorf("failed to create datasets dir: %v", err)
+		}
 	}
 
 	for dsName, dsData := range datasets {
@@ -168,7 +172,9 @@ func run(verifyOnly bool) error {
 				return fmt.Errorf("dataset mismatch (content diff): %s", dsName)
 			}
 		} else {
-			err := os.WriteFile(p, dsData, 0644)
+			if err := os.WriteFile(p, dsData, 0644); err != nil {
+				return err
+			}
 			if err != nil {
 				return err
 			}
@@ -277,7 +283,9 @@ func run(verifyOnly bool) error {
 				return fmt.Errorf("group mismatch (content diff): %s", groupName)
 			}
 		} else {
-			err := os.WriteFile(p, expectedData, 0644)
+			if err := os.WriteFile(p, expectedData, 0644); err != nil {
+				return err
+			}
 			if err != nil {
 				return err
 			}

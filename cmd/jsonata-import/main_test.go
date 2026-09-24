@@ -25,11 +25,15 @@ func TestVerifyModeDetectsDrift(t *testing.T) {
 	corrupted := append([]byte(nil), originalContent...)
 	corrupted = append(corrupted, 'x')
 
-	os.WriteFile(originalFile, corrupted, 0644)
+	if err := os.WriteFile(originalFile, corrupted, 0644); err != nil {
+		t.Fatalf("failed to write corrupted file: %v", err)
+	}
 
 	err = run(true)
 
-	os.WriteFile(originalFile, originalContent, 0644)
+		if err := os.WriteFile(originalFile, originalContent, 0644); err != nil {
+			t.Fatalf("failed to restore file: %v", err)
+		}
 
 	if err == nil {
 		t.Fatalf("expected verify mode to fail on drift, but it passed")
