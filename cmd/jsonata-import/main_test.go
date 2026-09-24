@@ -27,9 +27,8 @@ func upstreamTestArchive(t *testing.T) []byte {
 		"test/test-suite/groups/recovery/case004.json": `{"expr":"x","dataset":"sample","bindings":{"p":1},"code":"T0410"}`,
 	}
 	for name, text := range fixtures {
-		path := "jsonata-test-archive/" + name
 		data := []byte(text)
-		if err := tr.WriteHeader(&tar.Header{Name: path, Mode: 0644, Size: int64(len(data)), Typeflag: tar.TypeReg}); err != nil {
+		if err := tr.WriteHeader(&tar.Header{Name: "jsonata-test-archive/" + name, Mode: 0644, Size: int64(len(data)), Typeflag: tar.TypeReg}); err != nil {
 			t.Fatal(err)
 		}
 		if _, err := tr.Write(data); err != nil {
@@ -47,12 +46,12 @@ func upstreamTestArchive(t *testing.T) []byte {
 
 func findArchiveFile(t *testing.T, archive *txtar.Archive, name string) string {
 	t.Helper()
-	for _, file := range archive.Files {
-		if file.Name == name {
-			return string(file.Data)
+	for _, f := range archive.Files {
+		if f.Name == name {
+			return string(f.Data)
 		}
 	}
-	t.Fatalf("generated archive is missing %s", name)
+	t.Fatalf("missing executable fixture %s", name)
 	return ""
 }
 
@@ -67,18 +66,18 @@ func TestImporterPreservesInputAndExpandsCases(t *testing.T) {
 		t.Fatal(err)
 	}
 	archive := txtar.Parse(data)
-	if got := len(archive.Files); got != 13 {
-		t.Fatalf("expected 13 executable case files (5 cases with result files), got %d", got)
+	if got := len(archive.Files); got != 15 {
+		t.Fatalf("expected 15 files for six executable cases, got %d", got)
 	}
 	if got := findArchiveFile(t, archive, "case000.json"); !strings.Contains(got, `9007199254740993`) || strings.Contains(got, `9007199254740992`) {
-		t.Fatalf("large integer was rounded: %s", got)
+		t.Fatalf("large input integer changed: %s", got)
 	}
 	if got := findArchiveFile(t, archive, "case000_expected.json"); strings.TrimSpace(got) != "9007199254740993" {
-		t.Fatalf("expected large integer changed: %s", got)
+		t.Fatalf("large expected integer changed: %s", got)
 	}
 	for _, name := range []string{"case001_0", "case001_1"} {
 		if got := findArchiveFile(t, archive, name+".json"); !strings.Contains(got, `"exprFile": "`+name+`.JSONATA"`) {
-			t.Fatalf("array case %s cannot load its expression: %s", name, got)
+			t.Fatalf("array case cannot load its expression: %s", got)
 		}
 		findArchiveFile(t, archive, name+".JSONATA")
 	}
@@ -95,13 +94,13 @@ func TestImporterPreservesInputAndExpandsCases(t *testing.T) {
 		t.Fatalf("undefined input/result lost: %s", got)
 	}
 	if got := findArchiveFile(t, archive, "case004.json"); !strings.Contains(got, `"dataset": "sample"`) || !strings.Contains(got, `"bindings"`) || !strings.Contains(got, `"T0410"`) {
-		t.Fatalf("dataset/bindings/error code lost: %s", got)
+		t.Fatalf("dataset, bindings or error code lost: %s", got)
 	}
 	if got, err := os.ReadFile(filepath.Join(out, "datasets", "sample.json")); err != nil || !strings.Contains(string(got), `9007199254740993`) {
-		t.Fatalf("dataset lost or modified: %s, %v", got, err)
+		t.Fatalf("dataset lost: %s, %v", got, err)
 	}
 	if err := importArchive(bytes.NewReader(source), out, true); err != nil {
-		t.Fatalf("verification rejected unchanged generated fixtures: %v", err)
+		t.Fatalf("unchanged fixture verification failed: %v", err)
 	}
 }
 
@@ -120,10 +119,10 @@ func TestImporterVerifyDetectsDriftAndStaleFiles(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := importArchive(bytes.NewReader(source), out, true); err == nil {
-		t.Fatal("verification accepted a corrupted group")
+		t.Fatal("verification accepted corrupted group")
 	}
 	if got, err := os.ReadFile(group); err != nil || !bytes.HasSuffix(got, []byte("x")) {
-		t.Fatalf("verify mode modified the corrupted fixture: %v", err)
+		t.Fatalf("verify mode modified corrupted group: %v", err)
 	}
 	if err := os.WriteFile(group, original, 0644); err != nil {
 		t.Fatal(err)
@@ -137,7 +136,7 @@ func TestImporterVerifyDetectsDriftAndStaleFiles(t *testing.T) {
 			t.Fatalf("verification accepted stale file in %s", kind)
 		}
 		if _, err := os.Stat(stale); err != nil {
-			t.Fatalf("verification modified %s: %v", stale, err)
+			t.Fatalf("verify mode removed stale file: %v", err)
 		}
 		if err := os.Remove(stale); err != nil {
 			t.Fatal(err)
