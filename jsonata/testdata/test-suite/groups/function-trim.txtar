@@ -15,8 +15,8 @@ $trim("Hello World")
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
-$trim("   Hello
-	 World  	 ")
+$trim("   Hello  
+  	 World  	 ")
 -- case001_expected.json --
 "Hello World"
 -- case002.json --

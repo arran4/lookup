@@ -1,0 +1,79 @@
+-- distinct_0.json --
+{
+  "bindings": {},
+  "data": null,
+  "exprFile": "distinct_0.JSONATA"
+}
+-- distinct_0.JSONATA --
+$distinct([1,2,3,4])
+-- distinct_0_expected.json --
+[1,2,3,4]
+-- distinct_1.json --
+{
+  "bindings": {},
+  "data": null,
+  "exprFile": "distinct_1.JSONATA"
+}
+-- distinct_1.JSONATA --
+$distinct([1])
+-- distinct_1_expected.json --
+[1]
+-- distinct_2.json --
+{
+  "bindings": {},
+  "data": null,
+  "exprFile": "distinct_2.JSONATA",
+  "undefinedResult": true
+}
+-- distinct_2.JSONATA --
+$distinct(nothing)
+-- distinct_3.json --
+{
+  "bindings": {},
+  "data": null,
+  "exprFile": "distinct_3.JSONATA"
+}
+-- distinct_3.JSONATA --
+$distinct(null)
+-- distinct_3_expected.json --
+null
+-- distinct_4.json --
+{
+  "bindings": {},
+  "data": null,
+  "exprFile": "distinct_4.JSONATA"
+}
+-- distinct_4.JSONATA --
+$distinct('hello')
+-- distinct_4_expected.json --
+"hello"
+-- distinct_5.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "distinct_5.JSONATA"
+}
+-- distinct_5.JSONATA --
+$distinct(Account.Order.Product.SKU)
+-- distinct_5_expected.json --
+["0406654608","0406634348","040657863","0406654603"]
+-- distinct_6.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "distinct_6.JSONATA"
+}
+-- distinct_6.JSONATA --
+$distinct(Account.Order.Product.`Product Name`)
+-- distinct_6_expected.json --
+["Bowler Hat","Trilby hat","Cloak"]
+-- distinct_7.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "distinct_7.JSONATA"
+}
+-- distinct_7.JSONATA --
+$distinct(Account.Order.Product.Description)
+-- distinct_7_expected.json --
+[{"Colour":"Purple","Depth":210,"Height":200,"Weight":0.75,"Width":300},{"Colour":"Orange","Depth":210,"Height":200,"Weight":0.6,"Width":300},{"Colour":"Black","Depth":210,"Height":20,"Weight":2,"Width":30}]

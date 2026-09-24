@@ -20,7 +20,7 @@
           $tempReadings := $count(state.tempReadings) = 5 ?
               [state.tempReadings[[1..4]], event.t] :
               [state.tempReadings, event.t];
-
+        
           {
             "tempReadings": $tempReadings,
             "sumTemperatures": $sum($tempReadings),

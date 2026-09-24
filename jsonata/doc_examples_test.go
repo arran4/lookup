@@ -23,7 +23,7 @@ func loadSample(t *testing.T) interface{} {
 // loadPerson reads the example person dataset used by several
 // documentation samples.
 func loadPerson(t *testing.T) interface{} {
-	filename := path.Join("testdata", "test-suite", "datasets", "dataset1__INPUT.json")
+	filename := path.Join("testdata", "test-suite", "datasets", "dataset1.json")
 	data, err := fs.ReadFile(testData, filename)
 	if err != nil {
 		t.Fatalf("failed to read person dataset: %v", err)

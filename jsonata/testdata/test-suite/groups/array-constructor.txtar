@@ -1,3 +1,84 @@
+-- array-sequences_0.json --
+{
+  "bindings": {},
+  "data": [
+    {
+      "epochSeconds": 1578381600,
+      "value": 3
+    },
+    {
+      "epochSeconds": 1578381700,
+      "value": 5
+    }
+  ],
+  "exprFile": "array-sequences_0.JSONATA"
+}
+-- array-sequences_0.JSONATA --
+$.[value,epochSeconds][]
+-- array-sequences_0_expected.json --
+[[3,1578381600],[5,1578381700]]
+-- array-sequences_1.json --
+{
+  "bindings": {},
+  "data": [
+    {
+      "epochSeconds": 1578381600,
+      "value": 3
+    }
+  ],
+  "exprFile": "array-sequences_1.JSONATA"
+}
+-- array-sequences_1.JSONATA --
+$.[value,epochSeconds][]
+-- array-sequences_1_expected.json --
+[[3,1578381600]]
+-- array-sequences_2.json --
+{
+  "bindings": {},
+  "data": [
+    {
+      "epochSeconds": 1578381600,
+      "value": 3
+    }
+  ],
+  "exprFile": "array-sequences_2.JSONATA"
+}
+-- array-sequences_2.JSONATA --
+$.[value,epochSeconds]
+-- array-sequences_2_expected.json --
+[3,1578381600]
+-- array-sequences_3.json --
+{
+  "bindings": {},
+  "data": {
+    "singleArray": [
+      {
+        "foo": "bar"
+      }
+    ]
+  },
+  "exprFile": "array-sequences_3.JSONATA"
+}
+-- array-sequences_3.JSONATA --
+singleArray
+-- array-sequences_3_expected.json --
+[{"foo":"bar"}]
+-- array-sequences_4.json --
+{
+  "bindings": {},
+  "data": {
+    "singleArray": [
+      {
+        "foo": "bar"
+      }
+    ]
+  },
+  "exprFile": "array-sequences_4.JSONATA"
+}
+-- array-sequences_4.JSONATA --
+singleArray[]
+-- array-sequences_4_expected.json --
+[{"foo":"bar"}]
 -- case000.json --
 {
   "bindings": {},

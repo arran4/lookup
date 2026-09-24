@@ -112,6 +112,6 @@ $sort(Account.Order.Product, function($a, $b) { $a.Price > $b.Price }).SKU
                   ~> $sort(λ($a,$b){$a.Quantity < $b.Quantity})
                   ~> $sort(λ($a,$b){$a.Price > $b.Price})
                 ).SKU
-
+            
 -- case010_expected.json --
 ["0406634348","040657863","0406654608","0406654603"]

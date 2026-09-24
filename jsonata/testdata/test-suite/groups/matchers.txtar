@@ -2,7 +2,7 @@
 {
   "bindings": {},
   "dataset": null,
-  "expr-file": "case000.jsonata"
+  "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
 (

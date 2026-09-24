@@ -65,7 +65,7 @@ Account.Order.Product.(Price * Quantity) ~> $sum()
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
-"john@example.com" ~> $substringAfter("@") ~> $substringBefore(".")
+"john@example.com" ~> $substringAfter("@") ~> $substringBefore(".") 
 -- case006_expected.json --
 "example"
 -- case007.json --
@@ -75,7 +75,7 @@ Account.Order.Product.(Price * Quantity) ~> $sum()
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
-"" ~> $substringAfter("@") ~> $substringBefore(".")
+"" ~> $substringAfter("@") ~> $substringBefore(".") 
 -- case007_expected.json --
 ""
 -- case008.json --
@@ -86,7 +86,7 @@ Account.Order.Product.(Price * Quantity) ~> $sum()
   "undefinedResult": true
 }
 -- case008.JSONATA --
-foo ~> $substringAfter("@") ~> $substringBefore(".")
+foo ~> $substringAfter("@") ~> $substringBefore(".") 
 -- case009.json --
 {
   "bindings": {},
@@ -104,7 +104,7 @@ foo ~> $substringAfter("@") ~> $substringBefore(".")
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
-( $square := function($x){$x*$x}; [1..5] ~> $map($square) )
+( $square := function($x){$x*$x}; [1..5] ~> $map($square) ) 
 -- case010_expected.json --
 [1,4,9,16,25]
 -- case011.json --
@@ -114,7 +114,7 @@ foo ~> $substringAfter("@") ~> $substringBefore(".")
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
-( $square := function($x){$x*$x}; [1..5] ~> $map($square) ~> $sum() )
+( $square := function($x){$x*$x}; [1..5] ~> $map($square) ~> $sum() ) 
 -- case011_expected.json --
 55
 -- case012.json --
@@ -124,7 +124,7 @@ foo ~> $substringAfter("@") ~> $substringBefore(".")
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
-($betweenBackets := $substringAfter(?, "(") ~> $substringBefore(?, ")");$betweenBackets("test(foo)bar"))
+($betweenBackets := $substringAfter(?, "(") ~> $substringBefore(?, ")");$betweenBackets("test(foo)bar")) 
 -- case012_expected.json --
 "foo"
 -- case013.json --
@@ -134,7 +134,7 @@ foo ~> $substringAfter("@") ~> $substringBefore(".")
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --
-($square := function($x){$x*$x};$chain := λ($f, $g){λ($x){$g($f($x))}};$instructions := [$sum, $square];$sumsq := $instructions ~> $reduce($chain);[1..5] ~> $sumsq())
+($square := function($x){$x*$x};$chain := λ($f, $g){λ($x){$g($f($x))}};$instructions := [$sum, $square];$sumsq := $instructions ~> $reduce($chain);[1..5] ~> $sumsq()) 
 -- case013_expected.json --
 225
 -- case014.json --
@@ -144,7 +144,7 @@ foo ~> $substringAfter("@") ~> $substringBefore(".")
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
-($square := function($x){$x*$x};$chain := λ($f, $g){λ($x){ $x ~> $f ~> $g }};$instructions := [$sum, $square, $string];$sumsq := $instructions ~> $reduce($chain);[1..5] ~> $sumsq())
+($square := function($x){$x*$x};$chain := λ($f, $g){λ($x){ $x ~> $f ~> $g }};$instructions := [$sum, $square, $string];$sumsq := $instructions ~> $reduce($chain);[1..5] ~> $sumsq()) 
 -- case014_expected.json --
 "225"
 -- case015.json --
@@ -154,7 +154,7 @@ foo ~> $substringAfter("@") ~> $substringBefore(".")
   "exprFile": "case015.JSONATA"
 }
 -- case015.JSONATA --
-($square := function($x){$x*$x};$instructions := $sum ~> $square;[1..5] ~> $instructions())
+($square := function($x){$x*$x};$instructions := $sum ~> $square;[1..5] ~> $instructions())  
 -- case015_expected.json --
 225
 -- case016.json --
@@ -164,7 +164,7 @@ foo ~> $substringAfter("@") ~> $substringBefore(".")
   "exprFile": "case016.JSONATA"
 }
 -- case016.JSONATA --
-($square := function($x){$x*$x};$sum_of_squares := $map(?, $square) ~> $sum;[1..5] ~> $sum_of_squares())
+($square := function($x){$x*$x};$sum_of_squares := $map(?, $square) ~> $sum;[1..5] ~> $sum_of_squares())  
 -- case016_expected.json --
 55
 -- case017.json --

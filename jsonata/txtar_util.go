@@ -67,7 +67,7 @@ func parseTxtar(data []byte) ([]txtarCase, error) {
 
 		// Logic to reconstruct the suiteCase struct from the files
 		// The original JSON file (e.g. case001.json) contained:
-		// { "dataset": "dataset5__INPUT", "bindings": {}, "exprFile": "case001.JSONATA" }
+		// { "dataset": "dataset5", "bindings": {}, "exprFile": "case001.JSONATA" }
 
 		configJSON, ok := fileMap[".json"]
 		if !ok {

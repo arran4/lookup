@@ -1,0 +1,451 @@
+-- errors_0.json --
+{
+  "bindings": {},
+  "code": "S0217",
+  "data": null,
+  "exprFile": "errors_0.JSONATA"
+}
+-- errors_0.JSONATA --
+{'hello': 'world'}.% 
+-- errors_1.json --
+{
+  "bindings": {},
+  "code": "S0217",
+  "dataset": "library",
+  "exprFile": "errors_1.JSONATA"
+}
+-- errors_1.JSONATA --
+%
+-- errors_2.json --
+{
+  "bindings": {},
+  "code": "T1006",
+  "dataset": "library",
+  "exprFile": "errors_2.JSONATA"
+}
+-- errors_2.JSONATA --
+%()
+-- errors_3.json --
+{
+  "bindings": {},
+  "code": "T1006",
+  "dataset": "library",
+  "exprFile": "errors_3.JSONATA"
+}
+-- errors_3.JSONATA --
+%(1)
+-- errors_4.json --
+{
+  "bindings": {},
+  "code": "S0207",
+  "dataset": "library",
+  "exprFile": "errors_4.JSONATA"
+}
+-- errors_4.JSONATA --
+%%
+-- errors_5.json --
+{
+  "bindings": {},
+  "code": "S0217",
+  "dataset": "library",
+  "exprFile": "errors_5.JSONATA"
+}
+-- errors_5.JSONATA --
+(%)
+-- errors_6.json --
+{
+  "bindings": {},
+  "code": "S0211",
+  "dataset": "library",
+  "exprFile": "errors_6.JSONATA"
+}
+-- errors_6.JSONATA --
+(%%)
+-- errors_7.json --
+{
+  "bindings": {},
+  "code": "S0207",
+  "dataset": "library",
+  "exprFile": "errors_7.JSONATA"
+}
+-- errors_7.JSONATA --
+library.loans.%%
+-- errors_8.json --
+{
+  "bindings": {},
+  "code": "S0217",
+  "dataset": "library",
+  "exprFile": "errors_8.JSONATA"
+}
+-- errors_8.JSONATA --
+$.%
+-- errors_9.json --
+{
+  "bindings": {},
+  "code": "S0217",
+  "dataset": "library",
+  "exprFile": "errors_9.JSONATA"
+}
+-- errors_9.JSONATA --
+$$.%
+-- errors_10.json --
+{
+  "bindings": {},
+  "code": "S0217",
+  "dataset": "library",
+  "exprFile": "errors_10.JSONATA"
+}
+-- errors_10.JSONATA --
+library.loans.%.%.%
+-- errors_11.json --
+{
+  "bindings": {},
+  "code": "S0217",
+  "dataset": "library",
+  "exprFile": "errors_11.JSONATA"
+}
+-- errors_11.JSONATA --
+library.%%%
+-- errors_12.json --
+{
+  "bindings": {},
+  "code": "T2001",
+  "dataset": "library",
+  "exprFile": "errors_12.JSONATA"
+}
+-- errors_12.JSONATA --
+library.(%%%)
+-- errors_13.json --
+{
+  "bindings": {},
+  "code": "T2001",
+  "dataset": "library",
+  "exprFile": "errors_13.JSONATA"
+}
+-- errors_13.JSONATA --
+library.(%% %)
+-- errors_14.json --
+{
+  "bindings": {},
+  "code": "T2001",
+  "dataset": "library",
+  "exprFile": "errors_14.JSONATA"
+}
+-- errors_14.JSONATA --
+library.(% %%)
+-- errors_15.json --
+{
+  "bindings": {},
+  "code": "T2001",
+  "dataset": "library",
+  "exprFile": "errors_15.JSONATA"
+}
+-- errors_15.JSONATA --
+library.(% % %)
+-- parent_0.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_0.JSONATA"
+}
+-- parent_0.JSONATA --
+Account.Order.Product.{
+  "order": %.OrderID,
+  "Product": `Product Name`,
+  "Weight": Description.Weight
+}
+-- parent_0_expected.json --
+[{"Product":"Bowler Hat","Weight":0.75,"order":"order103"},{"Product":"Trilby hat","Weight":0.6,"order":"order103"},{"Product":"Bowler Hat","Weight":0.75,"order":"order104"},{"Product":"Cloak","Weight":2,"order":"order104"}]
+-- parent_1.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_1.JSONATA"
+}
+-- parent_1.JSONATA --
+Account.(Order.Product).{
+  "order": %.OrderID,
+  "Product": `Product Name`,
+  "Weight": Description.Weight
+}
+-- parent_1_expected.json --
+[{"Product":"Bowler Hat","Weight":0.75,"order":"order103"},{"Product":"Trilby hat","Weight":0.6,"order":"order103"},{"Product":"Bowler Hat","Weight":0.75,"order":"order104"},{"Product":"Cloak","Weight":2,"order":"order104"}]
+-- parent_2.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_2.JSONATA"
+}
+-- parent_2.JSONATA --
+Account.Order.Product.[`Product Name`, %.OrderID]
+-- parent_2_expected.json --
+["Bowler Hat","order103","Trilby hat","order103","Bowler Hat","order104","Cloak","order104"]
+-- parent_3.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_3.JSONATA"
+}
+-- parent_3.JSONATA --
+Account.Order.Product.{ `Product Name`: [Quantity, %.OrderID] }
+-- parent_3_expected.json --
+[{"Bowler Hat":[2,"order103"]},{"Trilby hat":[1,"order103"]},{"Bowler Hat":[4,"order104"]},{"Cloak":[1,"order104"]}]
+-- parent_4.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_4.JSONATA"
+}
+-- parent_4.JSONATA --
+Account.Order.Product.{ `Product Name`: [Quantity, (%.OrderID)] }
+-- parent_4_expected.json --
+[{"Bowler Hat":[2,"order103"]},{"Trilby hat":[1,"order103"]},{"Bowler Hat":[4,"order104"]},{"Cloak":[1,"order104"]}]
+-- parent_5.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_5.JSONATA"
+}
+-- parent_5.JSONATA --
+Account.Order.Product[%.OrderID='order104'].SKU
+-- parent_5_expected.json --
+["040657863","0406654603"]
+-- parent_6.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_6.JSONATA"
+}
+-- parent_6.JSONATA --
+Account.Order.Product[%.%.`Account Name`='Firefly'].SKU
+-- parent_6_expected.json --
+["0406654608","0406634348","040657863","0406654603"]
+-- parent_7.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_7.JSONATA"
+}
+-- parent_7.JSONATA --
+Account.Order.Product.Price[%.%.OrderID='order103']
+-- parent_7_expected.json --
+[34.45,21.67]
+-- parent_8.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_8.JSONATA"
+}
+-- parent_8.JSONATA --
+Account.Order.Product.Price.%[%.OrderID='order103'].SKU
+-- parent_8_expected.json --
+["0406654608","0406634348"]
+-- parent_9.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_9.JSONATA"
+}
+-- parent_9.JSONATA --
+Account.Order.Product[%.OrderID='order104'][%.%.`Account Name`='Firefly'].SKU
+-- parent_9_expected.json --
+["040657863","0406654603"]
+-- parent_10.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_10.JSONATA"
+}
+-- parent_10.JSONATA --
+(Account.Order.Product)[%.OrderID='order104'].SKU
+-- parent_10_expected.json --
+["040657863","0406654603"]
+-- parent_11.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_11.JSONATA"
+}
+-- parent_11.JSONATA --
+Account.Order.Product.{ %.OrderID: Price * Quantity }
+-- parent_11_expected.json --
+[{"order103":68.9},{"order103":21.67},{"order104":137.8},{"order104":107.99}]
+-- parent_12.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_12.JSONATA",
+  "undefinedResult": true
+}
+-- parent_12.JSONATA --
+Account.Order.().%
+-- parent_13.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_13.JSONATA"
+}
+-- parent_13.JSONATA --
+Account.Order.Product.{
+  'Product': `Product Name`,
+  'Order': %.OrderID,
+  'Account': %.%.`Account Name`
+}
+-- parent_13_expected.json --
+[{"Account":"Firefly","Order":"order103","Product":"Bowler Hat"},{"Account":"Firefly","Order":"order103","Product":"Trilby hat"},{"Account":"Firefly","Order":"order104","Product":"Bowler Hat"},{"Account":"Firefly","Order":"order104","Product":"Cloak"}]
+-- parent_14.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_14.JSONATA"
+}
+-- parent_14.JSONATA --
+Account.Order.(Product).{
+  'Product': `Product Name`,
+  'Order': %.OrderID,
+  'Account': %.%.`Account Name`
+}
+-- parent_14_expected.json --
+[{"Account":"Firefly","Order":"order103","Product":"Bowler Hat"},{"Account":"Firefly","Order":"order103","Product":"Trilby hat"},{"Account":"Firefly","Order":"order104","Product":"Bowler Hat"},{"Account":"Firefly","Order":"order104","Product":"Cloak"}]
+-- parent_15.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_15.JSONATA"
+}
+-- parent_15.JSONATA --
+Account.(Order.(Product)).{
+  'Product': `Product Name`,
+  'Order': %.OrderID,
+  'Account': %.%.`Account Name`
+}
+-- parent_15_expected.json --
+[{"Account":"Firefly","Order":"order103","Product":"Bowler Hat"},{"Account":"Firefly","Order":"order103","Product":"Trilby hat"},{"Account":"Firefly","Order":"order104","Product":"Bowler Hat"},{"Account":"Firefly","Order":"order104","Product":"Cloak"}]
+-- parent_16.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_16.JSONATA"
+}
+-- parent_16.JSONATA --
+Account.(Order).(Product).{
+  'Product': `Product Name`,
+  'Order': %.OrderID,
+  'Account': %.%.`Account Name`
+}
+-- parent_16_expected.json --
+[{"Account":"Firefly","Order":"order103","Product":"Bowler Hat"},{"Account":"Firefly","Order":"order103","Product":"Trilby hat"},{"Account":"Firefly","Order":"order104","Product":"Bowler Hat"},{"Account":"Firefly","Order":"order104","Product":"Cloak"}]
+-- parent_17.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_17.JSONATA"
+}
+-- parent_17.JSONATA --
+(Account.Order).(Product).{
+  'Product': `Product Name`,
+  'Order': %.OrderID,
+  'Account': %.%.`Account Name`
+}
+-- parent_17_expected.json --
+[{"Account":"Firefly","Order":"order103","Product":"Bowler Hat"},{"Account":"Firefly","Order":"order103","Product":"Trilby hat"},{"Account":"Firefly","Order":"order104","Product":"Bowler Hat"},{"Account":"Firefly","Order":"order104","Product":"Cloak"}]
+-- parent_18.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_18.JSONATA"
+}
+-- parent_18.JSONATA --
+Account.Order.Product.SKU^(%.Price)
+-- parent_18_expected.json --
+["0406634348","0406654608","040657863","0406654603"]
+-- parent_19.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_19.JSONATA"
+}
+-- parent_19.JSONATA --
+Account.Order.Product.SKU^(%.Price, >%.%.OrderID)
+-- parent_19_expected.json --
+["0406634348","040657863","0406654608","0406654603"]
+-- parent_20.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_20.JSONATA"
+}
+-- parent_20.JSONATA --
+Account.Order.Product.Description.{ 'Colour': Colour, 'Total': %.Price * %.Quantity }
+-- parent_20_expected.json --
+[{"Colour":"Purple","Total":68.9},{"Colour":"Orange","Total":21.67},{"Colour":"Purple","Total":137.8},{"Colour":"Black","Total":107.99}]
+-- parent_21.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_21.JSONATA"
+}
+-- parent_21.JSONATA --
+Account.Order.Product.Description.{ 'Item': Colour & ' ' & %.`Product Name`, 'Discounted': (%.%.OrderID = 'order103') ? %.Price / 2 : %.Price }
+-- parent_21_expected.json --
+[{"Discounted":17.225,"Item":"Purple Bowler Hat"},{"Discounted":10.835,"Item":"Orange Trilby hat"},{"Discounted":34.45,"Item":"Purple Bowler Hat"},{"Discounted":107.99,"Item":"Black Cloak"}]
+-- parent_22.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_22.JSONATA"
+}
+-- parent_22.JSONATA --
+Account.Order.Product.( $parent := %; %.OrderID )
+-- parent_22_expected.json --
+["order103","order103","order104","order104"]
+-- parent_23.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "parent_23.JSONATA"
+}
+-- parent_23.JSONATA --
+Account.Order.Product.( $parent := %; $parent.OrderID )
+-- parent_23_expected.json --
+["order103","order103","order104","order104"]
+-- parent_24.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "parent_24.JSONATA"
+}
+-- parent_24.JSONATA --
+library.loans@$L.books@$B[$L.isbn=$B.isbn].{ 'book': $B.title, 'parent': $keys(%) }
+-- parent_24_expected.json --
+[{"book":"Structure and Interpretation of Computer Programs","parent":["books","loans","customers"]},{"book":"Compilers: Principles, Techniques, and Tools","parent":["books","loans","customers"]},{"book":"Structure and Interpretation of Computer Programs","parent":["books","loans","customers"]}]
+-- parent_25.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "parent_25.JSONATA"
+}
+-- parent_25.JSONATA --
+library.loans@$L.books@$B[$L.isbn=$B.isbn].customers[id=$L.customer].{ 'book': $B.title, 'customer': name, 'parent': $keys(%) }
+-- parent_25_expected.json --
+[{"book":"Structure and Interpretation of Computer Programs","customer":"Joe Doe","parent":["books","loans","customers"]},{"book":"Compilers: Principles, Techniques, and Tools","customer":"Jason Arthur","parent":["books","loans","customers"]},{"book":"Structure and Interpretation of Computer Programs","customer":"Jason Arthur","parent":["books","loans","customers"]}]
+-- parent_26.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "parent_26.JSONATA"
+}
+-- parent_26.JSONATA --
+library.loans@$L.books@$B[$L.isbn=$B.isbn].customers[id=$L.customer].{ 'book': $B.title, 'customer': name, 'parent': $keys(%.%) }
+-- parent_26_expected.json --
+[{"book":"Structure and Interpretation of Computer Programs","customer":"Joe Doe","parent":["books","loans","customers"]},{"book":"Compilers: Principles, Techniques, and Tools","customer":"Jason Arthur","parent":["books","loans","customers"]},{"book":"Structure and Interpretation of Computer Programs","customer":"Jason Arthur","parent":["books","loans","customers"]}]
+-- parent_27.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "parent_27.JSONATA"
+}
+-- parent_27.JSONATA --
+library.loans@$L.books@$B[$L.isbn=$B.isbn].customers@$C[$C.id=$L.customer].{ 'book': $B.title, 'customer': $C.name, 'grandparent': $keys(%.%) }
+-- parent_27_expected.json --
+[{"book":"Structure and Interpretation of Computer Programs","customer":"Joe Doe","grandparent":"library"},{"book":"Compilers: Principles, Techniques, and Tools","customer":"Jason Arthur","grandparent":"library"},{"book":"Structure and Interpretation of Computer Programs","customer":"Jason Arthur","grandparent":"library"}]

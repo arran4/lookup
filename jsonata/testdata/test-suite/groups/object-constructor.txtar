@@ -253,7 +253,7 @@ Phone{type: $join(number, ", "), "phone":number}
   "exprFile": "case023.JSONATA"
 }
 -- case023.JSONATA --
-$.{ type: $average(value), kind: $sum(value) }
+$.{ type: $average(value), kind: $sum(value) } 
 -- case024.json --
 {
   "bindings": {},
@@ -283,7 +283,7 @@ $.{ type: $average(value), kind: $sum(value) }
   "exprFile": "case024.JSONATA"
 }
 -- case024.JSONATA --
-{ type: $average(value), kind: $sum(value) }
+{ type: $average(value), kind: $sum(value) } 
 -- case025.json --
 {
   "bindings": {},
@@ -534,7 +534,7 @@ $.{ type: $average(value), kind: $sum(value) }
       "2019-08-31": 8029
     }
   },
-  "expr-file": "case025.jsonata"
+  "exprFile": "case025.JSONATA"
 }
 -- case025.JSONATA --
 $each(jsonata, λ($v, $k){

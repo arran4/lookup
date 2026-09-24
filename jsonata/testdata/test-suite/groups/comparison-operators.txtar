@@ -277,3 +277,213 @@ false > $x
 }
 -- case028.JSONATA --
 $x <= 'hello'
+-- deep-equals_0.json --
+{
+  "bindings": {},
+  "data": null,
+  "exprFile": "deep-equals_0.JSONATA"
+}
+-- deep-equals_0.JSONATA --
+[1,2,3,4] = [1, 2, 3, 4]
+-- deep-equals_0_expected.json --
+true
+-- deep-equals_1.json --
+{
+  "bindings": {},
+  "data": null,
+  "exprFile": "deep-equals_1.JSONATA"
+}
+-- deep-equals_1.JSONATA --
+[1,2] != [1, 2]
+-- deep-equals_1_expected.json --
+false
+-- deep-equals_2.json --
+{
+  "bindings": {},
+  "data": null,
+  "exprFile": "deep-equals_2.JSONATA"
+}
+-- deep-equals_2.JSONATA --
+[1,2,[3],4] = [1, 2, [3], 4]
+-- deep-equals_2_expected.json --
+true
+-- deep-equals_3.json --
+{
+  "bindings": {},
+  "data": null,
+  "exprFile": "deep-equals_3.JSONATA"
+}
+-- deep-equals_3.JSONATA --
+[1,2,3,4] = [1, 2, [3], 4]
+-- deep-equals_3_expected.json --
+false
+-- deep-equals_4.json --
+{
+  "bindings": {},
+  "data": null,
+  "exprFile": "deep-equals_4.JSONATA"
+}
+-- deep-equals_4.JSONATA --
+[1,2,3,4] = [2, 3, 4]
+-- deep-equals_4_expected.json --
+false
+-- deep-equals_5.json --
+{
+  "bindings": {},
+  "data": {
+    "data": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "exprFile": "deep-equals_5.JSONATA"
+}
+-- deep-equals_5.JSONATA --
+data = [1, 2, 3, 4]
+-- deep-equals_5_expected.json --
+true
+-- deep-equals_6.json --
+{
+  "bindings": {},
+  "data": {
+    "data": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "exprFile": "deep-equals_6.JSONATA"
+}
+-- deep-equals_6.JSONATA --
+data[2] = 3
+-- deep-equals_6_expected.json --
+true
+-- deep-equals_7.json --
+{
+  "bindings": {},
+  "data": {},
+  "exprFile": "deep-equals_7.JSONATA"
+}
+-- deep-equals_7.JSONATA --
+{ 'one': 1, 'two': 2 } = { 'two': 2, 'one': 1 }
+-- deep-equals_7_expected.json --
+true
+-- deep-equals_8.json --
+{
+  "bindings": {},
+  "data": {},
+  "exprFile": "deep-equals_8.JSONATA"
+}
+-- deep-equals_8.JSONATA --
+{ 'one': 1, 'two': 2 } = { 'too': 2, 'one': 1 }
+-- deep-equals_8_expected.json --
+false
+-- deep-equals_9.json --
+{
+  "bindings": {},
+  "data": {},
+  "exprFile": "deep-equals_9.JSONATA"
+}
+-- deep-equals_9.JSONATA --
+{ 'one': 1, 'two': 3 } = { 'two': 2, 'one': 1 }
+-- deep-equals_9_expected.json --
+false
+-- deep-equals_10.json --
+{
+  "bindings": {},
+  "data": {},
+  "exprFile": "deep-equals_10.JSONATA"
+}
+-- deep-equals_10.JSONATA --
+{ 'one': 1, 'two': 2, 'three': 3 } = { 'two': 2, 'one': 1 }
+-- deep-equals_10_expected.json --
+false
+-- deep-equals_11.json --
+{
+  "bindings": {},
+  "data": {
+    "one": 1,
+    "two": 2
+  },
+  "exprFile": "deep-equals_11.JSONATA"
+}
+-- deep-equals_11.JSONATA --
+two = 2
+-- deep-equals_11_expected.json --
+true
+-- deep-equals_12.json --
+{
+  "bindings": {},
+  "data": {
+    "one": 1,
+    "two": 2
+  },
+  "exprFile": "deep-equals_12.JSONATA"
+}
+-- deep-equals_12.JSONATA --
+one + one = two
+-- deep-equals_12_expected.json --
+true
+-- deep-equals_13.json --
+{
+  "bindings": {},
+  "data": {},
+  "exprFile": "deep-equals_13.JSONATA"
+}
+-- deep-equals_13.JSONATA --
+null = null
+-- deep-equals_13_expected.json --
+true
+-- deep-equals_14.json --
+{
+  "bindings": {},
+  "data": {},
+  "exprFile": "deep-equals_14.JSONATA"
+}
+-- deep-equals_14.JSONATA --
+null != null
+-- deep-equals_14_expected.json --
+false
+-- deep-equals_15.json --
+{
+  "bindings": {},
+  "data": {},
+  "exprFile": "deep-equals_15.JSONATA"
+}
+-- deep-equals_15.JSONATA --
+null = nothing
+-- deep-equals_15_expected.json --
+false
+-- deep-equals_16.json --
+{
+  "bindings": {},
+  "data": {},
+  "exprFile": "deep-equals_16.JSONATA"
+}
+-- deep-equals_16.JSONATA --
+nothing = nothing
+-- deep-equals_16_expected.json --
+false
+-- deep-equals_17.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "deep-equals_17.JSONATA"
+}
+-- deep-equals_17.JSONATA --
+Account.Order[0].Product[0].Description = Account.Order[1].Product[0].Description
+-- deep-equals_17_expected.json --
+true
+-- deep-equals_18.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "deep-equals_18.JSONATA"
+}
+-- deep-equals_18.JSONATA --
+Account.Order[0].Product[0] = Account.Order[1].Product[0]
+-- deep-equals_18_expected.json --
+false

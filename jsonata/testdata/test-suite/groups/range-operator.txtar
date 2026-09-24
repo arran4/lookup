@@ -207,7 +207,7 @@
 -- case021.JSONATA --
 [1..10000000] ~> $count()
 -- case021_expected.json --
-10000000
+1e7
 -- case022.json --
 {
   "bindings": {},
@@ -237,4 +237,4 @@
 -- case024.JSONATA --
 [100..10000099] ~> $count()
 -- case024_expected.json --
-10000000
+1e7

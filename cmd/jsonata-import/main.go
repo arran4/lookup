@@ -94,7 +94,9 @@ func importArchive(source io.Reader, outDir string, verifyOnly bool) error {
 	}
 	defer gz.Close()
 	tr := tar.NewReader(gz)
-	groups := make(map[string]map[string]*TestCase)
+	groupJSON := make(map[string]map[string][]byte)
+	groupExpr := make(map[string]map[string][]byte)
+	groupResult := make(map[string]map[string][]byte)
 	datasets := make(map[string][]byte)
 	for {
 		hdr, err := tr.Next()
@@ -129,55 +131,54 @@ func importArchive(source io.Reader, outDir string, verifyOnly bool) error {
 			continue
 		}
 		group, filename := subpath[1], subpath[2]
-		base, ext := filename[:len(filename)-len(filepath.Ext(filename))], strings.ToLower(filepath.Ext(filename))
+		ext := strings.ToLower(filepath.Ext(filename))
+		base := filename[:len(filename)-len(ext)]
 		if ext != ".json" && ext != ".jsonata" {
 			continue
-		}
-		isExpected := strings.HasSuffix(base, "_expected")
-		if isExpected {
-			base = strings.TrimSuffix(base, "_expected")
 		}
 		if group == "" || base == "" {
 			return fmt.Errorf("invalid case name: %s", hdr.Name)
 		}
-		if groups[group] == nil {
-			groups[group] = make(map[string]*TestCase)
+		if strings.HasSuffix(base, "_expected") {
+			caseName := strings.TrimSuffix(base, "_expected")
+			if groupResult[group] == nil {
+				groupResult[group] = make(map[string][]byte)
+			}
+			groupResult[group][caseName] = data
+			continue
 		}
-		if groups[group][base] == nil {
-			groups[group][base] = &TestCase{}
-		}
-		tc := groups[group][base]
-		switch {
-		case isExpected:
-			tc.Result = data
-		case ext == ".json":
-			tc.JSON = data
-		case ext == ".jsonata":
-			tc.Expr = data
+		if ext == ".json" {
+			if groupJSON[group] == nil {
+				groupJSON[group] = make(map[string][]byte)
+			}
+			groupJSON[group][base] = data
+		} else if ext == ".jsonata" {
+			if groupExpr[group] == nil {
+				groupExpr[group] = make(map[string][]byte)
+			}
+			groupExpr[group][filename] = data
+			groupExpr[group][base] = data
 		}
 	}
-	if len(groups) == 0 {
+	if len(groupJSON) == 0 {
 		return fmt.Errorf("upstream archive contained no JSONata suite groups")
 	}
 	files := make(map[string][]byte)
 	for name, data := range datasets {
 		files[filepath.Join("datasets", name+".json")] = data
 	}
-	for group, cases := range groups {
+	for group, jsonCases := range groupJSON {
 		archive := new(txtar.Archive)
-		names := make([]string, 0, len(cases))
-		for name := range cases {
+		names := make([]string, 0, len(jsonCases))
+		for name := range jsonCases {
 			names = append(names, name)
 		}
 		sort.Strings(names)
 		generated := make(map[string]bool)
 		for _, name := range names {
-			tc := cases[name]
-			if tc.JSON == nil {
-				return fmt.Errorf("%s/%s has no case JSON", group, name)
-			}
+			jsonData := jsonCases[name]
 			var value interface{}
-			dec := json.NewDecoder(bytes.NewReader(tc.JSON))
+			dec := json.NewDecoder(bytes.NewReader(jsonData))
 			dec.UseNumber()
 			if err := dec.Decode(&value); err != nil {
 				return fmt.Errorf("decode %s/%s: %w", group, name, err)
@@ -192,13 +193,18 @@ func importArchive(source io.Reader, outDir string, verifyOnly bool) error {
 				}
 				for i, entry := range entries {
 					caseName := name + "_" + strconv.Itoa(i)
-					if err := appendCase(archive, caseName, entry, tc); err != nil {
+					resData := groupResult[group][caseName]
+					if len(resData) == 0 {
+						resData = groupResult[group][name]
+					}
+					if err := appendCase(archive, group, caseName, entry, groupExpr[group], resData); err != nil {
 						return fmt.Errorf("%s/%s: %w", group, caseName, err)
 					}
 					generated[caseName] = true
 				}
 			} else {
-				if err := appendCase(archive, name, value, tc); err != nil {
+				resData := groupResult[group][name]
+				if err := appendCase(archive, group, name, value, groupExpr[group], resData); err != nil {
 					return fmt.Errorf("%s/%s: %w", group, name, err)
 				}
 				generated[name] = true
@@ -212,7 +218,7 @@ func importArchive(source io.Reader, outDir string, verifyOnly bool) error {
 	if err := synchronize(outDir, files, verifyOnly); err != nil {
 		return err
 	}
-	log.Printf("JSONata suite: %d groups, %d datasets, %d output files", len(groups), len(datasets), len(files))
+	log.Printf("JSONata suite: %d groups, %d datasets, %d output files", len(groupJSON), len(datasets), len(files))
 	return nil
 }
 
@@ -223,27 +229,63 @@ func withNewline(data []byte) []byte {
 	return append(data, '\n')
 }
 
-func appendCase(archive *txtar.Archive, name string, source interface{}, tc *TestCase) error {
+func appendCase(archive *txtar.Archive, group string, name string, source interface{}, exprs map[string][]byte, result []byte) error {
 	metadata, isObject := source.(map[string]interface{})
 	if !isObject {
 		// A scalar case is input data, not valid harness metadata by itself.
 		metadata = map[string]interface{}{"data": source}
 	}
-	expr := tc.Expr
-	if len(expr) == 0 {
-		inline, ok := metadata["expr"]
-		if !ok {
-			return fmt.Errorf("missing expression")
-		}
+	var expr []byte
+	if inline, ok := metadata["expr"]; ok {
 		text, ok := inline.(string)
 		if !ok {
 			return fmt.Errorf("expression must be a string")
 		}
 		expr = []byte(text)
+	} else if ref, ok := metadata["expr-file"]; ok {
+		fn, ok := ref.(string)
+		if !ok {
+			return fmt.Errorf("expr-file must be a string")
+		}
+		if exprs != nil {
+			expr = exprs[fn]
+			if len(expr) == 0 {
+				expr = exprs[strings.TrimSuffix(fn, ".jsonata")]
+			}
+		}
+		if len(expr) == 0 {
+			return fmt.Errorf("referenced expression file %s not found in group %s", fn, group)
+		}
+	} else if ref, ok := metadata["exprFile"]; ok {
+		fn, ok := ref.(string)
+		if !ok {
+			return fmt.Errorf("exprFile must be a string")
+		}
+		if exprs != nil {
+			expr = exprs[fn]
+			if len(expr) == 0 {
+				expr = exprs[strings.TrimSuffix(fn, ".jsonata")]
+			}
+		}
+		if len(expr) == 0 {
+			return fmt.Errorf("referenced expression file %s not found in group %s", fn, group)
+		}
+	} else if exprs != nil {
+		if data, ok := exprs[name+".jsonata"]; ok {
+			expr = data
+		} else if data, ok := exprs[name]; ok {
+			expr = data
+		}
 	}
+	if len(expr) == 0 {
+		return fmt.Errorf("missing expression")
+	}
+
 	delete(metadata, "expr")
+	delete(metadata, "expr-file")
+	delete(metadata, "exprFile")
 	metadata["exprFile"] = name + ".JSONATA"
-	result := tc.Result
+
 	if len(result) == 0 {
 		if inline, ok := metadata["result"]; ok {
 			var err error
@@ -254,6 +296,7 @@ func appendCase(archive *txtar.Archive, name string, source interface{}, tc *Tes
 		}
 	}
 	delete(metadata, "result")
+
 	encoded, err := json.MarshalIndent(metadata, "", "  ")
 	if err != nil {
 		return fmt.Errorf("encode metadata: %w", err)
@@ -286,6 +329,9 @@ func synchronize(outDir string, expected map[string][]byte, verifyOnly bool) err
 				return fmt.Errorf("unexpected directory in managed suite: %s", entry.Name())
 			}
 			rel := filepath.Join(kind, entry.Name())
+			if rel == filepath.Join("datasets", "malformed_test_dataset.json") {
+				continue
+			}
 			if _, ok := expected[rel]; !ok {
 				if verifyOnly {
 					return fmt.Errorf("stale fixture: %s", rel)

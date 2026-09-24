@@ -75,3 +75,47 @@ $eval('[1,string(2),3]')
 }
 -- case007.JSONATA --
 $eval('[1,#string(2),3]')
+-- case008_0.json --
+{
+  "bindings": {},
+  "data": {},
+  "exprFile": "case008_0.JSONATA"
+}
+-- case008_0.JSONATA --
+$eval("{ 'test': 1 }", [])
+-- case008_0_expected.json --
+{"test":1}
+-- case008_1.json --
+{
+  "bindings": {},
+  "data": [],
+  "exprFile": "case008_1.JSONATA"
+}
+-- case008_1.JSONATA --
+$eval("{ 'test': 1 }")
+-- case008_1_expected.json --
+{"test":1}
+-- case008_2.json --
+{
+  "bindings": {},
+  "data": [],
+  "exprFile": "case008_2.JSONATA"
+}
+-- case008_2.JSONATA --
+$eval("{ 'test': 1 }", [1,2,3])
+-- case008_2_expected.json --
+{"test":1}
+-- case008_3.json --
+{
+  "bindings": {},
+  "data": [
+    1,
+    2,
+    3
+  ],
+  "exprFile": "case008_3.JSONATA"
+}
+-- case008_3.JSONATA --
+$eval("{ 'test': 1 }")
+-- case008_3_expected.json --
+{"test":1}

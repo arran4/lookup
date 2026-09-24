@@ -18,13 +18,15 @@ func upstreamTestArchive(t *testing.T) []byte {
 	gz := gzip.NewWriter(&buf)
 	tr := tar.NewWriter(gz)
 	fixtures := map[string]string{
-		"test/test-suite/datasets/sample.json": `{"x":9007199254740993}`,
-		"test/test-suite/groups/recovery/case000.json": `{"expr":"$","data":9007199254740993,"result":9007199254740993}`,
-		"test/test-suite/groups/recovery/case001.json": `[{"expr":"$","data":null,"result":null},{"expr":"$","data":"null","result":"null"}]`,
-		"test/test-suite/groups/recovery/case002.json": `4`,
-		"test/test-suite/groups/recovery/case002.jsonata": `$`,
-		"test/test-suite/groups/recovery/case003.json": `{"expr":"$","dataset":null,"undefinedResult":true}`,
-		"test/test-suite/groups/recovery/case004.json": `{"expr":"x","dataset":"sample","bindings":{"p":1},"code":"T0410"}`,
+		"test/test-suite/datasets/sample.json":                `{"x":9007199254740993}`,
+		"test/test-suite/groups/recovery/case000.json":        `{"expr":"$","data":9007199254740993,"result":9007199254740993}`,
+		"test/test-suite/groups/recovery/case001.json":        `[{"expr":"$","data":null,"result":null},{"expr":"$","data":"null","result":"null"}]`,
+		"test/test-suite/groups/recovery/case002.json":        `4`,
+		"test/test-suite/groups/recovery/case002.jsonata":     `$`,
+		"test/test-suite/groups/recovery/case003.json":        `{"expr":"$","dataset":null,"undefinedResult":true}`,
+		"test/test-suite/groups/recovery/case004.json":        `{"expr":"x","dataset":"sample","bindings":{"p":1},"code":"T0410"}`,
+		"test/test-suite/groups/recovery/case005.json":        `[{"expr-file":"case005_ext.jsonata","data":1,"result":1}]`,
+		"test/test-suite/groups/recovery/case005_ext.jsonata": `$`,
 	}
 	for name, text := range fixtures {
 		data := []byte(text)
@@ -66,8 +68,8 @@ func TestImporterPreservesInputAndExpandsCases(t *testing.T) {
 		t.Fatal(err)
 	}
 	archive := txtar.Parse(data)
-	if got := len(archive.Files); got != 15 {
-		t.Fatalf("expected 15 files for six executable cases, got %d", got)
+	if got := len(archive.Files); got != 18 {
+		t.Fatalf("expected 18 files for seven executable cases, got %d", got)
 	}
 	if got := findArchiveFile(t, archive, "case000.json"); !strings.Contains(got, `9007199254740993`) || strings.Contains(got, `9007199254740992`) {
 		t.Fatalf("large input integer changed: %s", got)
@@ -95,6 +97,15 @@ func TestImporterPreservesInputAndExpandsCases(t *testing.T) {
 	}
 	if got := findArchiveFile(t, archive, "case004.json"); !strings.Contains(got, `"dataset": "sample"`) || !strings.Contains(got, `"bindings"`) || !strings.Contains(got, `"T0410"`) {
 		t.Fatalf("dataset, bindings or error code lost: %s", got)
+	}
+	if got := findArchiveFile(t, archive, "case005_0.json"); !strings.Contains(got, `"exprFile": "case005_0.JSONATA"`) || strings.Contains(got, `"expr-file"`) {
+		t.Fatalf("external expr-file not converted to exprFile: %s", got)
+	}
+	if got := findArchiveFile(t, archive, "case005_0.JSONATA"); strings.TrimSpace(got) != "$" {
+		t.Fatalf("external expression content lost: %s", got)
+	}
+	if got := findArchiveFile(t, archive, "case005_0_expected.json"); strings.TrimSpace(got) != "1" {
+		t.Fatalf("external case expected result lost: %s", got)
 	}
 	if got, err := os.ReadFile(filepath.Join(out, "datasets", "sample.json")); err != nil || !strings.Contains(string(got), `9007199254740993`) {
 		t.Fatalf("dataset lost: %s, %v", got, err)

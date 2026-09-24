@@ -5,7 +5,7 @@
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
-(  $data := {    "one": [1,2,3,4,5],    "two": [5,4,3,2,1]  };  $add := function($x){$x*$x};  $map($data.one, $add) )
+(  $data := {    "one": [1,2,3,4,5],    "two": [5,4,3,2,1]  };  $add := function($x){$x*$x};  $map($data.one, $add) )  
 -- case000_expected.json --
 [1,4,9,16,25]
 -- case001.json --
@@ -16,7 +16,7 @@
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
-(  $data := {    "one": [1,2,3,4,5],    "two": [5,4,3,2,1]  };  $add := function($x){$x*$x};  $map($add) )
+(  $data := {    "one": [1,2,3,4,5],    "two": [5,4,3,2,1]  };  $add := function($x){$x*$x};  $map($add) )  
 -- case002.json --
 {
   "bindings": {},

@@ -144,7 +144,7 @@ notexist + 1
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
-1/(10e300 * 10e100)
+1/(10e300 * 10e100) 
 -- case015.json --
 {
   "bindings": {},

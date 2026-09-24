@@ -455,21 +455,19 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 
 | Feature Group | Passed | Failed | Unsupported |
 |---|---|---|---|
-| array-constructor | 6 | 15 | 0 |
+| array-constructor | 6 | 20 | 0 |
 | blocks | 0 | 7 | 0 |
 | boolean-expresssions | 25 | 6 | 0 |
 | closures | 0 | 2 | 0 |
-| coalescing-operator | 0 | 13 | 0 |
 | comments | 3 | 0 | 1 |
-| comparison-operators | 19 | 10 | 0 |
+| comparison-operators | 33 | 15 | 0 |
 | conditionals | 0 | 9 | 0 |
 | context | 0 | 4 | 0 |
-| default-operator | 0 | 14 | 0 |
 | descendent-operator | 0 | 17 | 0 |
 | encoding | 0 | 4 | 0 |
 | errors | 0 | 27 | 0 |
 | fields | 8 | 0 | 0 |
-| flattening | 7 | 40 | 0 |
+| flattening | 8 | 53 | 0 |
 | function-abs | 0 | 4 | 0 |
 | function-append | 0 | 6 | 0 |
 | function-applications | 0 | 22 | 0 |
@@ -481,18 +479,18 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 | function-count | 11 | 3 | 0 |
 | function-decodeUrl | 0 | 3 | 0 |
 | function-decodeUrlComponent | 0 | 3 | 0 |
-| function-distinct | 0 | 0 | 0 |
+| function-distinct | 0 | 8 | 0 |
 | function-each | 0 | 3 | 0 |
 | function-encodeUrl | 0 | 3 | 0 |
 | function-encodeUrlComponent | 0 | 3 | 0 |
 | function-error | 0 | 11 | 0 |
-| function-eval | 0 | 8 | 0 |
+| function-eval | 0 | 12 | 0 |
 | function-exists | 0 | 25 | 0 |
 | function-floor | 0 | 4 | 0 |
 | function-formatBase | 0 | 8 | 0 |
-| function-formatInteger | 0 | 0 | 0 |
+| function-formatInteger | 0 | 65 | 0 |
 | function-formatNumber | 0 | 37 | 0 |
-| function-fromMillis | 0 | 3 | 0 |
+| function-fromMillis | 0 | 91 | 0 |
 | function-join | 0 | 12 | 0 |
 | function-keys | 0 | 7 | 0 |
 | function-length | 0 | 17 | 0 |
@@ -502,7 +500,7 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 | function-merge | 0 | 5 | 0 |
 | function-number | 0 | 34 | 0 |
 | function-pad | 0 | 11 | 0 |
-| function-parseInteger | 0 | 0 | 0 |
+| function-parseInteger | 0 | 61 | 0 |
 | function-power | 0 | 7 | 0 |
 | function-replace | 0 | 12 | 0 |
 | function-reverse | 0 | 4 | 0 |
@@ -519,7 +517,7 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 | function-substringAfter | 0 | 5 | 0 |
 | function-substringBefore | 0 | 5 | 0 |
 | function-sum | 3 | 4 | 0 |
-| function-tomillis | 0 | 12 | 0 |
+| function-tomillis | 0 | 58 | 0 |
 | function-trim | 0 | 3 | 0 |
 | function-typeOf | 0 | 13 | 0 |
 | function-uppercase | 0 | 2 | 0 |
@@ -531,16 +529,16 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 | hof-single | 0 | 11 | 0 |
 | hof-zip-map | 0 | 4 | 0 |
 | inclusion-operator | 7 | 2 | 0 |
-| joins | 0 | 0 | 0 |
+| joins | 0 | 43 | 0 |
 | lambdas | 0 | 13 | 0 |
-| literals | 7 | 13 | 0 |
+| literals | 7 | 17 | 0 |
 | matchers | 0 | 2 | 0 |
 | missing-paths | 6 | 0 | 0 |
 | multiple-array-selectors | 0 | 3 | 0 |
 | null | 5 | 2 | 0 |
 | numeric-operators | 2 | 17 | 0 |
 | object-constructor | 0 | 27 | 0 |
-| parent-operator | 0 | 0 | 0 |
+| parent-operator | 0 | 44 | 0 |
 | parentheses | 6 | 2 | 0 |
 | partial-application | 0 | 5 | 0 |
 | performance | 0 | 2 | 0 |

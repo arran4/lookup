@@ -300,7 +300,7 @@ FirstName.λ($str, $prefix)<s-s>{$prefix & $str}("Hello ")
   "exprFile": "case030.JSONATA"
 }
 -- case030.JSONATA --
-λ($arr)<a<n>>{$arr}(["3"])
+λ($arr)<a<n>>{$arr}(["3"]) 
 -- case031.json --
 {
   "bindings": {},
@@ -309,7 +309,7 @@ FirstName.λ($str, $prefix)<s-s>{$prefix & $str}("Hello ")
   "exprFile": "case031.JSONATA"
 }
 -- case031.JSONATA --
-λ($arr)<a<n>>{$arr}([1, 2, "3"])
+λ($arr)<a<n>>{$arr}([1, 2, "3"]) 
 -- case032.json --
 {
   "bindings": {},

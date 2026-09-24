@@ -5,7 +5,7 @@
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
-(  $seq := [1,2,3,4,5];  $reduce($seq, function($x, $y){$x+$y}))
+(  $seq := [1,2,3,4,5];  $reduce($seq, function($x, $y){$x+$y})) 
 -- case000_expected.json --
 15
 -- case001.json --
@@ -15,7 +15,7 @@
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
-(  $concat := function($s){function($a, $b){$string($a) & $s & $string($b)}};  $comma_join := $concat(' ... ');  $reduce([1,2,3,4,5], $comma_join))
+(  $concat := function($s){function($a, $b){$string($a) & $s & $string($b)}};  $comma_join := $concat(' ... ');  $reduce([1,2,3,4,5], $comma_join))      
 -- case001_expected.json --
 "1 ... 2 ... 3 ... 4 ... 5"
 -- case002.json --
@@ -90,7 +90,7 @@ $reduce(Account.Order.Product.Quantity, $append)
 {
   "bindings": {},
   "data": null,
-  "expr-file": "case009.jsonata"
+  "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
 (
@@ -111,7 +111,7 @@ $reduce(Account.Order.Product.Quantity, $append)
 {
   "bindings": {},
   "data": null,
-  "expr-file": "case010.jsonata"
+  "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
 (

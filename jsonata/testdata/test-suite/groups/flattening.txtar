@@ -1,3 +1,206 @@
+-- array-inputs_0.json --
+{
+  "data": [
+    {
+      "phone": [
+        {
+          "number": 0
+        }
+      ]
+    },
+    {
+      "phone": [
+        {
+          "number": 1
+        }
+      ]
+    },
+    {
+      "phone": [
+        {
+          "number": 2
+        }
+      ]
+    }
+  ],
+  "exprFile": "array-inputs_0.JSONATA"
+}
+-- array-inputs_0.JSONATA --
+phone
+-- array-inputs_0_expected.json --
+[{"number":0},{"number":1},{"number":2}]
+-- array-inputs_1.json --
+{
+  "data": [
+    {
+      "phone": [
+        {
+          "number": 0
+        }
+      ]
+    },
+    {
+      "phone": [
+        {
+          "number": 1
+        }
+      ]
+    },
+    {
+      "phone": [
+        {
+          "number": 2
+        }
+      ]
+    }
+  ],
+  "exprFile": "array-inputs_1.JSONATA"
+}
+-- array-inputs_1.JSONATA --
+phone[0]
+-- array-inputs_1_expected.json --
+{"number":0}
+-- array-inputs_2.json --
+{
+  "data": [
+    {
+      "phone": [
+        {
+          "number": 0
+        }
+      ]
+    },
+    {
+      "phone": [
+        {
+          "number": 1
+        }
+      ]
+    },
+    {
+      "phone": [
+        {
+          "number": 2
+        }
+      ]
+    }
+  ],
+  "exprFile": "array-inputs_2.JSONATA"
+}
+-- array-inputs_2.JSONATA --
+phone[0][]
+-- array-inputs_2_expected.json --
+[{"number":0}]
+-- array-inputs_3.json --
+{
+  "data": [
+    {
+      "phone": [
+        {
+          "number": 0
+        }
+      ]
+    },
+    {
+      "phone": [
+        {
+          "number": 1
+        }
+      ]
+    },
+    {
+      "phone": [
+        {
+          "number": 2
+        }
+      ]
+    }
+  ],
+  "exprFile": "array-inputs_3.JSONATA"
+}
+-- array-inputs_3.JSONATA --
+phone[0].number
+-- array-inputs_3_expected.json --
+0
+-- array-inputs_4.json --
+{
+  "data": [
+    {
+      "phone": [
+        {
+          "number": 0
+        }
+      ]
+    },
+    {
+      "phone": [
+        {
+          "number": 1
+        }
+      ]
+    },
+    {
+      "phone": [
+        {
+          "number": 2
+        }
+      ]
+    }
+  ],
+  "exprFile": "array-inputs_4.JSONATA"
+}
+-- array-inputs_4.JSONATA --
+(phone)[0].number
+-- array-inputs_4_expected.json --
+0
+-- array-inputs_5.json --
+{
+  "data": [
+    {
+      "phone": [
+        {
+          "number": 0
+        }
+      ]
+    },
+    {
+      "phone": [
+        {
+          "number": 1
+        }
+      ]
+    },
+    {
+      "phone": [
+        {
+          "number": 2
+        }
+      ]
+    }
+  ],
+  "exprFile": "array-inputs_5.JSONATA"
+}
+-- array-inputs_5.JSONATA --
+$.phone[0].number
+-- array-inputs_5_expected.json --
+[0,1,2]
+-- array-inputs_6.json --
+{
+  "data": [],
+  "exprFile": "array-inputs_6.JSONATA"
+}
+-- array-inputs_6.JSONATA --
+{'Hello':'World'}
+-- array-inputs_6_expected.json --
+{"Hello":"World"}
+-- array-inputs_7.json --
+{
+  "data": [],
+  "exprFile": "array-inputs_7.JSONATA",
+  "undefinedResult": true
+}
+-- array-inputs_7.JSONATA --
+$.{'Hello':'World'}
 -- case000.json --
 {
   "bindings": {},
@@ -693,3 +896,89 @@ $filter($, function($e) { $e != 0 })[]
 $.tags[title='example'][]
 -- case045_expected.json --
 [{"description":"Hello","title":"example"}]
+-- large_0.json --
+{
+  "data": null,
+  "depth": 10,
+  "exprFile": "large_0.JSONATA",
+  "timelimit": 10000
+}
+-- large_0.JSONATA --
+( $data := { 'number': [1..2e5].$string() }; $values := $data.number; $count($values) )
+-- large_0_expected.json --
+200000
+-- large_1.json --
+{
+  "data": null,
+  "depth": 10,
+  "exprFile": "large_1.JSONATA",
+  "timelimit": 10000
+}
+-- large_1.JSONATA --
+( $data := { 'number': [1..2e5].$string() }; $values := $lookup($data, 'number'); $count($values) )
+-- large_1_expected.json --
+200000
+-- sequence-of-arrays_0.json --
+{
+  "data": [
+    {
+      "epochSeconds": 1578381600,
+      "value": 3
+    },
+    {
+      "epochSeconds": 1578381700,
+      "value": 5
+    }
+  ],
+  "exprFile": "sequence-of-arrays_0.JSONATA"
+}
+-- sequence-of-arrays_0.JSONATA --
+$.[value,epochSeconds]
+-- sequence-of-arrays_0_expected.json --
+[[3,1578381600],[5,1578381700]]
+-- sequence-of-arrays_1.json --
+{
+  "data": [
+    {
+      "epochSeconds": 1578381600,
+      "value": 3
+    }
+  ],
+  "exprFile": "sequence-of-arrays_1.JSONATA"
+}
+-- sequence-of-arrays_1.JSONATA --
+$.[value,epochSeconds]
+-- sequence-of-arrays_1_expected.json --
+[3,1578381600]
+-- sequence-of-arrays_2.json --
+{
+  "data": [
+    {
+      "epochSeconds": 1578381600,
+      "value": 3
+    },
+    {
+      "epochSeconds": 1578381700,
+      "value": 5
+    }
+  ],
+  "exprFile": "sequence-of-arrays_2.JSONATA"
+}
+-- sequence-of-arrays_2.JSONATA --
+$.[value,epochSeconds][]
+-- sequence-of-arrays_2_expected.json --
+[[3,1578381600],[5,1578381700]]
+-- sequence-of-arrays_3.json --
+{
+  "data": [
+    {
+      "epochSeconds": 1578381600,
+      "value": 3
+    }
+  ],
+  "exprFile": "sequence-of-arrays_3.JSONATA"
+}
+-- sequence-of-arrays_3.JSONATA --
+$.[value,epochSeconds][]
+-- sequence-of-arrays_3_expected.json --
+[[3,1578381600]]

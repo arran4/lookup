@@ -16,7 +16,7 @@
                             "Depth": 210,
                             "Weight": 0.75
                         },
-                        "Price": 34.45,
+                        "Price": "foo",
                         "Quantity": 2
                     },
                     {
@@ -30,6 +30,7 @@
                             "Depth": 210,
                             "Weight": 0.6
                         },
+                        "Price": 21.67,
                         "Quantity": 1
                     }
                 ]

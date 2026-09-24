@@ -6,7 +6,7 @@
   "undefinedResult": true
 }
 -- case000.JSONATA --
-            (              $f := function($n){()};              $f(1)            )
+            (              $f := function($n){()};              $f(1)            ) 
 -- case001.json --
 {
   "bindings": {},
@@ -16,7 +16,7 @@
   "timelimit": 1000
 }
 -- case001.JSONATA --
-(  $factorial := function($n){$n = 0 ? 1 : $n * $factorial($n - 1)};  $factorial(99))
+(  $factorial := function($n){$n = 0 ? 1 : $n * $factorial($n - 1)};  $factorial(99))             
 -- case001_expected.json --
 9.33262154439441e+155
 -- case002.json --
@@ -29,7 +29,7 @@
   "timelimit": 1000
 }
 -- case002.JSONATA --
-(  $factorial := function($n){$n = 0 ? 1 : $n * $factorial($n - 1)};  $factorial(100))
+(  $factorial := function($n){$n = 0 ? 1 : $n * $factorial($n - 1)};  $factorial(100))             
 -- case003.json --
 {
   "bindings": {},
@@ -37,7 +37,7 @@
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
-(  $factorial := function($n){(    $iter := function($n, $acc) {      $n = 0 ? $acc : $iter($n - 1, $n * $acc)    };    $iter($n, 1)  )};  $factorial(5))
+(  $factorial := function($n){(    $iter := function($n, $acc) {      $n = 0 ? $acc : $iter($n - 1, $n * $acc)    };    $iter($n, 1)  )};  $factorial(5)) 
 -- case003_expected.json --
 120
 -- case004.json --
@@ -47,7 +47,7 @@
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
-(  $factorial := function($n){(    $iter := function($n, $acc) {      $n = 0 ? $acc : $iter($n - 1, $n * $acc)    };    $iter($n, 1)  )};  $factorial(150))
+(  $factorial := function($n){(    $iter := function($n, $acc) {      $n = 0 ? $acc : $iter($n - 1, $n * $acc)    };    $iter($n, 1)  )};  $factorial(150)) 
 -- case004_expected.json --
 5.7133839564458575e+262
 -- case005.json --

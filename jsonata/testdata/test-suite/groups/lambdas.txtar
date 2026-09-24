@@ -104,7 +104,7 @@ true
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
-(  $range := function($start, $end, $step) { (    $step:=($step?$step:1);    $start+$step > $end ? $start : $append($start, $range($start+$step, $end, $step))   )};  $range(0,15))
+(  $range := function($start, $end, $step) { (    $step:=($step?$step:1);    $start+$step > $end ? $start : $append($start, $range($start+$step, $end, $step))   )};  $range(0,15))        
 -- case010_expected.json --
 [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
 -- case011.json --
@@ -114,7 +114,7 @@ true
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
-(  $range := function($start, $end, $step) { (      $step:=($step?$step:1);        $start+$step > $end ? $start : $append($start, $range($start+$step, $end, $step))   )};  $range(0,15,2))
+(  $range := function($start, $end, $step) { (      $step:=($step?$step:1);        $start+$step > $end ? $start : $append($start, $range($start+$step, $end, $step))   )};  $range(0,15,2))        
 -- case011_expected.json --
 [0,2,4,6,8,10,12,14]
 -- case012.json --
