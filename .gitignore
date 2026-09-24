@@ -10,21 +10,22 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+coverage.txt
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+/.idea/
+temp_jsonata/
+*.txt
 
 # Go workspace file
 go.work
 
-# test outputs
+# Test outputs
 test_suite_out*
 run*_out.txt
 get_fails*
-jsonata/testdata/test-suite/*
 fix_baseline.go
 failing_cases.txt
 run_all.txt
-jsonata/testdata/test-suite/groups/*.txtar
-jsonata/testdata/test-suite/datasets/*.json
 cmd/jsonata-import/jsonata-import
