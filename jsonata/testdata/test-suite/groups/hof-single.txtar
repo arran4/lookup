@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset6__INPUT",
   "bindings": {},
+  "dataset": "dataset6",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,19 +10,19 @@
 "9780262510875"
 -- case001.json --
 {
-  "dataset": "dataset6__INPUT",
   "bindings": {},
+  "dataset": "dataset6",
   "exprFile": "case001.JSONATA",
   "undefinedResult": true
 }
 -- case001.JSONATA --
 nothing~>$single(λ($v, $i, $a) {$v.price = $max($a.price)})
--- case001_expected.json --
-null
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": {
+    "data": 5
+  },
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -31,38 +31,43 @@ $single(data, function($d) { true })
 5
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "D3138",
+  "data": {
+    "data": 5
+  },
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
 $single([0, 1, 2], $boolean)
--- case003_expected.json --
-null
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "D3139",
+  "data": {
+    "data": 5
+  },
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
 $single([0, 1, 2], function($v) {$v = 3})
--- case004_expected.json --
-null
 -- case005.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "D3138",
+  "data": {
+    "data": 5
+  },
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
 $single([0, 1, 2])
--- case005_expected.json --
-null
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": {
+    "data": 5
+  },
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -71,18 +76,21 @@ $single([0])
 0
 -- case007.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "D3139",
+  "data": {
+    "data": 5
+  },
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
 $single([])
--- case007_expected.json --
-null
 -- case008.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": {
+    "data": 5
+  },
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
@@ -91,8 +99,10 @@ $single([true, false, true], function($v) {$v=false})
 false
 -- case009.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": {
+    "data": 5
+  },
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
@@ -101,14 +111,11 @@ $single(['zero', 'one', 'two'], function($v, $i, $k) {$i=1})
 "one"
 -- case010.json --
 {
-  "dataset": "dataset1__INPUT",
   "bindings": {},
+  "dataset": "dataset1",
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
 Phone ~> $filter(function($p) {$p.type = 'home'}) ~> $single(function($p) {$p.number = '0203 544 1234'})
 -- case010_expected.json --
-{
-  "number": "0203 544 1234",
-  "type": "home"
-}
+{"number":"0203 544 1234","type":"home"}

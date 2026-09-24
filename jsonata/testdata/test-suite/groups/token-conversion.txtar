@@ -1,7 +1,11 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": {
+    "7": 88,
+    "7a": 33,
+    "a7": 55
+  },
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +14,12 @@ $.'7a'
 33
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": {
+    "7": 88,
+    "7a": 33,
+    "a7": 55
+  },
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,21 +28,27 @@ $.'7'
 88
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "S0201",
+  "data": {
+    "7": 88,
+    "7a": 33,
+    "a7": 55
+  },
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
 $.7a
--- case002_expected.json --
-null
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "S0213",
+  "data": {
+    "7": 88,
+    "7a": 33,
+    "a7": 55
+  },
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
 $.7
--- case003_expected.json --
-null

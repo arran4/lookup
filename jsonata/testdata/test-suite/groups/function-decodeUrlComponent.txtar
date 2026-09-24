@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,22 +10,22 @@ $decodeUrlComponent("%3Fx%3Dtest")
 "?x=test"
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA",
   "undefinedResult": true
 }
 -- case001.JSONATA --
 $decodeUrlComponent(blah)
--- case001_expected.json --
-null
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
+  "error": {
+    "code": "D3140",
+    "message": "Malformed URL passed to $decodeUrlComponent(): \"%E0%A4%A\""
+  },
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
 $decodeUrlComponent('%E0%A4%A')
--- case002_expected.json --
-null

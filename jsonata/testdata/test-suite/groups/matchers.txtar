@@ -1,46 +1,36 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
+(
+    $generateMatcher := function($ch) {
+      $match := function($str, $offset) {(
+        $before := $substringBefore($str, $ch);
+        $start := $length($before) + ($exists($offset) ? $offset : 0);
+        $end := $start + $length($ch);
+        $before != $str and $length($ch) > 0 ? {
+          'match': $ch,
+          'start': $start,
+          'end': $end,
+          'groups': [],
+          'next': function() {$match($substringAfter($str, $ch), $end)}
+        }
+      )}
+    };
 
+    $match("abracadabra", $generateMatcher('a'))
+)
 -- case000_expected.json --
-[
-  {
-    "groups": [],
-    "index": 0,
-    "match": "a"
-  },
-  {
-    "groups": [],
-    "index": 3,
-    "match": "a"
-  },
-  {
-    "groups": [],
-    "index": 5,
-    "match": "a"
-  },
-  {
-    "groups": [],
-    "index": 7,
-    "match": "a"
-  },
-  {
-    "groups": [],
-    "index": 10,
-    "match": "a"
-  }
-]
+[{"groups":[],"index":0,"match":"a"},{"groups":[],"index":3,"match":"a"},{"groups":[],"index":5,"match":"a"},{"groups":[],"index":7,"match":"a"},{"groups":[],"index":10,"match":"a"}]
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T1010",
+  "dataset": null,
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
 $split('some text', $uppercase)
--- case001_expected.json --
-null

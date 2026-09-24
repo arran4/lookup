@@ -1,18 +1,16 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case000.JSONATA",
   "undefinedResult": true
 }
 -- case000.JSONATA --
 ()
--- case000_expected.json --
-null
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -21,8 +19,8 @@ null
 3
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -31,8 +29,8 @@ null
 3
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -41,23 +39,18 @@ null
 7
 -- case004.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
 Account.Order.Product.($var1 := Price ; $var2:=Quantity; $var1 * $var2)
 -- case004_expected.json --
-[
-  68.9,
-  21.67,
-  137.8,
-  107.99
-]
+[68.9,21.67,137.8,107.99]
 -- case005.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -66,8 +59,8 @@ Account.Order.Product.($var1 := Price ; $var2:=Quantity; $var1 * $var2)
 "order103"
 -- case006.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --

@@ -1,62 +1,47 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
 $split("Hello World", " ")
 -- case000_expected.json --
-[
-  "Hello",
-  "World"
-]
+["Hello","World"]
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
 $split("Hello", " ")
 -- case001_expected.json --
-[
-  "Hello"
-]
+["Hello"]
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
 $split("Hello  World", " ")
 -- case002_expected.json --
-[
-  "Hello",
-  "",
-  "World"
-]
+["Hello","","World"]
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
 $split("Hello", "")
 -- case003_expected.json --
-[
-  "H",
-  "e",
-  "l",
-  "l",
-  "o"
-]
+["H","e","l","l","o"]
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -65,64 +50,48 @@ $sum($split("12345", "").$number($))
 15
 -- case005.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
 $split("a, b, c, d", ", ")
 -- case005_expected.json --
-[
-  "a",
-  "b",
-  "c",
-  "d"
-]
+["a","b","c","d"]
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
 $split("a, b, c, d", ", ", 2)
 -- case006_expected.json --
-[
-  "a",
-  "b"
-]
+["a","b"]
 -- case007.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
 $split("a, b, c, d", ", ", 2.5)
 -- case007_expected.json --
-[
-  "a",
-  "b"
-]
+["a","b"]
 -- case008.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
 $split("a, b, c, d", ", ", 10)
 -- case008_expected.json --
-[
-  "a",
-  "b",
-  "c",
-  "d"
-]
+["a","b","c","d"]
 -- case009.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
@@ -131,96 +100,83 @@ $split("a, b, c, d", ", ", 0)
 []
 -- case010.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case010.JSONATA",
   "undefinedResult": true
 }
 -- case010.JSONATA --
 $split(nothing, " ")
--- case010_expected.json --
-null
 -- case011.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "D3020",
+  "dataset": null,
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
 $split("a, b, c, d", ", ", -3)
--- case011_expected.json --
-null
 -- case012.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
 $split("a, b, c, d", ", ", null)
--- case012_expected.json --
-null
 -- case013.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "D3020",
+  "dataset": null,
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --
 $split("a, b, c, d", ", ", -5)
--- case013_expected.json --
-null
 -- case014.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
 $split("a, b, c, d", ", ", "2")
--- case014_expected.json --
-null
 -- case015.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case015.JSONATA"
 }
 -- case015.JSONATA --
 $split("a, b, c, d", true)
--- case015_expected.json --
-null
 -- case016.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case016.JSONATA"
 }
 -- case016.JSONATA --
 $split(12345, 3)
--- case016_expected.json --
-null
 -- case017.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case017.JSONATA"
 }
 -- case017.JSONATA --
 $split(12345)
--- case017_expected.json --
-null
 -- case018.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case018.JSONATA"
 }
 -- case018.JSONATA --
 $split('12💩345💩6', '💩')
 -- case018_expected.json --
-[
-  "12",
-  "345",
-  "6"
-]
+["12","345","6"]

@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@ $contains("Hello World", "lo")
 true
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +20,8 @@ $contains("Hello World", "World")
 true
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,8 +30,8 @@ $contains("Hello World", "world")
 false
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -40,32 +40,28 @@ $contains("Hello World", "Word")
 false
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA",
   "undefinedResult": true
 }
 -- case004.JSONATA --
 $contains(nothing, "World")
--- case004_expected.json --
-null
 -- case005.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
 $contains(23, 3)
--- case005_expected.json --
-null
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
 $contains("23", 3)
--- case006_expected.json --
-null

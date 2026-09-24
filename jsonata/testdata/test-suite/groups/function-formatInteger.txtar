@@ -1,0 +1,777 @@
+-- formatInteger_0.json --
+{
+  "category": "undefined value",
+  "data": {},
+  "description": "should return result object",
+  "exprFile": "formatInteger_0.JSONATA",
+  "function": "#formatInteger",
+  "undefinedResult": true
+}
+-- formatInteger_0.JSONATA --
+$formatInteger(undefined, '0')
+-- formatInteger_1.json --
+{
+  "category": "decimal-digit-pattern - cardinal",
+  "data": {},
+  "description": "should format a number",
+  "exprFile": "formatInteger_1.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_1.JSONATA --
+$formatInteger(123, '000')
+-- formatInteger_1_expected.json --
+"123"
+-- formatInteger_2.json --
+{
+  "category": "decimal-digit-pattern - cardinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "formatInteger_2.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_2.JSONATA --
+$formatInteger(123, '0000')
+-- formatInteger_2_expected.json --
+"0123"
+-- formatInteger_3.json --
+{
+  "category": "decimal-digit-pattern - cardinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "formatInteger_3.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_3.JSONATA --
+$formatInteger(-3, '0000')
+-- formatInteger_3_expected.json --
+"-0003"
+-- formatInteger_4.json --
+{
+  "category": "decimal-digit-pattern - cardinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "formatInteger_4.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_4.JSONATA --
+$formatInteger(1234, '0;c')
+-- formatInteger_4_expected.json --
+"1234"
+-- formatInteger_5.json --
+{
+  "category": "decimal-digit-pattern - cardinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "formatInteger_5.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_5.JSONATA --
+$formatInteger(1234, '###0')
+-- formatInteger_5_expected.json --
+"1234"
+-- formatInteger_6.json --
+{
+  "category": "decimal-digit-pattern - cardinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "formatInteger_6.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_6.JSONATA --
+$formatInteger(12, '###0')
+-- formatInteger_6_expected.json --
+"12"
+-- formatInteger_7.json --
+{
+  "category": "decimal-digit-pattern - cardinal",
+  "data": {},
+  "description": "should round down floats",
+  "exprFile": "formatInteger_7.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_7.JSONATA --
+$formatInteger(12.6, '###0')
+-- formatInteger_7_expected.json --
+"12"
+-- formatInteger_8.json --
+{
+  "category": "decimal-digit-pattern - ordinal",
+  "data": {},
+  "description": "should format a number",
+  "exprFile": "formatInteger_8.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_8.JSONATA --
+$formatInteger(123, '000;o')
+-- formatInteger_8_expected.json --
+"123rd"
+-- formatInteger_9.json --
+{
+  "category": "decimal-digit-pattern - ordinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "formatInteger_9.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_9.JSONATA --
+$formatInteger(1, '0;o')
+-- formatInteger_9_expected.json --
+"1st"
+-- formatInteger_10.json --
+{
+  "category": "decimal-digit-pattern - ordinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "formatInteger_10.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_10.JSONATA --
+$formatInteger(28, '#0;o')
+-- formatInteger_10_expected.json --
+"28th"
+-- formatInteger_11.json --
+{
+  "category": "decimal-digit-pattern - ordinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "formatInteger_11.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_11.JSONATA --
+$formatInteger(1234, '###0;o')
+-- formatInteger_11_expected.json --
+"1234th"
+-- formatInteger_12.json --
+{
+  "category": "decimal-digit-pattern - ordinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "formatInteger_12.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_12.JSONATA --
+$formatInteger(12, '###0;o')
+-- formatInteger_12_expected.json --
+"12th"
+-- formatInteger_13.json --
+{
+  "category": "decimal-digit-pattern - unicode decimal groups",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "formatInteger_13.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_13.JSONATA --
+$formatInteger(12340, '###١')
+-- formatInteger_13_expected.json --
+"١٢٣٤٠"
+-- formatInteger_14.json --
+{
+  "category": "decimal-digit-pattern - unicode decimal groups",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "formatInteger_14.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_14.JSONATA --
+$formatInteger(12340, '###０')
+-- formatInteger_14_expected.json --
+"１２３４０"
+-- formatInteger_15.json --
+{
+  "category": "decimal-digit-pattern - unicode decimal groups",
+  "code": "D3131",
+  "data": {},
+  "description": "should throw error with mixed integer groups",
+  "exprFile": "formatInteger_15.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_15.JSONATA --
+$formatInteger(12340, '##0０')
+-- formatInteger_16.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "formatInteger_16.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_16.JSONATA --
+$formatInteger(12, '#,##0')
+-- formatInteger_16_expected.json --
+"12"
+-- formatInteger_17.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "formatInteger_17.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_17.JSONATA --
+$formatInteger(1200, '#,##0')
+-- formatInteger_17_expected.json --
+"1,200"
+-- formatInteger_18.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "formatInteger_18.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_18.JSONATA --
+$formatInteger(120000, '#,##0')
+-- formatInteger_18_expected.json --
+"120,000"
+-- formatInteger_19.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "formatInteger_19.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_19.JSONATA --
+$formatInteger(12345678, '#,##0')
+-- formatInteger_19_expected.json --
+"12,345,678"
+-- formatInteger_20.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "formatInteger_20.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_20.JSONATA --
+$formatInteger(1234567890, '#,##0')
+-- formatInteger_20_expected.json --
+"1,234,567,890"
+-- formatInteger_21.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "formatInteger_21.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_21.JSONATA --
+$formatInteger(1234567890, '#,###,##0')
+-- formatInteger_21_expected.json --
+"1,234,567,890"
+-- formatInteger_22.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert non-regular groups - different chars",
+  "exprFile": "formatInteger_22.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_22.JSONATA --
+$formatInteger(1234567890, '#:###,##0')
+-- formatInteger_22_expected.json --
+"1234:567,890"
+-- formatInteger_23.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert non-regular groups - different positions",
+  "exprFile": "formatInteger_23.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_23.JSONATA --
+$formatInteger(1234567890, '##,##,##0')
+-- formatInteger_23_expected.json --
+"12345,67,890"
+-- formatInteger_24.json --
+{
+  "category": "roman numerals",
+  "data": {},
+  "description": "0",
+  "exprFile": "formatInteger_24.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_24.JSONATA --
+$formatInteger(0, 'I')
+-- formatInteger_24_expected.json --
+""
+-- formatInteger_25.json --
+{
+  "category": "roman numerals",
+  "data": {},
+  "description": "1984",
+  "exprFile": "formatInteger_25.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_25.JSONATA --
+$formatInteger(1984, 'I')
+-- formatInteger_25_expected.json --
+"MCMLXXXIV"
+-- formatInteger_26.json --
+{
+  "category": "roman numerals",
+  "data": {},
+  "description": "99",
+  "exprFile": "formatInteger_26.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_26.JSONATA --
+$formatInteger(99, 'i')
+-- formatInteger_26_expected.json --
+"xcix"
+-- formatInteger_27.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "12",
+  "exprFile": "formatInteger_27.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_27.JSONATA --
+$formatInteger(12, 'w')
+-- formatInteger_27_expected.json --
+"twelve"
+-- formatInteger_28.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "20",
+  "exprFile": "formatInteger_28.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_28.JSONATA --
+$formatInteger(20, 'w')
+-- formatInteger_28_expected.json --
+"twenty"
+-- formatInteger_29.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "34",
+  "exprFile": "formatInteger_29.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_29.JSONATA --
+$formatInteger(34, 'w')
+-- formatInteger_29_expected.json --
+"thirty-four"
+-- formatInteger_30.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "99",
+  "exprFile": "formatInteger_30.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_30.JSONATA --
+$formatInteger(99, 'W')
+-- formatInteger_30_expected.json --
+"NINETY-NINE"
+-- formatInteger_31.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "100",
+  "exprFile": "formatInteger_31.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_31.JSONATA --
+$formatInteger(100, 'w')
+-- formatInteger_31_expected.json --
+"one hundred"
+-- formatInteger_32.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "555",
+  "exprFile": "formatInteger_32.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_32.JSONATA --
+$formatInteger(555, 'W')
+-- formatInteger_32_expected.json --
+"FIVE HUNDRED AND FIFTY-FIVE"
+-- formatInteger_33.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "555",
+  "exprFile": "formatInteger_33.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_33.JSONATA --
+$formatInteger(555, 'Ww')
+-- formatInteger_33_expected.json --
+"Five Hundred and Fifty-Five"
+-- formatInteger_34.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "919",
+  "exprFile": "formatInteger_34.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_34.JSONATA --
+$formatInteger(919, 'w')
+-- formatInteger_34_expected.json --
+"nine hundred and nineteen"
+-- formatInteger_35.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "730",
+  "exprFile": "formatInteger_35.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_35.JSONATA --
+$formatInteger(730, 'w')
+-- formatInteger_35_expected.json --
+"seven hundred and thirty"
+-- formatInteger_36.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "1000",
+  "exprFile": "formatInteger_36.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_36.JSONATA --
+$formatInteger(1000, 'w')
+-- formatInteger_36_expected.json --
+"one thousand"
+-- formatInteger_37.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "3730",
+  "exprFile": "formatInteger_37.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_37.JSONATA --
+$formatInteger(3730, 'w')
+-- formatInteger_37_expected.json --
+"three thousand, seven hundred and thirty"
+-- formatInteger_38.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "327730",
+  "exprFile": "formatInteger_38.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_38.JSONATA --
+$formatInteger(327730, 'w')
+-- formatInteger_38_expected.json --
+"three hundred and twenty-seven thousand, seven hundred and thirty"
+-- formatInteger_39.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "4327730",
+  "exprFile": "formatInteger_39.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_39.JSONATA --
+$formatInteger(4327730, 'w')
+-- formatInteger_39_expected.json --
+"four million, three hundred and twenty-seven thousand, seven hundred and thirty"
+-- formatInteger_40.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "1e12 + 1",
+  "exprFile": "formatInteger_40.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_40.JSONATA --
+$formatInteger(1000000000001, 'w')
+-- formatInteger_40_expected.json --
+"one trillion and one"
+-- formatInteger_41.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "1234567890123",
+  "exprFile": "formatInteger_41.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_41.JSONATA --
+$formatInteger(1234567890123, 'w')
+-- formatInteger_41_expected.json --
+"one trillion, two hundred and thirty-four billion, five hundred and sixty-seven million, eight hundred and ninety thousand, one hundred and twenty-three"
+-- formatInteger_42.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "1e15",
+  "exprFile": "formatInteger_42.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_42.JSONATA --
+$formatInteger(1000000000000000, 'w')
+-- formatInteger_42_expected.json --
+"one thousand trillion"
+-- formatInteger_43.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "1e46",
+  "exprFile": "formatInteger_43.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_43.JSONATA --
+$formatInteger(1e+46, 'w')
+-- formatInteger_43_expected.json --
+"ten billion trillion trillion trillion"
+-- formatInteger_44.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "1234567890123456",
+  "exprFile": "formatInteger_44.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_44.JSONATA --
+$formatInteger(1234567890123456, 'w')
+-- formatInteger_44_expected.json --
+"one thousand, two hundred and thirty-four trillion, five hundred and sixty-seven billion, eight hundred and ninety million, one hundred and twenty-three thousand, four hundred and fifty-six"
+-- formatInteger_45.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "12",
+  "exprFile": "formatInteger_45.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_45.JSONATA --
+$formatInteger(12, 'w;o')
+-- formatInteger_45_expected.json --
+"twelfth"
+-- formatInteger_46.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "20",
+  "exprFile": "formatInteger_46.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_46.JSONATA --
+$formatInteger(20, 'w;o')
+-- formatInteger_46_expected.json --
+"twentieth"
+-- formatInteger_47.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "34",
+  "exprFile": "formatInteger_47.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_47.JSONATA --
+$formatInteger(34, 'w;o')
+-- formatInteger_47_expected.json --
+"thirty-fourth"
+-- formatInteger_48.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "99",
+  "exprFile": "formatInteger_48.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_48.JSONATA --
+$formatInteger(99, 'W;o')
+-- formatInteger_48_expected.json --
+"NINETY-NINTH"
+-- formatInteger_49.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "100",
+  "exprFile": "formatInteger_49.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_49.JSONATA --
+$formatInteger(100, 'w;o')
+-- formatInteger_49_expected.json --
+"one hundredth"
+-- formatInteger_50.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "555",
+  "exprFile": "formatInteger_50.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_50.JSONATA --
+$formatInteger(555, 'W;o')
+-- formatInteger_50_expected.json --
+"FIVE HUNDRED AND FIFTY-FIFTH"
+-- formatInteger_51.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "919",
+  "exprFile": "formatInteger_51.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_51.JSONATA --
+$formatInteger(919, 'w;o')
+-- formatInteger_51_expected.json --
+"nine hundred and nineteenth"
+-- formatInteger_52.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "730",
+  "exprFile": "formatInteger_52.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_52.JSONATA --
+$formatInteger(730, 'w;o')
+-- formatInteger_52_expected.json --
+"seven hundred and thirtieth"
+-- formatInteger_53.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "1000",
+  "exprFile": "formatInteger_53.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_53.JSONATA --
+$formatInteger(1000, 'w;o')
+-- formatInteger_53_expected.json --
+"one thousandth"
+-- formatInteger_54.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "3730",
+  "exprFile": "formatInteger_54.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_54.JSONATA --
+$formatInteger(3731, 'w;o')
+-- formatInteger_54_expected.json --
+"three thousand, seven hundred and thirty-first"
+-- formatInteger_55.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "327730",
+  "exprFile": "formatInteger_55.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_55.JSONATA --
+$formatInteger(327713, 'w;o')
+-- formatInteger_55_expected.json --
+"three hundred and twenty-seven thousand, seven hundred and thirteenth"
+-- formatInteger_56.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "4327730",
+  "exprFile": "formatInteger_56.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_56.JSONATA --
+$formatInteger(4327732, 'w;o')
+-- formatInteger_56_expected.json --
+"four million, three hundred and twenty-seven thousand, seven hundred and thirty-second"
+-- formatInteger_57.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "1e12 + 1",
+  "exprFile": "formatInteger_57.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_57.JSONATA --
+$formatInteger(1000000000001, 'w;o')
+-- formatInteger_57_expected.json --
+"one trillion and first"
+-- formatInteger_58.json --
+{
+  "category": "spreadsheet column names",
+  "data": {},
+  "description": "1",
+  "exprFile": "formatInteger_58.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_58.JSONATA --
+$formatInteger(1, 'A')
+-- formatInteger_58_expected.json --
+"A"
+-- formatInteger_59.json --
+{
+  "category": "spreadsheet column names",
+  "data": {},
+  "description": "12",
+  "exprFile": "formatInteger_59.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_59.JSONATA --
+$formatInteger(12, 'a')
+-- formatInteger_59_expected.json --
+"l"
+-- formatInteger_60.json --
+{
+  "category": "spreadsheet column names",
+  "data": {},
+  "description": "26",
+  "exprFile": "formatInteger_60.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_60.JSONATA --
+$formatInteger(26, 'a')
+-- formatInteger_60_expected.json --
+"z"
+-- formatInteger_61.json --
+{
+  "category": "spreadsheet column names",
+  "data": {},
+  "description": "27",
+  "exprFile": "formatInteger_61.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_61.JSONATA --
+$formatInteger(27, 'a')
+-- formatInteger_61_expected.json --
+"aa"
+-- formatInteger_62.json --
+{
+  "category": "spreadsheet column names",
+  "data": {},
+  "description": "300",
+  "exprFile": "formatInteger_62.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_62.JSONATA --
+$formatInteger(300, 'A')
+-- formatInteger_62_expected.json --
+"KN"
+-- formatInteger_63.json --
+{
+  "category": "spreadsheet column names",
+  "data": {},
+  "description": "123456",
+  "exprFile": "formatInteger_63.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_63.JSONATA --
+$formatInteger(123456, 'A')
+-- formatInteger_63_expected.json --
+"FZPH"
+-- formatInteger_64.json --
+{
+  "category": "spreadsheet column names",
+  "code": "D3130",
+  "data": {},
+  "description": "sequence starting with greek alpha, α",
+  "exprFile": "formatInteger_64.JSONATA",
+  "function": "#formatInteger"
+}
+-- formatInteger_64.JSONATA --
+$formatInteger(123456, 'α')

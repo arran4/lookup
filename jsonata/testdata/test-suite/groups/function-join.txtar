@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@ $join("hello")
 "hello"
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +20,8 @@ $join(["hello"])
 "hello"
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,8 +30,8 @@ $join(["hello", "world"])
 "helloworld"
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -40,8 +40,8 @@ $join(["hello", "world"], ", ")
 "hello, world"
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -50,8 +50,8 @@ $join([], ", ")
 ""
 -- case005.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -60,8 +60,8 @@ $join(Account.Order.Product.Description.Colour, ", ")
 "Purple, Orange, Purple, Black"
 -- case006.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -70,52 +70,46 @@ $join(Account.Order.Product.Description.Colour, no.sep)
 "PurpleOrangePurpleBlack"
 -- case007.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case007.JSONATA",
   "undefinedResult": true
 }
 -- case007.JSONATA --
 $join(Account.blah.Product.Description.Colour, ", ")
--- case007_expected.json --
-null
 -- case008.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0412",
+  "dataset": null,
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
 $join(true, ", ")
--- case008_expected.json --
-null
 -- case009.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0412",
+  "dataset": null,
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
 $join([1,2,3], ", ")
--- case009_expected.json --
-null
 -- case010.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
 $join(["hello"], 3)
--- case010_expected.json --
-null
 -- case011.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
 $join()
--- case011_expected.json --
-null

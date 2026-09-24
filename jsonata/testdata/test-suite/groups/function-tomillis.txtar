@@ -1,7 +1,7 @@
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -10,8 +10,8 @@ $toMillis("1970-01-01T00:00:00.001Z")
 1
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -20,8 +20,8 @@ $toMillis("2018-02-01T09:42:13.123+0000")
 1517478133123
 -- case003.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -30,8 +30,8 @@ $toMillis("2017-10-30")
 1509321600000
 -- case004.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -40,8 +40,8 @@ $toMillis("2017-10-30T15:28:34Z")
 1509377314000
 -- case005.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -50,49 +50,44 @@ $toMillis("2018")
 1514764800000
 -- case006.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case006.JSONATA",
   "undefinedResult": true
 }
 -- case006.JSONATA --
 $toMillis(foo)
--- case006_expected.json --
-null
 -- case007.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "code": "D3110",
+  "dataset": "dataset5",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
 $toMillis("foo")
--- case007_expected.json --
-null
 -- case008.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "code": "D3110",
+  "dataset": "dataset5",
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
 $toMillis("01-02-2018")
--- case008_expected.json --
-null
 -- case009.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "code": "D3110",
+  "dataset": "dataset5",
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
 $toMillis("2018-02-03 11:15:33")
--- case009_expected.json --
-null
 -- case010.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
@@ -101,8 +96,8 @@ $toMillis("201802", "[Y0001][M01]")
 1517443200000
 -- case011.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
@@ -111,21 +106,554 @@ $toMillis("201802", "[Y,*-4][M01]")
 1517443200000
 -- case012.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
 $toMillis("20180205", "[Y0001][M01][D01]")
 -- case012_expected.json --
 1517788800000
--- case013.json --
+-- parseDateTime_0.json --
 {
-  "dataset": "",
-  "bindings": {},
-  "exprFile": "case013.JSONATA"
+  "category": "undefined value",
+  "data": {},
+  "description": "should return undefined",
+  "exprFile": "parseDateTime_0.JSONATA",
+  "function": "#toMillis",
+  "undefinedResult": true
 }
--- case013.JSONATA --
-$toMillis('2024-01-01T12:38:49Z') = $toMillis('20240101123849', '[Y0000][M00][D00][H00][m00][s00]')
--- case013_expected.json --
+-- parseDateTime_0.JSONATA --
+$toMillis(undefined, 'pic')
+-- parseDateTime_1.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should parse string literal",
+  "exprFile": "parseDateTime_1.JSONATA",
+  "function": "#toMillis",
+  "undefinedResult": true
+}
+-- parseDateTime_1.JSONATA --
+$toMillis('Hello', 'Hello')
+-- parseDateTime_2.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should parse year",
+  "exprFile": "parseDateTime_2.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_2.JSONATA --
+$toMillis('2018', '[Y1]')
+-- parseDateTime_2_expected.json --
+1514764800000
+-- parseDateTime_3.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should parse year/month/day",
+  "exprFile": "parseDateTime_3.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_3.JSONATA --
+$toMillis('2018-03-27', '[Y1]-[M01]-[D01]')
+-- parseDateTime_3_expected.json --
+1522108800000
+-- parseDateTime_4.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should parse ISO 8601 format",
+  "exprFile": "parseDateTime_4.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_4.JSONATA --
+$toMillis('2018-03-27T14:03:00.123Z', '[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f001]Z')
+-- parseDateTime_4_expected.json --
+1522159380123
+-- parseDateTime_5.json --
+{
+  "category": "ordinal numeric dates",
+  "data": {},
+  "description": "should parse year/month/day",
+  "exprFile": "parseDateTime_5.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_5.JSONATA --
+$toMillis('27th 3 1976', '[D1o] [M#1] [Y0001]')
+-- parseDateTime_5_expected.json --
+196732800000
+-- parseDateTime_6.json --
+{
+  "category": "ordinal numeric dates",
+  "data": {},
+  "description": "should parse year/month/day",
+  "exprFile": "parseDateTime_6.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_6.JSONATA --
+$toMillis('21st 12 1881', '[D1o] [M01] [Y0001]')
+-- parseDateTime_6_expected.json --
+-2777932800000
+-- parseDateTime_7.json --
+{
+  "category": "ordinal numeric dates",
+  "data": {},
+  "description": "should parse year/month/day",
+  "exprFile": "parseDateTime_7.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_7.JSONATA --
+$toMillis('2nd 12 2012', '[D1o] [M01] [Y0001]')
+-- parseDateTime_7_expected.json --
+1354406400000
+-- parseDateTime_8.json --
+{
+  "category": "roman numeral dates",
+  "data": {},
+  "description": "should parse year",
+  "exprFile": "parseDateTime_8.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_8.JSONATA --
+$toMillis('MCMLXXXIV', '[YI]')
+-- parseDateTime_8_expected.json --
+441763200000
+-- parseDateTime_9.json --
+{
+  "category": "roman numeral dates",
+  "data": {},
+  "description": "should parse year/month/day",
+  "exprFile": "parseDateTime_9.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_9.JSONATA --
+$toMillis('27 03 MMXVIII', '[D1] [M01] [YI]')
+-- parseDateTime_9_expected.json --
+1522108800000
+-- parseDateTime_10.json --
+{
+  "category": "roman numeral dates",
+  "data": {},
+  "description": "should parse year/month/day",
+  "exprFile": "parseDateTime_10.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_10.JSONATA --
+$toMillis('27 iii MMXVIII', '[D1] [Mi] [YI]')
+-- parseDateTime_10_expected.json --
+1522108800000
+-- parseDateTime_11.json --
+{
+  "category": "dates with letters instead of numbers",
+  "data": {},
+  "description": "day/month in letters, year in roman numerals",
+  "exprFile": "parseDateTime_11.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_11.JSONATA --
+$toMillis('w C mmxviii', '[Da] [MA] [Yi]')
+-- parseDateTime_11_expected.json --
+1521763200000
+-- parseDateTime_12.json --
+{
+  "category": "dates with letters instead of numbers",
+  "data": {},
+  "description": "day/month in letters, year in roman numerals",
+  "exprFile": "parseDateTime_12.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_12.JSONATA --
+$toMillis('ae C mmxviii', '[Da] [MA] [Yi]')
+-- parseDateTime_12_expected.json --
+1522454400000
+-- parseDateTime_13.json --
+{
+  "category": "months in words",
+  "data": {},
+  "description": "should parse year/month/day",
+  "exprFile": "parseDateTime_13.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_13.JSONATA --
+$toMillis('27th April 2008', '[D1o] [MNn] [Y0001]')
+-- parseDateTime_13_expected.json --
+1209254400000
+-- parseDateTime_14.json --
+{
+  "category": "months in words",
+  "data": {},
+  "description": "should parse year/month/day",
+  "exprFile": "parseDateTime_14.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_14.JSONATA --
+$toMillis('21 August 2017', '[D1] [MNn] [Y0001]')
+-- parseDateTime_14_expected.json --
+1503273600000
+-- parseDateTime_15.json --
+{
+  "category": "months in words",
+  "data": {},
+  "description": "should parse year/month/day",
+  "exprFile": "parseDateTime_15.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_15.JSONATA --
+$toMillis('2 Feb 2012', '[D1] [MNn,3-3] [Y0001]')
+-- parseDateTime_15_expected.json --
+1328140800000
+-- parseDateTime_16.json --
+{
+  "category": "dates/years in words",
+  "data": {},
+  "description": "should parse year in words",
+  "exprFile": "parseDateTime_16.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_16.JSONATA --
+$toMillis('one thousand, nine hundred and eighty-four', '[Yw]')
+-- parseDateTime_16_expected.json --
+441763200000
+-- parseDateTime_17.json --
+{
+  "category": "dates/years in words",
+  "data": {},
+  "description": "should parse year in words",
+  "exprFile": "parseDateTime_17.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_17.JSONATA --
+$toMillis('nineteen hundred and eighty-four', '[Yw]')
+-- parseDateTime_17_expected.json --
+441763200000
+-- parseDateTime_18.json --
+{
+  "category": "dates/years in words",
+  "data": {},
+  "description": "should parse date/month in words",
+  "exprFile": "parseDateTime_18.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_18.JSONATA --
+$toMillis('twenty-seven April 2008', '[Dw] [MNn] [Y0001]')
+-- parseDateTime_18_expected.json --
+1209254400000
+-- parseDateTime_19.json --
+{
+  "category": "dates/years in words",
+  "data": {},
+  "description": "should parse date/month in ordinal words",
+  "exprFile": "parseDateTime_19.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_19.JSONATA --
+$toMillis('twenty-seventh April 2008', '[Dw] [MNn] [Y0001]')
+-- parseDateTime_19_expected.json --
+1209254400000
+-- parseDateTime_20.json --
+{
+  "category": "dates/years in words",
+  "data": {},
+  "description": "should parse ordinal date/month/year",
+  "exprFile": "parseDateTime_20.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_20.JSONATA --
+$toMillis('twenty-first August two thousand and seventeen', '[Dw] [MNn] [Yw]')
+-- parseDateTime_20_expected.json --
+1503273600000
+-- parseDateTime_21.json --
+{
+  "category": "dates/years in words",
+  "data": {},
+  "description": "should parse ordinal date/month/year",
+  "exprFile": "parseDateTime_21.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_21.JSONATA --
+$toMillis('TWENTY-SECOND August two thousand and seventeen', '[DW] [MNn] [Yw]')
+-- parseDateTime_21_expected.json --
+1503360000000
+-- parseDateTime_22.json --
+{
+  "category": "dates/years in words",
+  "data": {},
+  "description": "should parse ordinal date/month/year",
+  "exprFile": "parseDateTime_22.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_22.JSONATA --
+$toMillis('Twentieth of August, two thousand and seventeen', '[DW] of [MNn], [Yw]')
+-- parseDateTime_22_expected.json --
+1503187200000
+-- parseDateTime_23.json --
+{
+  "category": "12 hour clock",
+  "data": {},
+  "description": "just after midnight",
+  "exprFile": "parseDateTime_23.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_23.JSONATA --
+$toMillis('4/4/2018 12:06 am', '[D1]/[M1]/[Y0001] [h]:[m] [P]')
+-- parseDateTime_23_expected.json --
+1522800360000
+-- parseDateTime_24.json --
+{
+  "category": "12 hour clock",
+  "data": {},
+  "description": "breakfast time",
+  "exprFile": "parseDateTime_24.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_24.JSONATA --
+$toMillis('4/4/2018 06:30 am', '[D1]/[M1]/[Y0001] [h]:[m] [P]')
+-- parseDateTime_24_expected.json --
+1522823400000
+-- parseDateTime_25.json --
+{
+  "category": "12 hour clock",
+  "data": {},
+  "description": "just after midday",
+  "exprFile": "parseDateTime_25.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_25.JSONATA --
+$toMillis('4/4/2018 12:06 pm', '[D1]/[M1]/[Y0001] [h]:[m] [P]')
+-- parseDateTime_25_expected.json --
+1522843560000
+-- parseDateTime_26.json --
+{
+  "category": "12 hour clock",
+  "data": {},
+  "description": "just before midnight",
+  "exprFile": "parseDateTime_26.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_26.JSONATA --
+$toMillis('4/4/2018 11:30 pm', '[D1]/[M1]/[Y0001] [h]:[m] [P]')
+-- parseDateTime_26_expected.json --
+1522884600000
+-- parseDateTime_27.json --
+{
+  "category": "derive the date",
+  "data": {},
+  "description": "ordinal date: day 94 of the year 2018",
+  "exprFile": "parseDateTime_27.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_27.JSONATA --
+$toMillis('2018-094', '[Y0001]-[d001]')
+-- parseDateTime_27_expected.json --
+1522800000000
+-- parseDateTime_28.json --
+{
+  "category": "default unspecified parts",
+  "data": {},
+  "description": "time only defaults to todays date",
+  "exprFile": "parseDateTime_28.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_28.JSONATA --
+$toMillis('13:45', '[H]:[m]') ~> $fromMillis() ~> $substringBefore('T') = $substringBefore($now(), 'T')
+-- parseDateTime_28_expected.json --
 true
+-- parseDateTime_29.json --
+{
+  "category": "default unspecified parts",
+  "data": {},
+  "description": "hours/minutes only defaults seconds to zero",
+  "exprFile": "parseDateTime_29.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_29.JSONATA --
+$toMillis('13:45', '[H]:[m]') ~> $fromMillis() ~> $substringAfter('T')
+-- parseDateTime_29_expected.json --
+"13:45:00.000Z"
+-- parseDateTime_30.json --
+{
+  "category": "default unspecified parts",
+  "data": {},
+  "description": "date only defaults time to midnight",
+  "exprFile": "parseDateTime_30.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_30.JSONATA --
+$toMillis('Wednesday, 14th November 2018', '[FNn], [D1o] [MNn] [Y]') ~> $fromMillis()
+-- parseDateTime_30_expected.json --
+"2018-11-14T00:00:00.000Z"
+-- parseDateTime_31.json --
+{
+  "category": "default unspecified parts",
+  "data": {},
+  "description": "date only defaults time to midnight",
+  "exprFile": "parseDateTime_31.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_31.JSONATA --
+$toMillis('Mon, Twelfth November 2018', '[FNn,*-3], [DWwo] [MNn] [Y]') ~> $fromMillis()
+-- parseDateTime_31_expected.json --
+"2018-11-12T00:00:00.000Z"
+-- parseDateTime_32.json --
+{
+  "category": "parsing day-of-year",
+  "data": {},
+  "description": "180th day of 2018 is 29th June",
+  "exprFile": "parseDateTime_32.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_32.JSONATA --
+$toMillis('2018--180', '[Y]--[d]') ~> $fromMillis()
+-- parseDateTime_32_expected.json --
+"2018-06-29T00:00:00.000Z"
+-- parseDateTime_33.json --
+{
+  "category": "parsing day-of-year",
+  "data": {},
+  "description": "365th day of 2018 is 31st December",
+  "exprFile": "parseDateTime_33.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_33.JSONATA --
+$toMillis('three hundred and sixty-fifth day of 2018', '[dwo] day of [Y]') ~> $fromMillis()
+-- parseDateTime_33_expected.json --
+"2018-12-31T00:00:00.000Z"
+-- parseDateTime_34.json --
+{
+  "category": "nothing matches",
+  "data": {},
+  "description": "parsing a non-date string returns undefined",
+  "exprFile": "parseDateTime_34.JSONATA",
+  "function": "#toMillis",
+  "undefinedResult": true
+}
+-- parseDateTime_34.JSONATA --
+$toMillis('irrelevent string', '[Y]-[M]-[D]')
+-- parseDateTime_35.json --
+{
+  "category": "nothing matches",
+  "code": "D3132",
+  "data": {},
+  "description": "picture string contains an unknown component",
+  "exprFile": "parseDateTime_35.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_35.JSONATA --
+$toMillis('2018-05-22', '[Y]-[M]-[q]')
+-- parseDateTime_36.json --
+{
+  "category": "nothing matches",
+  "code": "D3133",
+  "data": {},
+  "description": "picture string contains a named year",
+  "exprFile": "parseDateTime_36.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_36.JSONATA --
+$toMillis('2018-05-22', '[YN]-[M]-[D]')
+-- parseDateTime_37.json --
+{
+  "category": "date/time underspecified (gaps)",
+  "code": "D3136",
+  "data": {},
+  "description": "year/date with no month",
+  "exprFile": "parseDateTime_37.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_37.JSONATA --
+$toMillis('2018-22', '[Y]-[D]')
+-- parseDateTime_38.json --
+{
+  "category": "date/time underspecified (gaps)",
+  "code": "D3136",
+  "data": {},
+  "description": "month/date, min/sec with no hours",
+  "exprFile": "parseDateTime_38.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_38.JSONATA --
+$toMillis('5-22 23:59', '[M]-[D] [m]:[s]')
+-- parseDateTime_39.json --
+{
+  "category": "unsupported format",
+  "code": "D3136",
+  "data": {},
+  "description": "currently no support for year/month-of-year/week-of-month/day-of-week",
+  "exprFile": "parseDateTime_39.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_39.JSONATA --
+$toMillis('2018-3-2-5', '[X]-[x]-[w]-[F1]')
+-- parseDateTime_40.json --
+{
+  "category": "unsupported format",
+  "code": "D3136",
+  "data": {},
+  "description": "currently no support for year/week-of-year/day-of-week",
+  "exprFile": "parseDateTime_40.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_40.JSONATA --
+$toMillis('2018-32-5', '[X]-[W]-[F1]')
+-- parseDateTime_41.json --
+{
+  "category": "timezones",
+  "data": {},
+  "description": "should parse a date containing timezones",
+  "exprFile": "parseDateTime_41.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_41.JSONATA --
+$toMillis('2020-09-09 08:00:00 +02:00', '[Y0001]-[M01]-[D01] [H01]:[m01]:[s01] [Z]') ~> $fromMillis() 
+-- parseDateTime_41_expected.json --
+"2020-09-09T06:00:00.000Z"
+-- parseDateTime_42.json --
+{
+  "category": "timezones",
+  "data": {},
+  "description": "should parse a date containing timezones",
+  "exprFile": "parseDateTime_42.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_42.JSONATA --
+$toMillis('2020-09-09 08:00:00 GMT-05:00', '[Y0001]-[M01]-[D01] [H01]:[m01]:[s01] [z]') ~> $fromMillis() 
+-- parseDateTime_42_expected.json --
+"2020-09-09T13:00:00.000Z"
+-- parseDateTime_43.json --
+{
+  "category": "timezones",
+  "data": {},
+  "description": "should parse a date containing timezones",
+  "exprFile": "parseDateTime_43.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_43.JSONATA --
+$toMillis('2020-09-09 12:00:00 +05:30', '[Y0001]-[M01]-[D01] [H01]:[m01]:[s01] [Z]') ~> $fromMillis() 
+-- parseDateTime_43_expected.json --
+"2020-09-09T06:30:00.000Z"
+-- parseDateTime_44.json --
+{
+  "category": "timezones",
+  "data": {},
+  "description": "should parse a date containing timezones",
+  "exprFile": "parseDateTime_44.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_44.JSONATA --
+$toMillis('2020-09-09 12:00:00 GMT-5', '[Y0001]-[M01]-[D01] [H01]:[m01]:[s01] [z01]') ~> $fromMillis() 
+-- parseDateTime_44_expected.json --
+"2020-09-09T17:00:00.000Z"
+-- parseDateTime_45.json --
+{
+  "category": "timezones",
+  "data": {},
+  "description": "should parse a date containing timezones",
+  "exprFile": "parseDateTime_45.JSONATA",
+  "function": "#toMillis"
+}
+-- parseDateTime_45.JSONATA --
+$toMillis('2020-09-09 12:00:00 +0530', '[Y0001]-[M01]-[D01] [H01]:[m01]:[s01] [Z0001]') ~> $fromMillis() 
+-- parseDateTime_45_expected.json --
+"2020-09-09T06:30:00.000Z"

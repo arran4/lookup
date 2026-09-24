@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,22 +10,23 @@ $encodeUrlComponent("?x=test")
 "%3Fx%3Dtest"
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA",
   "undefinedResult": true
 }
 -- case001.JSONATA --
 $encodeUrlComponent(blah)
--- case001_expected.json --
-null
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
+  "error": {
+    "code": "D3140",
+    "functionName": "encodeUrlComponent",
+    "value": "�"
+  },
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
 $encodeUrlComponent('�')
--- case002_expected.json --
-null

@@ -17,3 +17,15 @@ coverage.txt
 /.idea/
 temp_jsonata/
 *.txt
+
+# Go workspace file
+go.work
+
+# Test outputs
+test_suite_out*
+run*_out.txt
+get_fails*
+fix_baseline.go
+failing_cases.txt
+run_all.txt
+cmd/jsonata-import/jsonata-import

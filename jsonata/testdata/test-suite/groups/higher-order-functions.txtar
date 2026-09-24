@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@
 13
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,11 +20,11 @@
 720
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": null,
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
-λ($f) { λ($x) { $x($x) }( λ($g) { $f( (λ($a) {$g($g)($a)}))})}(λ($f) { λ($n) { $n <= 1 ? $n : $f($n-1) + $f($n-2) } })(6)
+λ($f) { λ($x) { $x($x) }( λ($g) { $f( (λ($a) {$g($g)($a)}))})}(λ($f) { λ($n) { $n <= 1 ? $n : $f($n-1) + $f($n-2) } })(6) 
 -- case002_expected.json --
 8

@@ -1,7 +1,49 @@
+-- array-inputs_0.json --
+{
+  "data": [],
+  "exprFile": "array-inputs_0.JSONATA"
+}
+-- array-inputs_0.JSONATA --
+{'fgFoo:0:hausnummer': {'type': 'de.example.api.PossibleValuesList', 'value': [{'label': '', 'value': ''}] }}
+-- array-inputs_0_expected.json --
+{"fgFoo:0:hausnummer":{"type":"de.example.api.PossibleValuesList","value":[{"label":"","value":""}]}}
+-- array-inputs_1.json --
+{
+  "data": [
+    []
+  ],
+  "exprFile": "array-inputs_1.JSONATA"
+}
+-- array-inputs_1.JSONATA --
+{'fgFoo:0:hausnummer': {'type': 'de.example.api.PossibleValuesList', 'value': [{'label': '', 'value': ''}] }}
+-- array-inputs_1_expected.json --
+{"fgFoo:0:hausnummer":{"type":"de.example.api.PossibleValuesList","value":[{"label":"","value":""}]}}
+-- array-inputs_2.json --
+{
+  "data": [
+    [
+      []
+    ]
+  ],
+  "exprFile": "array-inputs_2.JSONATA"
+}
+-- array-inputs_2.JSONATA --
+{'fgFoo:0:hausnummer': {'type': 'de.example.api.PossibleValuesList', 'value': [{'label': '', 'value': ''}] }}
+-- array-inputs_2_expected.json --
+{"fgFoo:0:hausnummer":{"type":"de.example.api.PossibleValuesList","value":[{"label":"","value":""}]}}
+-- array-inputs_3.json --
+{
+  "data": {},
+  "exprFile": "array-inputs_3.JSONATA"
+}
+-- array-inputs_3.JSONATA --
+{'fgFoo:0:hausnummer': {'type': 'de.example.api.PossibleValuesList', 'value': [{'label': '', 'value': ''}] }}
+-- array-inputs_3_expected.json --
+{"fgFoo:0:hausnummer":{"type":"de.example.api.PossibleValuesList","value":[{"label":"","value":""}]}}
 -- case000.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +52,8 @@
 "hello"
 -- case001.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +62,8 @@
 "hello"
 -- case002.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,8 +72,8 @@
 "Wayne's World"
 -- case003.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -40,8 +82,8 @@
 42
 -- case004.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -50,8 +92,8 @@
 -42
 -- case005.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -60,8 +102,8 @@
 3.14159
 -- case006.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -70,8 +112,8 @@
 6.022e+23
 -- case007.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
@@ -80,18 +122,17 @@
 1.602e-19
 -- case008.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "S0102",
+  "data": {},
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
 10e1000
--- case008_expected.json --
-null
 -- case009.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
@@ -100,8 +141,8 @@ null
 "hello\tworld"
 -- case010.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
@@ -110,8 +151,8 @@ null
 "hello\nworld"
 -- case011.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
@@ -120,8 +161,8 @@ null
 "hello \"world\""
 -- case012.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
@@ -130,8 +171,8 @@ null
 "C:\\Test\\test.txt"
 -- case013.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --
@@ -140,8 +181,8 @@ null
 "λ-calculus rocks"
 -- case014.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
@@ -150,61 +191,46 @@ null
 "𝄞"
 -- case015.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "S0103",
+  "data": {},
   "exprFile": "case015.JSONATA"
 }
 -- case015.JSONATA --
 "\y"
--- case015_expected.json --
-null
 -- case016.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "S0104",
+  "data": {},
   "exprFile": "case016.JSONATA"
 }
 -- case016.JSONATA --
 "\u"
--- case016_expected.json --
-null
 -- case017.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "S0104",
+  "data": {},
   "exprFile": "case017.JSONATA"
 }
 -- case017.JSONATA --
 "\u123t"
--- case017_expected.json --
-null
 -- case018.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": {},
   "exprFile": "case018.JSONATA"
 }
 -- case018.JSONATA --
-{ 'foo': { 'sequence': 123, 'bar': 'baz' } }
+{ 'foo': { 'sequence': 123, 'bar': 'baz' } } 
 -- case018_expected.json --
-{
-  "foo": {
-    "bar": "baz",
-    "sequence": 123
-  }
-}
+{"foo":{"bar":"baz","sequence":123}}
 -- case019.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "data": {},
   "exprFile": "case019.JSONATA"
 }
 -- case019.JSONATA --
-{ 'foo': { 'sequence': true, 'bar': 'baz' } }
+{ 'foo': { 'sequence': true, 'bar': 'baz' } } 
 -- case019_expected.json --
-{
-  "foo": {
-    "bar": "baz",
-    "sequence": true
-  }
-}
+{"foo":{"bar":"baz","sequence":true}}

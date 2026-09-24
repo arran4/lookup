@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,19 +10,17 @@ $formatBase(100)
 "100"
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case001.JSONATA",
   "undefinedResult": true
 }
 -- case001.JSONATA --
 $formatBase(nothing)
--- case001_expected.json --
-null
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -31,8 +29,8 @@ $formatBase(100, 2)
 "1100100"
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -41,8 +39,8 @@ $formatBase(-100, 2)
 "-1100100"
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -51,8 +49,8 @@ $formatBase(100, 36)
 "2s"
 -- case005.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -61,31 +59,19 @@ $formatBase(99.5, 2.5)
 "1100100"
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "D3100",
+  "dataset": null,
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
 $formatBase(100, 1)
--- case006_expected.json --
-null
 -- case007.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "D3100",
+  "dataset": null,
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
 $formatBase(100, 37)
--- case007_expected.json --
-null
--- case008.json --
-{
-  "dataset": "",
-  "bindings": {},
-  "exprFile": "case008.JSONATA"
-}
--- case008.JSONATA --
-$formatBase(big_id)
--- case008_expected.json --
-"5890840712243076"

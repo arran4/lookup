@@ -1,17 +1,19 @@
 -- case000.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
+  "error": {
+    "code": "D3137",
+    "message": "Too Expensive"
+  },
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
 Account.Order[0].Product[0].Price > 35 ? Account.Order[0].Product[0].Price : $error('Too Expensive')
--- case000_expected.json --
-null
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +22,8 @@ Account.Order[0].Product[0].Price > 34 ? Account.Order[0].Product[0].Price : $er
 34.45
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,82 +32,88 @@ Account.Order[0].Product[0].Price > 35 ? $error('Too Expensive') : Account.Order
 34.45
 -- case003.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
+  "error": {
+    "code": "D3137",
+    "message": "Too Expensive"
+  },
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
 Account.Order[0].Product[0].Price > 34 ? $error('Too Expensive') : Account.Order[0].Product[0].Price
--- case003_expected.json --
-null
 -- case004.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case004.JSONATA",
   "undefinedResult": true
 }
 -- case004.JSONATA --
 $count(Account.Order[0].Product) < 2 ? $error('Not enough products in orders')
--- case004_expected.json --
-null
 -- case005.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
+  "error": {
+    "code": "D3137",
+    "message": "Not enough products in orders"
+  },
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
 $count(Account.Order[0].Product) < 3 ? $error('Not enough products in orders')
--- case005_expected.json --
-null
 -- case006.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
+  "error": {
+    "code": "D3137",
+    "message": "My Message"
+  },
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
 ($msg:='My Message'; $error($msg); true)
--- case006_expected.json --
-null
 -- case007.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "code": "T0410",
+  "dataset": "dataset5",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
 $error(null)
--- case007_expected.json --
-null
 -- case008.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "code": "T0410",
+  "dataset": "dataset5",
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
 $error(5)
--- case008_expected.json --
-null
 -- case009.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
+  "error": {
+    "code": "D3137",
+    "message": "$error() function evaluated"
+  },
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
 $error()
--- case009_expected.json --
-null
 -- case010.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
+  "error": {
+    "code": "D3137",
+    "message": "$error() function evaluated"
+  },
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
 $error(foo)
--- case010_expected.json --
-null

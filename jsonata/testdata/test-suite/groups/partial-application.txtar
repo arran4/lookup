@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@
 5
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +20,8 @@
 6
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,21 +30,19 @@
 "Hello"
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T1007",
+  "data": {},
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
 substring(?, 0, ?)
--- case003_expected.json --
-null
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T1008",
+  "data": {},
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
 unknown(?)
--- case004_expected.json --
-null

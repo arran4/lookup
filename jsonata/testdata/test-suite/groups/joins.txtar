@@ -1,0 +1,562 @@
+-- employee-map-reduce_0.json --
+{
+  "bindings": {},
+  "dataset": "employees",
+  "exprFile": "employee-map-reduce_0.JSONATA"
+}
+-- employee-map-reduce_0.JSONATA --
+Employee@$e.(Contact)[ssn = $e.SSN].{ 'name': $e.(FirstName & ' ' & Surname), 'phone': Phone[type='mobile'].number }
+-- employee-map-reduce_0_expected.json --
+[{"name":"Fred Smith","phone":"077 7700 1234"},{"name":"Darren Cruse","phone":"315 782 9279"},{"name":"Hugh Jones"},{"name":"Hugh Jones"},{"name":"Hugh Jones","phone":"07735 853535"}]
+-- employee-map-reduce_1.json --
+{
+  "bindings": {},
+  "dataset": "employees",
+  "exprFile": "employee-map-reduce_1.JSONATA"
+}
+-- employee-map-reduce_1.JSONATA --
+Employee@$e.(Contact)[ssn = $e.SSN]{ $e.FirstName: Phone[type='mobile'].number }
+-- employee-map-reduce_1_expected.json --
+{"Darren":"315 782 9279","Fred":"077 7700 1234","Hugh":"07735 853535"}
+-- employee-map-reduce_2.json --
+{
+  "bindings": {},
+  "dataset": "employees",
+  "exprFile": "employee-map-reduce_2.JSONATA"
+}
+-- employee-map-reduce_2.JSONATA --
+Employee@$e.Contact@$c[$c.ssn = $e.SSN]{ $e.(FirstName & ' ' & Surname): $join($c.Phone.number, ', ') }
+-- employee-map-reduce_2_expected.json --
+{"Darren Cruse":"3146458343, 315 782 9279","Fred Smith":"0203 544 1234, 01962 001234, 077 7700 1234","Hugh Jones":"0280 564 6543, 0280 864 8643, 07735 853535"}
+-- employee-map-reduce_3.json --
+{
+  "bindings": {},
+  "dataset": "employees",
+  "exprFile": "employee-map-reduce_3.JSONATA"
+}
+-- employee-map-reduce_3.JSONATA --
+Employee@$e.Contact@$c[$c.ssn = $e.SSN]{ $e.(FirstName & ' ' & Surname): $c.Phone[type != 'home'].number ~> $join(', ') }
+-- employee-map-reduce_3_expected.json --
+{"Darren Cruse":"315 782 9279","Fred Smith":"01962 001234, 077 7700 1234","Hugh Jones":"0280 864 8643, 07735 853535"}
+-- employee-map-reduce_4.json --
+{
+  "bindings": {},
+  "dataset": "employees",
+  "exprFile": "employee-map-reduce_4.JSONATA"
+}
+-- employee-map-reduce_4.JSONATA --
+Employee@$e.Contact@$c[$c.ssn = $e.SSN]{ $e.(FirstName & ' ' & Surname): $c.Phone[type != 'home'].number }
+-- employee-map-reduce_4_expected.json --
+{"Darren Cruse":"315 782 9279","Fred Smith":["01962 001234","077 7700 1234"],"Hugh Jones":["0280 864 8643","07735 853535"]}
+-- employee-map-reduce_5.json --
+{
+  "bindings": {},
+  "dataset": "employees",
+  "exprFile": "employee-map-reduce_5.JSONATA"
+}
+-- employee-map-reduce_5.JSONATA --
+Employee@$e.Contact@$c[$c.ssn = $e.SSN]{ $e.(FirstName & ' ' & Surname): $c.Phone[type != 'home'].number[] }
+-- employee-map-reduce_5_expected.json --
+{"Darren Cruse":["315 782 9279"],"Fred Smith":["01962 001234","077 7700 1234"],"Hugh Jones":["0280 864 8643","07735 853535"]}
+-- employee-map-reduce_6.json --
+{
+  "bindings": {},
+  "dataset": "employees",
+  "exprFile": "employee-map-reduce_6.JSONATA"
+}
+-- employee-map-reduce_6.JSONATA --
+Employee@$e.Contact@$c[$c.ssn = $e.SSN]{ $e.FirstName: $c.Phone.number }
+-- employee-map-reduce_6_expected.json --
+{"Darren":["3146458343","315 782 9279"],"Fred":["0203 544 1234","01962 001234","077 7700 1234"],"Hugh":["0280 564 6543","0280 864 8643","07735 853535"]}
+-- employee-map-reduce_7.json --
+{
+  "bindings": {},
+  "dataset": "employees",
+  "exprFile": "employee-map-reduce_7.JSONATA"
+}
+-- employee-map-reduce_7.JSONATA --
+Employee@$e^($e.Surname).Contact@$c[$e.SSN=$c.ssn].{ 'name': $e.Surname, 'phone': $c.Phone.number }
+-- employee-map-reduce_7_expected.json --
+[{"name":"Cruse","phone":["3146458343","315 782 9279"]},{"name":"Jones","phone":"0280 564 6543"},{"name":"Jones","phone":"0280 864 8643"},{"name":"Jones","phone":"07735 853535"},{"name":"Smith","phone":["0203 544 1234","01962 001234","077 7700 1234"]}]
+-- employee-map-reduce_8.json --
+{
+  "bindings": {},
+  "dataset": "employees",
+  "exprFile": "employee-map-reduce_8.JSONATA"
+}
+-- employee-map-reduce_8.JSONATA --
+Employee@$e^($e.FirstName).Contact@$c[$e.SSN=$c.ssn].{ 'name': $e.Surname, 'phone': $c.Phone.number }
+-- employee-map-reduce_8_expected.json --
+[{"name":"Cruse","phone":["3146458343","315 782 9279"]},{"name":"Smith","phone":["0203 544 1234","01962 001234","077 7700 1234"]},{"name":"Jones","phone":"0280 564 6543"},{"name":"Jones","phone":"0280 864 8643"},{"name":"Jones","phone":"07735 853535"}]
+-- employee-map-reduce_9.json --
+{
+  "bindings": {},
+  "dataset": "employees",
+  "exprFile": "employee-map-reduce_9.JSONATA"
+}
+-- employee-map-reduce_9.JSONATA --
+Employee@$e.Contact@$c[$e.SSN=$c.ssn]{ $e.Surname: $c.Phone.number^($) }
+-- employee-map-reduce_9_expected.json --
+{"Cruse":["3146458343","315 782 9279"],"Jones":["0280 564 6543","0280 864 8643","07735 853535"],"Smith":["01962 001234","0203 544 1234","077 7700 1234"]}
+-- employee-map-reduce_10.json --
+{
+  "bindings": {},
+  "dataset": "employees",
+  "exprFile": "employee-map-reduce_10.JSONATA"
+}
+-- employee-map-reduce_10.JSONATA --
+Employee@$e.Contact@$c[$e.SSN=$c.ssn]{ $e.Surname: $c.Phone.number^(>$) }
+-- employee-map-reduce_10_expected.json --
+{"Cruse":["315 782 9279","3146458343"],"Jones":["07735 853535","0280 864 8643","0280 564 6543"],"Smith":["077 7700 1234","0203 544 1234","01962 001234"]}
+-- employee-map-reduce_11.json --
+{
+  "bindings": {},
+  "data": [
+    1,
+    2,
+    3
+  ],
+  "exprFile": "employee-map-reduce_11.JSONATA"
+}
+-- employee-map-reduce_11.JSONATA --
+$@$i
+-- employee-map-reduce_11_expected.json --
+[1,2,3]
+-- errors_0.json --
+{
+  "bindings": {},
+  "code": "S0214",
+  "dataset": null,
+  "exprFile": "errors_0.JSONATA",
+  "token": "@"
+}
+-- errors_0.JSONATA --
+Account.Order@o.Product
+-- errors_1.json --
+{
+  "bindings": {},
+  "code": "S0214",
+  "dataset": null,
+  "exprFile": "errors_1.JSONATA",
+  "token": "#"
+}
+-- errors_1.JSONATA --
+Account.Order@$o#i.Product
+-- errors_2.json --
+{
+  "bindings": {},
+  "code": "S0215",
+  "dataset": null,
+  "exprFile": "errors_2.JSONATA"
+}
+-- errors_2.JSONATA --
+Account.Order[1]@$o.Product
+-- errors_3.json --
+{
+  "bindings": {},
+  "code": "S0216",
+  "dataset": null,
+  "exprFile": "errors_3.JSONATA"
+}
+-- errors_3.JSONATA --
+Account.Order^(>OrderID)@$o.Product.{ 'name':`Product Name`, 'orderid':$o.OrderID }
+-- index_0.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_0.JSONATA"
+}
+-- index_0.JSONATA --
+$#$pos[$pos<3]
+-- index_0_expected.json --
+[3,1,4]
+-- index_1.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_1.JSONATA"
+}
+-- index_1.JSONATA --
+$#$pos[$pos<3] = $[[0..2]]
+-- index_1_expected.json --
+true
+-- index_2.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_2.JSONATA"
+}
+-- index_2.JSONATA --
+$.$#$pos[$pos<3]
+-- index_2_expected.json --
+[3,1,4,1,5,9]
+-- index_3.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_3.JSONATA"
+}
+-- index_3.JSONATA --
+$.$#$pos[$pos<3] = $.$[[0..2]]
+-- index_3_expected.json --
+true
+-- index_4.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_4.JSONATA"
+}
+-- index_4.JSONATA --
+$#$pos[$pos<3]^($)
+-- index_4_expected.json --
+[1,3,4]
+-- index_5.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_5.JSONATA"
+}
+-- index_5.JSONATA --
+$#$pos[$pos<3]^(>$)
+-- index_5_expected.json --
+[4,3,1]
+-- index_6.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_6.JSONATA"
+}
+-- index_6.JSONATA --
+$^($)#$pos[$pos<3] 
+-- index_6_expected.json --
+[1,1,3]
+-- index_7.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_7.JSONATA"
+}
+-- index_7.JSONATA --
+$#$pos[$pos<3][1]
+-- index_7_expected.json --
+1
+-- index_8.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_8.JSONATA"
+}
+-- index_8.JSONATA --
+$#$pos[$pos<3][1][]
+-- index_8_expected.json --
+[1]
+-- index_9.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_9.JSONATA"
+}
+-- index_9.JSONATA --
+$#$pos[$pos<3]^($)[-1]
+-- index_9_expected.json --
+4
+-- index_10.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_10.JSONATA"
+}
+-- index_10.JSONATA --
+$#$pos[][$pos<3]^($)[-1]
+-- index_10_expected.json --
+[4]
+-- index_11.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_11.JSONATA"
+}
+-- index_11.JSONATA --
+$#$pos[$pos<3]^($)[-1][]
+-- index_11_expected.json --
+[4]
+-- index_12.json --
+{
+  "bindings": {},
+  "data": [
+    3,
+    1,
+    4,
+    1,
+    5,
+    9
+  ],
+  "exprFile": "index_12.JSONATA"
+}
+-- index_12.JSONATA --
+$[[1..4]]#$pos[$pos>=2]
+-- index_12_expected.json --
+[1,5]
+-- index_13.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "index_13.JSONATA"
+}
+-- index_13.JSONATA --
+Account.Order#$o.Product[ProductID=858383].{ 'Product': `Product Name`, 'Order Index': $o }
+-- index_13_expected.json --
+[{"Order Index":0,"Product":"Bowler Hat"},{"Order Index":1,"Product":"Bowler Hat"}]
+-- index_14.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "index_14.JSONATA",
+  "undefinedResult": true
+}
+-- index_14.JSONATA --
+Account.Order#$i.Missing
+-- index_15.json --
+{
+  "bindings": {},
+  "dataset": "dataset5",
+  "exprFile": "index_15.JSONATA"
+}
+-- index_15.JSONATA --
+Account.Order#$i.Product{ $string(ProductID): $i }
+-- index_15_expected.json --
+{"345664":1,"858236":0,"858383":[0,1]}
+-- library-joins_0.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "library-joins_0.JSONATA"
+}
+-- library-joins_0.JSONATA --
+library.loans@$l.books@$b[$l.isbn=$b.isbn].{
+  'title': $b.title,
+  'customer': $l.customer
+}
+-- library-joins_0_expected.json --
+[{"customer":"10001","title":"Structure and Interpretation of Computer Programs"},{"customer":"10003","title":"Compilers: Principles, Techniques, and Tools"},{"customer":"10003","title":"Structure and Interpretation of Computer Programs"}]
+-- library-joins_1.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "library-joins_1.JSONATA"
+}
+-- library-joins_1.JSONATA --
+library.loans@$l.books[$l.isbn=isbn].{
+  'title': title,
+  'customer': $l.customer
+}
+-- library-joins_1_expected.json --
+[{"customer":"10001","title":"Structure and Interpretation of Computer Programs"},{"customer":"10003","title":"Compilers: Principles, Techniques, and Tools"},{"customer":"10003","title":"Structure and Interpretation of Computer Programs"}]
+-- library-joins_2.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "library-joins_2.JSONATA"
+}
+-- library-joins_2.JSONATA --
+library.books#$pos.$[$substring(title,0,3) = 'The'].$pos
+-- library-joins_2_expected.json --
+[1,2]
+-- library-joins_3.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "library-joins_3.JSONATA"
+}
+-- library-joins_3.JSONATA --
+library.loans@$l.books@$b[$l.isbn=$b.isbn].customers[$l.customer=id].{
+  'title': $b.title,
+  'customer': $l.customer,
+  'name': name
+}
+-- library-joins_3_expected.json --
+[{"customer":"10001","name":"Joe Doe","title":"Structure and Interpretation of Computer Programs"},{"customer":"10003","name":"Jason Arthur","title":"Compilers: Principles, Techniques, and Tools"},{"customer":"10003","name":"Jason Arthur","title":"Structure and Interpretation of Computer Programs"}]
+-- library-joins_4.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "library-joins_4.JSONATA"
+}
+-- library-joins_4.JSONATA --
+library.loans@$l.books@$b[$l.isbn=$b.isbn].customers@$c[$l.customer=$c.id].{
+  'title': $b.title,
+  'customer': $l.customer,
+  'name': $c.name
+}
+-- library-joins_4_expected.json --
+[{"customer":"10001","name":"Joe Doe","title":"Structure and Interpretation of Computer Programs"},{"customer":"10003","name":"Jason Arthur","title":"Compilers: Principles, Techniques, and Tools"},{"customer":"10003","name":"Jason Arthur","title":"Structure and Interpretation of Computer Programs"}]
+-- library-joins_5.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "library-joins_5.JSONATA"
+}
+-- library-joins_5.JSONATA --
+library.loans@$l#$il.books@$b#$ib[$l.isbn=$b.isbn].customers@$c#$ic[$l.customer=$c.id].{
+  'title': $b.title,
+  'customer': $l.customer,
+  'name': $c.name,
+  'loan-index': $il,
+  'book-index': $ib,
+  'customer-index': $ic
+}
+-- library-joins_5_expected.json --
+[{"book-index":0,"customer":"10001","customer-index":0,"loan-index":0,"name":"Joe Doe","title":"Structure and Interpretation of Computer Programs"},{"book-index":3,"customer":"10003","customer-index":2,"loan-index":1,"name":"Jason Arthur","title":"Compilers: Principles, Techniques, and Tools"},{"book-index":0,"customer":"10003","customer-index":2,"loan-index":2,"name":"Jason Arthur","title":"Structure and Interpretation of Computer Programs"}]
+-- library-joins_6.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "library-joins_6.JSONATA"
+}
+-- library-joins_6.JSONATA --
+library.loans@$l#$il.customers#$ic[$il=$ic].{
+  'customer': name,
+  'return': $l.return
+}
+-- library-joins_6_expected.json --
+[{"customer":"Joe Doe","return":"2016-12-05"},{"customer":"Fred Bloggs","return":"2016-10-22"},{"customer":"Jason Arthur","return":"2016-12-22"}]
+-- library-joins_7.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "library-joins_7.JSONATA"
+}
+-- library-joins_7.JSONATA --
+library.loans@$l#$il.books@$b#$ib[$l.isbn=$b.isbn]#$ib2.customers@$c#$ic[$l.customer=$c.id].{
+  'title': $b.title,
+  'customer': $l.customer,
+  'name': $c.name,
+  'loan-index': $il,
+  'book-index': $ib,
+  'customer-index': $ic,
+  'ib2': $ib2
+}
+-- library-joins_7_expected.json --
+[{"book-index":0,"customer":"10001","customer-index":0,"ib2":0,"loan-index":0,"name":"Joe Doe","title":"Structure and Interpretation of Computer Programs"},{"book-index":3,"customer":"10003","customer-index":2,"ib2":1,"loan-index":1,"name":"Jason Arthur","title":"Compilers: Principles, Techniques, and Tools"},{"book-index":0,"customer":"10003","customer-index":2,"ib2":2,"loan-index":2,"name":"Jason Arthur","title":"Structure and Interpretation of Computer Programs"}]
+-- library-joins_8.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "library-joins_8.JSONATA"
+}
+-- library-joins_8.JSONATA --
+library.loans@$l.books@$b[$l.isbn=$b.isbn][1].{
+  'title': $b.title,
+  'customer': $l.customer
+}
+-- library-joins_8_expected.json --
+{"customer":"10003","title":"Compilers: Principles, Techniques, and Tools"}
+-- library-joins_9.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "library-joins_9.JSONATA",
+  "undefinedResult": true
+}
+-- library-joins_9.JSONATA --
+library.loans@$l.books@$b[$l.isbn=$b.isbn][5].{
+  'title': $b.title,
+  'customer': $l.customer
+}
+-- library-joins_10.json --
+{
+  "bindings": {},
+  "dataset": "library",
+  "exprFile": "library-joins_10.JSONATA"
+}
+-- library-joins_10.JSONATA --
+library.loans@$l.books@$b[$l.isbn=$b.isbn][1][].{
+  'title': $b.title,
+  'customer': $l.customer
+}
+-- library-joins_10_expected.json --
+[{"customer":"10003","title":"Compilers: Principles, Techniques, and Tools"}]

@@ -1,40 +1,38 @@
 -- case000.json --
 {
-  "dataset": "dataset1__INPUT",
   "bindings": {},
-  "exprFile": "case000.JSONATA"
+  "dataset": "dataset1",
+  "exprFile": "case000.JSONATA",
+  "unordered": true
 }
 -- case000.JSONATA --
 $each(Address, λ($v, $k) {$k & ": " & $v})
 -- case000_expected.json --
-[
-  "Street: Hursley Park",
-  "City: Winchester",
-  "Postcode: SO21 2JN"
-]
+["Street: Hursley Park","City: Winchester","Postcode: SO21 2JN"]
 -- case001.json --
 {
-  "dataset": "dataset1__INPUT",
   "bindings": {},
-  "exprFile": "case001.JSONATA"
+  "dataset": "dataset1",
+  "exprFile": "case001.JSONATA",
+  "unordered": true
 }
 -- case001.JSONATA --
 $each({'a': 'hello', 'b': 'world'}, $uppercase)
 -- case001_expected.json --
-[
-  "HELLO",
-  "WORLD"
-]
+["HELLO","WORLD"]
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
-  "exprFile": "case002.JSONATA"
+  "data": {
+    "a": 1,
+    "b": 2,
+    "c": 3,
+    "d": 4
+  },
+  "exprFile": "case002.JSONATA",
+  "unordered": true
 }
 -- case002.JSONATA --
 $each(function($v, $k) {$k[$v>2]})
 -- case002_expected.json --
-[
-  "c",
-  "d"
-]
+["c","d"]

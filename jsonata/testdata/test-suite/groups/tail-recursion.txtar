@@ -1,79 +1,84 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA",
   "undefinedResult": true
 }
 -- case000.JSONATA --
-            (              $f := function($n){()};              $f(1)            )
--- case000_expected.json --
-null
+            (              $f := function($n){()};              $f(1)            ) 
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
-  "exprFile": "case001.JSONATA"
+  "dataset": null,
+  "depth": 302,
+  "exprFile": "case001.JSONATA",
+  "timelimit": 1000
 }
 -- case001.JSONATA --
-(  $factorial := function($n){$n = 0 ? 1 : $n * $factorial($n - 1)};  $factorial(99))
+(  $factorial := function($n){$n = 0 ? 1 : $n * $factorial($n - 1)};  $factorial(99))             
 -- case001_expected.json --
 9.33262154439441e+155
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
-  "exprFile": "case002.JSONATA"
+  "code": "U1001",
+  "dataset": null,
+  "depth": 302,
+  "exprFile": "case002.JSONATA",
+  "timelimit": 1000
 }
 -- case002.JSONATA --
-(  $factorial := function($n){$n = 0 ? 1 : $n * $factorial($n - 1)};  $factorial(100))
--- case002_expected.json --
-null
+(  $factorial := function($n){$n = 0 ? 1 : $n * $factorial($n - 1)};  $factorial(100))             
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
-(  $factorial := function($n){(    $iter := function($n, $acc) {      $n = 0 ? $acc : $iter($n - 1, $n * $acc)    };    $iter($n, 1)  )};  $factorial(5))
+(  $factorial := function($n){(    $iter := function($n, $acc) {      $n = 0 ? $acc : $iter($n - 1, $n * $acc)    };    $iter($n, 1)  )};  $factorial(5)) 
 -- case003_expected.json --
 120
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
-(  $factorial := function($n){(    $iter := function($n, $acc) {      $n = 0 ? $acc : $iter($n - 1, $n * $acc)    };    $iter($n, 1)  )};  $factorial(150))
+(  $factorial := function($n){(    $iter := function($n, $acc) {      $n = 0 ? $acc : $iter($n - 1, $n * $acc)    };    $iter($n, 1)  )};  $factorial(150)) 
 -- case004_expected.json --
 5.7133839564458575e+262
 -- case005.json --
 {
-  "dataset": "",
   "bindings": {},
-  "exprFile": "case005.JSONATA"
+  "code": "U1001",
+  "dataset": null,
+  "depth": 300,
+  "exprFile": "case005.JSONATA",
+  "timelimit": 1000
 }
 -- case005.JSONATA --
 (  $inf := function($n){$n+$inf($n-1)};  $inf(5))
--- case005_expected.json --
-null
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
-  "exprFile": "case006.JSONATA"
+  "code": "U1001",
+  "dataset": null,
+  "depth": 500,
+  "exprFile": "case006.JSONATA",
+  "timelimit": 1000
 }
 -- case006.JSONATA --
 (  $inf := function(){$inf()};  $inf())
--- case006_expected.json --
-null
 -- case007.json --
 {
-  "dataset": "",
   "bindings": {},
-  "exprFile": "case007.JSONATA"
+  "dataset": null,
+  "depth": 500,
+  "exprFile": "case007.JSONATA",
+  "timelimit": 9000
 }
 -- case007.JSONATA --
         (          $even := function($n) { $n = 0 ? true : $odd($n-1) };           $odd := function($n) { $n = 0 ? false : $even($n-1) };           $odd(6555)         )
@@ -81,26 +86,24 @@ null
 true
 -- case008.json --
 {
-  "dataset": "",
   "bindings": {},
-  "exprFile": "case008.JSONATA"
+  "dataset": null,
+  "depth": 500,
+  "exprFile": "case008.JSONATA",
+  "timelimit": 1000
 }
 -- case008.JSONATA --
 ($f := function($s, $x)<an:s> { $x > 0 ? $f([$s, $s], $x-1) : $s};  $f('a', 2)  )
 -- case008_expected.json --
-[
-  "a",
-  "a",
-  "a",
-  "a"
-]
+["a","a","a","a"]
 -- case009.json --
 {
-  "dataset": "",
   "bindings": {},
-  "exprFile": "case009.JSONATA"
+  "code": "T0410",
+  "dataset": null,
+  "depth": 500,
+  "exprFile": "case009.JSONATA",
+  "timelimit": 1000
 }
 -- case009.JSONATA --
 ($f := function($s, $x)<sn:s> { $x > 0 ? $f([$s, $s], $x-1) : $s};  $f('a', 2)  )
--- case009_expected.json --
-null

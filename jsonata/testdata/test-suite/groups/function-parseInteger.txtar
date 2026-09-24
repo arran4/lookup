@@ -1,0 +1,730 @@
+-- parseInteger_0.json --
+{
+  "category": "undefined value",
+  "data": {},
+  "description": "should return result object",
+  "exprFile": "parseInteger_0.JSONATA",
+  "function": "#parseInteger",
+  "undefinedResult": true
+}
+-- parseInteger_0.JSONATA --
+$parseInteger(undefined, '0')
+-- parseInteger_1.json --
+{
+  "category": "decimal-digit-pattern - cardinal",
+  "data": {},
+  "description": "should parse a number",
+  "exprFile": "parseInteger_1.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_1.JSONATA --
+$parseInteger('123', '000')
+-- parseInteger_1_expected.json --
+123
+-- parseInteger_2.json --
+{
+  "category": "decimal-digit-pattern - cardinal",
+  "data": {},
+  "description": "should parse number padded with zeros",
+  "exprFile": "parseInteger_2.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_2.JSONATA --
+$parseInteger('0123', '0000')
+-- parseInteger_2_expected.json --
+123
+-- parseInteger_3.json --
+{
+  "category": "decimal-digit-pattern - cardinal",
+  "data": {},
+  "description": "should parse number",
+  "exprFile": "parseInteger_3.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_3.JSONATA --
+$parseInteger('1234', '0')
+-- parseInteger_3_expected.json --
+1234
+-- parseInteger_4.json --
+{
+  "category": "decimal-digit-pattern - cardinal",
+  "data": {},
+  "description": "should parse number with optional digits",
+  "exprFile": "parseInteger_4.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_4.JSONATA --
+$parseInteger('1234', '###0')
+-- parseInteger_4_expected.json --
+1234
+-- parseInteger_5.json --
+{
+  "category": "decimal-digit-pattern - cardinal",
+  "data": {},
+  "description": "should parse number with optional digits",
+  "exprFile": "parseInteger_5.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_5.JSONATA --
+$parseInteger('12', '###0')
+-- parseInteger_5_expected.json --
+12
+-- parseInteger_6.json --
+{
+  "category": "decimal-digit-pattern - ordinal",
+  "data": {},
+  "description": "should parse a number",
+  "exprFile": "parseInteger_6.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_6.JSONATA --
+$parseInteger('123rd', '000;o')
+-- parseInteger_6_expected.json --
+123
+-- parseInteger_7.json --
+{
+  "category": "decimal-digit-pattern - ordinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "parseInteger_7.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_7.JSONATA --
+$parseInteger('1st', '0;o')
+-- parseInteger_7_expected.json --
+1
+-- parseInteger_8.json --
+{
+  "category": "decimal-digit-pattern - ordinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "parseInteger_8.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_8.JSONATA --
+$parseInteger('28th', '#0;o')
+-- parseInteger_8_expected.json --
+28
+-- parseInteger_9.json --
+{
+  "category": "decimal-digit-pattern - ordinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "parseInteger_9.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_9.JSONATA --
+$parseInteger('1234th', '###0;o')
+-- parseInteger_9_expected.json --
+1234
+-- parseInteger_10.json --
+{
+  "category": "decimal-digit-pattern - ordinal",
+  "data": {},
+  "description": "should pad number with zeros",
+  "exprFile": "parseInteger_10.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_10.JSONATA --
+$parseInteger('12th', '###0;o')
+-- parseInteger_10_expected.json --
+12
+-- parseInteger_11.json --
+{
+  "category": "decimal-digit-pattern - unicode decimal groups",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "parseInteger_11.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_11.JSONATA --
+$parseInteger('١٢٣٤٠', '###١')
+-- parseInteger_11_expected.json --
+12340
+-- parseInteger_12.json --
+{
+  "category": "decimal-digit-pattern - unicode decimal groups",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "parseInteger_12.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_12.JSONATA --
+$parseInteger('１２３４０', '###０')
+-- parseInteger_12_expected.json --
+12340
+-- parseInteger_13.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "parseInteger_13.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_13.JSONATA --
+$parseInteger('12', '#,##0')
+-- parseInteger_13_expected.json --
+12
+-- parseInteger_14.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "parseInteger_14.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_14.JSONATA --
+$parseInteger('1,200', '#,##0')
+-- parseInteger_14_expected.json --
+1200
+-- parseInteger_15.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "parseInteger_15.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_15.JSONATA --
+$parseInteger('12,345,678', '#,##0')
+-- parseInteger_15_expected.json --
+12345678
+-- parseInteger_16.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "parseInteger_16.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_16.JSONATA --
+$parseInteger('1,234,567,890', '#,##0')
+-- parseInteger_16_expected.json --
+1234567890
+-- parseInteger_17.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert regular groups",
+  "exprFile": "parseInteger_17.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_17.JSONATA --
+$parseInteger('1,234,567,890', '#,###,##0')
+-- parseInteger_17_expected.json --
+1234567890
+-- parseInteger_18.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert non-regular groups - different chars",
+  "exprFile": "parseInteger_18.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_18.JSONATA --
+$parseInteger('1234:567,890', '#:###,##0')
+-- parseInteger_18_expected.json --
+1234567890
+-- parseInteger_19.json --
+{
+  "category": "decimal-digit-pattern - grouping separator",
+  "data": {},
+  "description": "should insert non-regular groups - different positions",
+  "exprFile": "parseInteger_19.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_19.JSONATA --
+$parseInteger('12345,67,890', '##,##,##0')
+-- parseInteger_19_expected.json --
+1234567890
+-- parseInteger_20.json --
+{
+  "category": "roman numerals",
+  "data": {},
+  "description": "0",
+  "exprFile": "parseInteger_20.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_20.JSONATA --
+$parseInteger('', 'I')
+-- parseInteger_20_expected.json --
+0
+-- parseInteger_21.json --
+{
+  "category": "roman numerals",
+  "data": {},
+  "description": "1984",
+  "exprFile": "parseInteger_21.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_21.JSONATA --
+$parseInteger('MCMLXXXIV', 'I')
+-- parseInteger_21_expected.json --
+1984
+-- parseInteger_22.json --
+{
+  "category": "roman numerals",
+  "data": {},
+  "description": "99",
+  "exprFile": "parseInteger_22.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_22.JSONATA --
+$parseInteger('xcix', 'i')
+-- parseInteger_22_expected.json --
+99
+-- parseInteger_23.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "12",
+  "exprFile": "parseInteger_23.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_23.JSONATA --
+$parseInteger('twelve', 'w')
+-- parseInteger_23_expected.json --
+12
+-- parseInteger_24.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "20",
+  "exprFile": "parseInteger_24.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_24.JSONATA --
+$parseInteger('twenty', 'w')
+-- parseInteger_24_expected.json --
+20
+-- parseInteger_25.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "34",
+  "exprFile": "parseInteger_25.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_25.JSONATA --
+$parseInteger('thirty-four', 'w')
+-- parseInteger_25_expected.json --
+34
+-- parseInteger_26.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "99",
+  "exprFile": "parseInteger_26.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_26.JSONATA --
+$parseInteger('NINETY-NINE', 'W')
+-- parseInteger_26_expected.json --
+99
+-- parseInteger_27.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "100",
+  "exprFile": "parseInteger_27.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_27.JSONATA --
+$parseInteger('one hundred', 'w')
+-- parseInteger_27_expected.json --
+100
+-- parseInteger_28.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "555",
+  "exprFile": "parseInteger_28.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_28.JSONATA --
+$parseInteger('FIVE HUNDRED AND FIFTY-FIVE', 'W')
+-- parseInteger_28_expected.json --
+555
+-- parseInteger_29.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "555",
+  "exprFile": "parseInteger_29.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_29.JSONATA --
+$parseInteger('Five Hundred and Fifty-Five', 'Ww')
+-- parseInteger_29_expected.json --
+555
+-- parseInteger_30.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "919",
+  "exprFile": "parseInteger_30.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_30.JSONATA --
+$parseInteger('nine hundred and nineteen', 'w')
+-- parseInteger_30_expected.json --
+919
+-- parseInteger_31.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "730",
+  "exprFile": "parseInteger_31.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_31.JSONATA --
+$parseInteger('seven hundred and thirty', 'w')
+-- parseInteger_31_expected.json --
+730
+-- parseInteger_32.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "1000",
+  "exprFile": "parseInteger_32.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_32.JSONATA --
+$parseInteger('one thousand', 'w')
+-- parseInteger_32_expected.json --
+1000
+-- parseInteger_33.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "3730",
+  "exprFile": "parseInteger_33.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_33.JSONATA --
+$parseInteger('three thousand, seven hundred and thirty', 'w')
+-- parseInteger_33_expected.json --
+3730
+-- parseInteger_34.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "327730",
+  "exprFile": "parseInteger_34.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_34.JSONATA --
+$parseInteger('three hundred and twenty-seven thousand, seven hundred and thirty', 'w')
+-- parseInteger_34_expected.json --
+327730
+-- parseInteger_35.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "4327730",
+  "exprFile": "parseInteger_35.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_35.JSONATA --
+$parseInteger('four million, three hundred and twenty-seven thousand, seven hundred and thirty', 'w')
+-- parseInteger_35_expected.json --
+4327730
+-- parseInteger_36.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "1e12 + 1",
+  "exprFile": "parseInteger_36.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_36.JSONATA --
+$parseInteger('one trillion and one', 'w')
+-- parseInteger_36_expected.json --
+1000000000001
+-- parseInteger_37.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "1234567890123",
+  "exprFile": "parseInteger_37.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_37.JSONATA --
+$parseInteger('one trillion, two hundred and thirty-four billion, five hundred and sixty-seven million, eight hundred and ninety thousand, one hundred and twenty-three', 'w')
+-- parseInteger_37_expected.json --
+1234567890123
+-- parseInteger_38.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "1e15",
+  "exprFile": "parseInteger_38.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_38.JSONATA --
+$parseInteger('one thousand trillion', 'w')
+-- parseInteger_38_expected.json --
+1000000000000000
+-- parseInteger_39.json --
+{
+  "category": "words - cardinal",
+  "data": {},
+  "description": "1e46",
+  "exprFile": "parseInteger_39.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_39.JSONATA --
+$parseInteger('ten billion trillion trillion trillion', 'w')
+-- parseInteger_39_expected.json --
+1e+46
+-- parseInteger_40.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "12",
+  "exprFile": "parseInteger_40.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_40.JSONATA --
+$parseInteger('twelfth', 'w;o')
+-- parseInteger_40_expected.json --
+12
+-- parseInteger_41.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "20",
+  "exprFile": "parseInteger_41.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_41.JSONATA --
+$parseInteger('twentieth', 'w;o')
+-- parseInteger_41_expected.json --
+20
+-- parseInteger_42.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "34",
+  "exprFile": "parseInteger_42.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_42.JSONATA --
+$parseInteger('thirty-fourth', 'w;o')
+-- parseInteger_42_expected.json --
+34
+-- parseInteger_43.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "99",
+  "exprFile": "parseInteger_43.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_43.JSONATA --
+$parseInteger('NINETY-NINTH', 'W;o')
+-- parseInteger_43_expected.json --
+99
+-- parseInteger_44.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "100",
+  "exprFile": "parseInteger_44.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_44.JSONATA --
+$parseInteger('one hundredth', 'w;o')
+-- parseInteger_44_expected.json --
+100
+-- parseInteger_45.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "555",
+  "exprFile": "parseInteger_45.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_45.JSONATA --
+$parseInteger('FIVE HUNDRED AND FIFTY-FIFTH', 'W;o')
+-- parseInteger_45_expected.json --
+555
+-- parseInteger_46.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "919",
+  "exprFile": "parseInteger_46.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_46.JSONATA --
+$parseInteger('nine hundred and nineteenth', 'w;o')
+-- parseInteger_46_expected.json --
+919
+-- parseInteger_47.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "730",
+  "exprFile": "parseInteger_47.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_47.JSONATA --
+$parseInteger('seven hundred and thirtieth', 'w;o')
+-- parseInteger_47_expected.json --
+730
+-- parseInteger_48.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "733",
+  "exprFile": "parseInteger_48.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_48.JSONATA --
+$parseInteger('Seven Hundred and Thirty-Third', 'Ww;o')
+-- parseInteger_48_expected.json --
+733
+-- parseInteger_49.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "1000",
+  "exprFile": "parseInteger_49.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_49.JSONATA --
+$parseInteger('one thousandth', 'w;o')
+-- parseInteger_49_expected.json --
+1000
+-- parseInteger_50.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "3730",
+  "exprFile": "parseInteger_50.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_50.JSONATA --
+$parseInteger('three thousand, seven hundred and thirty-first', 'w;o')
+-- parseInteger_50_expected.json --
+3731
+-- parseInteger_51.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "327730",
+  "exprFile": "parseInteger_51.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_51.JSONATA --
+$parseInteger('three hundred and twenty-seven thousand, seven hundred and thirteenth', 'w;o')
+-- parseInteger_51_expected.json --
+327713
+-- parseInteger_52.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "4327730",
+  "exprFile": "parseInteger_52.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_52.JSONATA --
+$parseInteger('four million, three hundred and twenty-seven thousand, seven hundred and thirty-second', 'w;o')
+-- parseInteger_52_expected.json --
+4327732
+-- parseInteger_53.json --
+{
+  "category": "words - ordinal",
+  "data": {},
+  "description": "1e12 + 1",
+  "exprFile": "parseInteger_53.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_53.JSONATA --
+$parseInteger('one trillion and first', 'w;o')
+-- parseInteger_53_expected.json --
+1000000000001
+-- parseInteger_54.json --
+{
+  "category": "spreadsheet column names",
+  "data": {},
+  "description": "1",
+  "exprFile": "parseInteger_54.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_54.JSONATA --
+$parseInteger('A', 'A')
+-- parseInteger_54_expected.json --
+1
+-- parseInteger_55.json --
+{
+  "category": "spreadsheet column names",
+  "data": {},
+  "description": "12",
+  "exprFile": "parseInteger_55.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_55.JSONATA --
+$parseInteger('l', 'a')
+-- parseInteger_55_expected.json --
+12
+-- parseInteger_56.json --
+{
+  "category": "spreadsheet column names",
+  "data": {},
+  "description": "26",
+  "exprFile": "parseInteger_56.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_56.JSONATA --
+$parseInteger('z', 'a')
+-- parseInteger_56_expected.json --
+26
+-- parseInteger_57.json --
+{
+  "category": "spreadsheet column names",
+  "data": {},
+  "description": "27",
+  "exprFile": "parseInteger_57.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_57.JSONATA --
+$parseInteger('aa', 'a')
+-- parseInteger_57_expected.json --
+27
+-- parseInteger_58.json --
+{
+  "category": "spreadsheet column names",
+  "data": {},
+  "description": "300",
+  "exprFile": "parseInteger_58.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_58.JSONATA --
+$parseInteger('KN', 'A')
+-- parseInteger_58_expected.json --
+300
+-- parseInteger_59.json --
+{
+  "category": "spreadsheet column names",
+  "data": {},
+  "description": "123456",
+  "exprFile": "parseInteger_59.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_59.JSONATA --
+$parseInteger('FZPH', 'A')
+-- parseInteger_59_expected.json --
+123456
+-- parseInteger_60.json --
+{
+  "category": "errors",
+  "code": "D3130",
+  "data": {},
+  "description": "unsupported picture string",
+  "exprFile": "parseInteger_60.JSONATA",
+  "function": "#parseInteger"
+}
+-- parseInteger_60.JSONATA --
+$parseInteger('50', '#')

@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@
 "foobar"
 -- case001.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +20,8 @@
 "foobar"
 -- case002.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,8 +30,8 @@ foo.blah[0].baz.fud &foo.blah[1].baz.fud
 "helloworld"
 -- case003.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -40,8 +40,8 @@ foo.(blah[0].baz.fud & blah[1].baz.fud)
 "helloworld"
 -- case004.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -50,8 +50,8 @@ foo.(blah[0].baz.fud & none)
 "hello"
 -- case005.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -60,8 +60,8 @@ foo.(none.here & blah[1].baz.fud)
 "world"
 -- case006.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -70,8 +70,8 @@ foo.(none.here & blah[1].baz.fud)
 "[1,2][3,4]"
 -- case007.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
@@ -80,8 +80,8 @@ foo.(none.here & blah[1].baz.fud)
 "[1,2]3"
 -- case008.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
@@ -90,8 +90,8 @@ foo.(none.here & blah[1].baz.fud)
 "12"
 -- case009.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
@@ -100,8 +100,8 @@ foo.(none.here & blah[1].baz.fud)
 "1[2]"
 -- case010.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
@@ -110,8 +110,8 @@ foo.(none.here & blah[1].baz.fud)
 "hello5"
 -- case011.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --

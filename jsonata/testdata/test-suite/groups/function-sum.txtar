@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,45 +10,37 @@ $sum(Account.Order.Product.(Price * Quantity))
 336.36
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
 Account.Order.$sum(Product.(Price * Quantity))
 -- case001_expected.json --
-[
-  90.57000000000001,
-  245.79000000000002
-]
+[90.57000000000001,245.79000000000002]
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
 Account.Order.(OrderID & ": " & $sum(Product.(Price*Quantity)))
 -- case002_expected.json --
-[
-  "order103: 90.57",
-  "order104: 245.79"
-]
+["order103: 90.57","order104: 245.79"]
 -- case003.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
-  "exprFile": "case003.JSONATA",
-  "code": "T0410"
+  "code": "T0410",
+  "dataset": "dataset5",
+  "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
 $sum()
--- case003_expected.json --
-null
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -57,22 +49,19 @@ $sum(1)
 1
 -- case005.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "code": "T0412",
+  "dataset": "dataset5",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
 $sum(Account.Order)
--- case005_expected.json --
-null
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case006.JSONATA",
   "undefinedResult": true
 }
 -- case006.JSONATA --
 $sum(undefined)
--- case006_expected.json --
-null

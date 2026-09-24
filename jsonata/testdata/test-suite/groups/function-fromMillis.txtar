@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@ $fromMillis(1)
 "1970-01-01T00:00:00.001Z"
 -- case001.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,12 +20,1044 @@ $fromMillis(1509380732935)
 "2017-10-30T16:25:32.935Z"
 -- case002.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "dataset": "dataset5",
   "exprFile": "case002.JSONATA",
   "undefinedResult": true
 }
 -- case002.JSONATA --
 $fromMillis(foo)
--- case002_expected.json --
-null
+-- formatDateTime_0.json --
+{
+  "category": "undefined value",
+  "data": {},
+  "description": "should return nothing",
+  "exprFile": "formatDateTime_0.JSONATA",
+  "function": "#fromMillis",
+  "undefinedResult": true
+}
+-- formatDateTime_0.JSONATA --
+$fromMillis(undefined, 'undefined')
+-- formatDateTime_1.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should return literal",
+  "exprFile": "formatDateTime_1.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_1.JSONATA --
+$fromMillis(1521801216617, 'Hello')
+-- formatDateTime_1_expected.json --
+"Hello"
+-- formatDateTime_2.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should format the year",
+  "exprFile": "formatDateTime_2.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_2.JSONATA --
+$fromMillis(1521801216617, 'Year: [Y0001]')
+-- formatDateTime_2_expected.json --
+"Year: 2018"
+-- formatDateTime_3.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should format the year",
+  "exprFile": "formatDateTime_3.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_3.JSONATA --
+$fromMillis(1521801216617, 'Year: <[Y0001]>')
+-- formatDateTime_3_expected.json --
+"Year: \u003c2018\u003e"
+-- formatDateTime_4.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should format the year with grouping separator",
+  "exprFile": "formatDateTime_4.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_4.JSONATA --
+$fromMillis(1521801216617, 'Year: <[Y9,999,*]>')
+-- formatDateTime_4_expected.json --
+"Year: \u003c2,018\u003e"
+-- formatDateTime_5.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should handle opening square bracket literal",
+  "exprFile": "formatDateTime_5.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_5.JSONATA --
+$fromMillis(1521801216617, '[[Year: <[Y0001]>')
+-- formatDateTime_5_expected.json --
+"[Year: \u003c2018\u003e"
+-- formatDateTime_6.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should handle closing square bracket literal",
+  "exprFile": "formatDateTime_6.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_6.JSONATA --
+$fromMillis(1521801216617, 'Year]]: <[Y0001]>')
+-- formatDateTime_6_expected.json --
+"Year]: \u003c2018\u003e"
+-- formatDateTime_7.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should handle opening and closing square bracket literal",
+  "exprFile": "formatDateTime_7.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_7.JSONATA --
+$fromMillis(1521801216617, '[[Year]]: [[[Y0001]]]')
+-- formatDateTime_7_expected.json --
+"[Year]: [2018]"
+-- formatDateTime_8.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should format the date in European style",
+  "exprFile": "formatDateTime_8.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_8.JSONATA --
+$fromMillis(1521801216617, '[D#1]/[M#1]/[Y0001]')
+-- formatDateTime_8_expected.json --
+"23/3/2018"
+-- formatDateTime_9.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "Sunday should be day 7",
+  "exprFile": "formatDateTime_9.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_9.JSONATA --
+$fromMillis(1522616700000, '[F0] [FNn]')
+-- formatDateTime_9_expected.json --
+"7 Sunday"
+-- formatDateTime_10.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "Monday should be day 1",
+  "exprFile": "formatDateTime_10.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_10.JSONATA --
+$fromMillis(1522703100000, '[F0] [FNn]')
+-- formatDateTime_10_expected.json --
+"1 Monday"
+-- formatDateTime_11.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should format the date in ISO 8601 style",
+  "exprFile": "formatDateTime_11.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_11.JSONATA --
+$fromMillis(1521801216617, '[Y0001]-[M01]-[D01]')
+-- formatDateTime_11_expected.json --
+"2018-03-23"
+-- formatDateTime_12.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should format the date \u0026 time in US style",
+  "exprFile": "formatDateTime_12.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_12.JSONATA --
+$fromMillis(1521801216617, '[M01]/[D01]/[Y0001] at [H01]:[m01]:[s01]')
+-- formatDateTime_12_expected.json --
+"03/23/2018 at 10:33:36"
+-- formatDateTime_13.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should format the date \u0026 time in ISO 8601 style",
+  "exprFile": "formatDateTime_13.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_13.JSONATA --
+$fromMillis(1521801216617, '[Y]-[M01]-[D01]T[H01]:[m]:[s].[f001][Z01:01t]')
+-- formatDateTime_13_expected.json --
+"2018-03-23T10:33:36.617Z"
+-- formatDateTime_14.json --
+{
+  "category": "basic date patterns",
+  "data": {},
+  "description": "should ignore whitespace in variable markers",
+  "exprFile": "formatDateTime_14.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_14.JSONATA --
+$fromMillis(1521801216617, '[Y]-[ M01]-[D 01]T[H01 ]:[ m   ]:[s].[f0  01][Z01:
+ 01t]')
+-- formatDateTime_14_expected.json --
+"2018-03-23T10:33:36.617Z"
+-- formatDateTime_15.json --
+{
+  "category": "timezone",
+  "data": {},
+  "description": "should offset for BST +0100",
+  "exprFile": "formatDateTime_15.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_15.JSONATA --
+$fromMillis(1521801216617, '[Y]-[M01]-[D01]T[H01]:[m]:[s].[f001][Z0101t]', '+0100')
+-- formatDateTime_15_expected.json --
+"2018-03-23T11:33:36.617+0100"
+-- formatDateTime_16.json --
+{
+  "category": "timezone",
+  "data": {},
+  "description": "should offset for UTC",
+  "exprFile": "formatDateTime_16.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_16.JSONATA --
+$fromMillis(1531310400000, '[Y]-[M01]-[D01]T[H01]:[m]:[s][Z01:01]')
+-- formatDateTime_16_expected.json --
+"2018-07-11T12:00:00+00:00"
+-- formatDateTime_17.json --
+{
+  "category": "timezone",
+  "data": {},
+  "description": "should offset for Z",
+  "exprFile": "formatDateTime_17.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_17.JSONATA --
+$fromMillis(1531310400000, '[Y]-[M01]-[D01]T[H01]:[m]:[s][Z01:01t]')
+-- formatDateTime_17_expected.json --
+"2018-07-11T12:00:00Z"
+-- formatDateTime_18.json --
+{
+  "category": "timezone",
+  "data": {},
+  "description": "should offset for UTC",
+  "exprFile": "formatDateTime_18.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_18.JSONATA --
+$fromMillis(1531310400000, '[Y]-[M01]-[D01]T[H01]:[m]:[s][Z]', '-0500')
+-- formatDateTime_18_expected.json --
+"2018-07-11T07:00:00-05:00"
+-- formatDateTime_19.json --
+{
+  "category": "timezone",
+  "data": {},
+  "description": "should offset for UTC",
+  "exprFile": "formatDateTime_19.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_19.JSONATA --
+$fromMillis(1531310400000, '[Y]-[M01]-[D01]T[H01]:[m]:[s][Z0]', '-0500')
+-- formatDateTime_19_expected.json --
+"2018-07-11T07:00:00-5"
+-- formatDateTime_20.json --
+{
+  "category": "timezone",
+  "data": {},
+  "description": "should offset for UTC",
+  "exprFile": "formatDateTime_20.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_20.JSONATA --
+$fromMillis(1531310400000, '[Y]-[M01]-[D01]T[H01]:[m]:[s][Z]', '+1000')
+-- formatDateTime_20_expected.json --
+"2018-07-11T22:00:00+10:00"
+-- formatDateTime_21.json --
+{
+  "category": "timezone",
+  "data": {},
+  "description": "should offset for UTC",
+  "exprFile": "formatDateTime_21.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_21.JSONATA --
+$fromMillis(1531310400000, '[Y]-[M01]-[D01]T[H01]:[m]:[s][Z0]', '+1000')
+-- formatDateTime_21_expected.json --
+"2018-07-11T22:00:00+10"
+-- formatDateTime_22.json --
+{
+  "category": "timezone",
+  "data": {},
+  "description": "should offset for UTC",
+  "exprFile": "formatDateTime_22.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_22.JSONATA --
+$fromMillis(1531310400000, '[Y]-[M01]-[D01]T[H01]:[m]:[s][Z0]', '+0530')
+-- formatDateTime_22_expected.json --
+"2018-07-11T17:30:00+5:30"
+-- formatDateTime_23.json --
+{
+  "category": "timezone",
+  "data": {},
+  "description": "should offset for UTC",
+  "exprFile": "formatDateTime_23.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_23.JSONATA --
+$fromMillis(1531310400000, '[Y]-[M01]-[D01]T[H01]:[m]:[s][z]', '-0500')
+-- formatDateTime_23_expected.json --
+"2018-07-11T07:00:00GMT-05:00"
+-- formatDateTime_24.json --
+{
+  "category": "timezone",
+  "data": {},
+  "description": "should rollover day boundaries",
+  "exprFile": "formatDateTime_24.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_24.JSONATA --
+$fromMillis(1204405500000, '[Y]-[M01]-[D01]T[H01]:[m]:[s].[f001][Z0101t]', '+0530')
+-- formatDateTime_24_expected.json --
+"2008-03-02T02:35:00.000+0530"
+-- formatDateTime_25.json --
+{
+  "category": "timezone",
+  "data": {},
+  "description": "should rollover year boundaries",
+  "exprFile": "formatDateTime_25.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_25.JSONATA --
+$fromMillis(1230757500000, '[Y]-[M01]-[D01]T[H01]:[m]:[s].[f001][Z0101t]', '+0530')
+-- formatDateTime_25_expected.json --
+"2009-01-01T02:35:00.000+0530"
+-- formatDateTime_26.json --
+{
+  "category": "timezone",
+  "code": "D3134",
+  "data": {},
+  "description": "picture string has 6 digit timezone - error",
+  "exprFile": "formatDateTime_26.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_26.JSONATA --
+$fromMillis(1230757500000, '[Y]-[M01]-[D01]T[H01]:[m]:[s].[f001][Z010101t]', '+0530')
+-- formatDateTime_27.json --
+{
+  "category": "width modifier",
+  "data": {},
+  "description": "should return literal",
+  "exprFile": "formatDateTime_27.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_27.JSONATA --
+$fromMillis(1521801216617, '[D#1,2]/[M1,2]/[Y,2]')
+-- formatDateTime_27_expected.json --
+"23/03/18"
+-- formatDateTime_28.json --
+{
+  "category": "width modifier",
+  "data": {},
+  "description": "should return literal",
+  "exprFile": "formatDateTime_28.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_28.JSONATA --
+$fromMillis(1521801216617, '[D#1,2]/[M1,2]/[Y0001,2]')
+-- formatDateTime_28_expected.json --
+"23/03/2018"
+-- formatDateTime_29.json --
+{
+  "category": "width modifier",
+  "data": {},
+  "description": "width modifier should override pattern",
+  "exprFile": "formatDateTime_29.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_29.JSONATA --
+$fromMillis(1521801216617, '[D#1,2]/[M1,2]/[Y##01,2-2]')
+-- formatDateTime_29_expected.json --
+"23/03/18"
+-- formatDateTime_30.json --
+{
+  "category": "width modifier",
+  "data": {},
+  "description": "width modifier should override pattern",
+  "exprFile": "formatDateTime_30.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_30.JSONATA --
+$fromMillis(1521801216617, '[D#1,2]/[M1,2]/[Y0001,2-2]')
+-- formatDateTime_30_expected.json --
+"23/03/18"
+-- formatDateTime_31.json --
+{
+  "category": "roman numeral dates",
+  "data": {},
+  "description": "year in roman numerals",
+  "exprFile": "formatDateTime_31.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_31.JSONATA --
+$fromMillis(1521801216617, '[D1] [M01] [YI]')
+-- formatDateTime_31_expected.json --
+"23 03 MMXVIII"
+-- formatDateTime_32.json --
+{
+  "category": "dates with letters instead of numbers",
+  "data": {},
+  "description": "day/month in letters, year in roman numerals",
+  "exprFile": "formatDateTime_32.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_32.JSONATA --
+$fromMillis(1521801216617, '[Da] [MA] [Yi]')
+-- formatDateTime_32_expected.json --
+"w C mmxviii"
+-- formatDateTime_33.json --
+{
+  "category": "ordinals",
+  "data": {},
+  "description": "day in ordinal numerals",
+  "exprFile": "formatDateTime_33.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_33.JSONATA --
+$fromMillis(1521801216617, '[D1o] [M01] [Y]')
+-- formatDateTime_33_expected.json --
+"23rd 03 2018"
+-- formatDateTime_34.json --
+{
+  "category": "date in words",
+  "data": {},
+  "description": "year in words",
+  "exprFile": "formatDateTime_34.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_34.JSONATA --
+$fromMillis(1521801216617, '[Yw]')
+-- formatDateTime_34_expected.json --
+"two thousand and eighteen"
+-- formatDateTime_35.json --
+{
+  "category": "date in words",
+  "data": {},
+  "description": "day of month in ordinal words",
+  "exprFile": "formatDateTime_35.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_35.JSONATA --
+$fromMillis(1521801216617, '[Dwo] [M01] [Y]')
+-- formatDateTime_35_expected.json --
+"twenty-third 03 2018"
+-- formatDateTime_36.json --
+{
+  "category": "date in words",
+  "data": {},
+  "description": "month in words",
+  "exprFile": "formatDateTime_36.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_36.JSONATA --
+$fromMillis(1521801216617, '[D1o] [MNn] [Y]')
+-- formatDateTime_36_expected.json --
+"23rd March 2018"
+-- formatDateTime_37.json --
+{
+  "category": "date in words",
+  "data": {},
+  "description": "month in uppercase words",
+  "exprFile": "formatDateTime_37.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_37.JSONATA --
+$fromMillis(1521801216617, '[D1o] [MN] [Y]')
+-- formatDateTime_37_expected.json --
+"23rd MARCH 2018"
+-- formatDateTime_38.json --
+{
+  "category": "date in words",
+  "data": {},
+  "description": "day/month in words",
+  "exprFile": "formatDateTime_38.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_38.JSONATA --
+$fromMillis(1521801216617, '[FNn], [D1o] [MNn] [Y]')
+-- formatDateTime_38_expected.json --
+"Friday, 23rd March 2018"
+-- formatDateTime_39.json --
+{
+  "category": "date in words",
+  "data": {},
+  "description": "day/date/month in words",
+  "exprFile": "formatDateTime_39.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_39.JSONATA --
+$fromMillis(1521801216617, '[FNn], the [Dwo] of [MNn] [Y] [E]')
+-- formatDateTime_39_expected.json --
+"Friday, the twenty-third of March 2018 ISO"
+-- formatDateTime_40.json --
+{
+  "category": "date in words",
+  "data": {},
+  "description": "abbreviated day/month in words",
+  "exprFile": "formatDateTime_40.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_40.JSONATA --
+$fromMillis(1521801216617, '[FNn,3-3], [D1o] [MNn,3-3] [Y] [C]')
+-- formatDateTime_40_expected.json --
+"Fri, 23rd Mar 2018 ISO"
+-- formatDateTime_41.json --
+{
+  "category": "Default presentation modifiers",
+  "data": {},
+  "description": "should apply default modifiers to day/date/time",
+  "exprFile": "formatDateTime_41.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_41.JSONATA --
+$fromMillis(1521801216617, '[F], [D]/[M]/[Y] [h]:[m]:[s] [P]')
+-- formatDateTime_41_expected.json --
+"friday, 23/3/2018 10:33:36 am"
+-- formatDateTime_42.json --
+{
+  "category": "Default presentation modifiers",
+  "data": {},
+  "description": "should apply default modifiers to day/date/time 12hr pm",
+  "exprFile": "formatDateTime_42.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_42.JSONATA --
+$fromMillis(1204405500000, '[F], [D]/[M]/[Y] [h]:[m]:[s] [P]')
+-- formatDateTime_42_expected.json --
+"saturday, 1/3/2008 9:05:00 pm"
+-- formatDateTime_43.json --
+{
+  "category": "Default presentation modifiers",
+  "data": {},
+  "description": "should apply default modifiers to day/date/time 12hr midnight",
+  "exprFile": "formatDateTime_43.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_43.JSONATA --
+$fromMillis(1199664000000, '[F], [D]/[M]/[Y] [h]:[m]:[s] [P]')
+-- formatDateTime_43_expected.json --
+"monday, 7/1/2008 12:00:00 am"
+-- formatDateTime_44.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "1st Jan should be day 1",
+  "exprFile": "formatDateTime_44.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_44.JSONATA --
+$fromMillis(1514808000000, '[dwo] day of the year')
+-- formatDateTime_44_expected.json --
+"first day of the year"
+-- formatDateTime_45.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "31st Dec should be day 365",
+  "exprFile": "formatDateTime_45.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_45.JSONATA --
+$fromMillis(1546257600000, '[d] days in [Y0001]')
+-- formatDateTime_45_expected.json --
+"365 days in 2018"
+-- formatDateTime_46.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "31st Dec should be day 366 in a leap year",
+  "exprFile": "formatDateTime_46.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_46.JSONATA --
+$fromMillis(1483185600000, '[d] days in [Y0001]')
+-- formatDateTime_46_expected.json --
+"366 days in 2016"
+-- formatDateTime_47.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Monday 1st Jan should be in the first week of 2018",
+  "exprFile": "formatDateTime_47.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_47.JSONATA --
+$fromMillis(1514808000000, 'Week: [W]')
+-- formatDateTime_47_expected.json --
+"Week: 1"
+-- formatDateTime_48.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Sunday 7st Jan should be in the first week of 2018",
+  "exprFile": "formatDateTime_48.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_48.JSONATA --
+$fromMillis(1515326400000, 'Week: [W]')
+-- formatDateTime_48_expected.json --
+"Week: 1"
+-- formatDateTime_49.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Sunday 25th Dec should be in week 52 of 2018",
+  "exprFile": "formatDateTime_49.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_49.JSONATA --
+$fromMillis(1545739200000, 'Week: [W]')
+-- formatDateTime_49_expected.json --
+"Week: 52"
+-- formatDateTime_50.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Wed 1st Jan 2014 should be in week 1",
+  "exprFile": "formatDateTime_50.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_50.JSONATA --
+$fromMillis(1388577600000, 'Week: [W]')
+-- formatDateTime_50_expected.json --
+"Week: 1"
+-- formatDateTime_51.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Mon 29th Dec 2014 should be in week 1 of 2015",
+  "exprFile": "formatDateTime_51.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_51.JSONATA --
+$fromMillis(1419854400000, 'Week: [W]')
+-- formatDateTime_51_expected.json --
+"Week: 1"
+-- formatDateTime_52.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Sun 28th Dec 2014 should be in week 52 of 2014",
+  "exprFile": "formatDateTime_52.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_52.JSONATA --
+$fromMillis(1419768000000, 'Week: [W]')
+-- formatDateTime_52_expected.json --
+"Week: 52"
+-- formatDateTime_53.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Tues 23th Dec 2014 should be in week 52 of 2014",
+  "exprFile": "formatDateTime_53.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_53.JSONATA --
+$fromMillis(1419336000000, 'Week: [W]')
+-- formatDateTime_53_expected.json --
+"Week: 52"
+-- formatDateTime_54.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Thur 1st Jan 2015 should be in week 1 of 2015",
+  "exprFile": "formatDateTime_54.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_54.JSONATA --
+$fromMillis(1420113600000, 'Week: [W]')
+-- formatDateTime_54_expected.json --
+"Week: 1"
+-- formatDateTime_55.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Mon 5th Jan 2015 should be in week 2 of 2015",
+  "exprFile": "formatDateTime_55.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_55.JSONATA --
+$fromMillis(1420459200000, 'Week: [W]')
+-- formatDateTime_55_expected.json --
+"Week: 2"
+-- formatDateTime_56.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Mon 28th Dec 2015 should be in week 53 of 2015",
+  "exprFile": "formatDateTime_56.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_56.JSONATA --
+$fromMillis(1451304000000, 'Week: [W]')
+-- formatDateTime_56_expected.json --
+"Week: 53"
+-- formatDateTime_57.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Thur 31th Dec 2015 should be in week 53 of 2015",
+  "exprFile": "formatDateTime_57.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_57.JSONATA --
+$fromMillis(1451563200000, 'Week: [W]')
+-- formatDateTime_57_expected.json --
+"Week: 53"
+-- formatDateTime_58.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Sat 2nd Jan 2016 should be in week 53 of 2015",
+  "exprFile": "formatDateTime_58.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_58.JSONATA --
+$fromMillis(1451736000000, 'Week: [W]')
+-- formatDateTime_58_expected.json --
+"Week: 53"
+-- formatDateTime_59.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Tue 29th Jan 2013 should be in week 5 of Jan",
+  "exprFile": "formatDateTime_59.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_59.JSONATA --
+$fromMillis(1359460800000, 'Week: [w] of [xNn]')
+-- formatDateTime_59_expected.json --
+"Week: 5 of January"
+-- formatDateTime_60.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Thur 31st Jan 2013 should be in week 5 of Jan",
+  "exprFile": "formatDateTime_60.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_60.JSONATA --
+$fromMillis(1359633600000, 'Week: [w] of [xNn]')
+-- formatDateTime_60_expected.json --
+"Week: 5 of January"
+-- formatDateTime_61.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Thur 1st Feb 2013 should be in week 5 of Jan",
+  "exprFile": "formatDateTime_61.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_61.JSONATA --
+$fromMillis(1359720000000, 'Week: [w] of [xNn]')
+-- formatDateTime_61_expected.json --
+"Week: 5 of January"
+-- formatDateTime_62.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Mon 1st Jan 2018 should be in week 1 of Jan",
+  "exprFile": "formatDateTime_62.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_62.JSONATA --
+$fromMillis(1514808000000, 'Week: [w] of [xNn]')
+-- formatDateTime_62_expected.json --
+"Week: 1 of January"
+-- formatDateTime_63.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Sun 1st Jan 2017 should be in week 5 of Dec",
+  "exprFile": "formatDateTime_63.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_63.JSONATA --
+$fromMillis(1483272000000, 'Week: [w] of [xNn]')
+-- formatDateTime_63_expected.json --
+"Week: 5 of December"
+-- formatDateTime_64.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Tues 31st July 2018 should be in week 1 of Aug",
+  "exprFile": "formatDateTime_64.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_64.JSONATA --
+$fromMillis(1533038400000, 'Week: [w] of [xNn]')
+-- formatDateTime_64_expected.json --
+"Week: 1 of August"
+-- formatDateTime_65.json --
+{
+  "category": "Day of year; week of year; week of month",
+  "data": {},
+  "description": "Tues 30th Dec 2014 should be in week 1 of Jan",
+  "exprFile": "formatDateTime_65.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_65.JSONATA --
+$fromMillis(1419940800000, 'Week: [w] of [xNn]')
+-- formatDateTime_65_expected.json --
+"Week: 1 of January"
+-- formatDateTime_66.json --
+{
+  "category": "Default format",
+  "data": {},
+  "description": "Undefined picture string defaults to ISO 8601",
+  "exprFile": "formatDateTime_66.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_66.JSONATA --
+$toMillis('2018-10-21T13:05:00Z').[$fromMillis(), $fromMillis($, (),'-0500'), $fromMillis($, (),'0000')] 
+-- formatDateTime_66_expected.json --
+["2018-10-21T13:05:00.000Z","2018-10-21T08:05:00.000-05:00","2018-10-21T13:05:00.000Z"]
+-- formatDateTime_67.json --
+{
+  "category": "error",
+  "code": "D3133",
+  "data": {},
+  "description": "throws error asking for year name",
+  "exprFile": "formatDateTime_67.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_67.JSONATA --
+$fromMillis(1419940800000, '[YN]-[M]-[D]')
+-- formatDateTime_68.json --
+{
+  "category": "error",
+  "code": "D3135",
+  "data": {},
+  "description": "throws error for component with no closing bracket",
+  "exprFile": "formatDateTime_68.JSONATA",
+  "function": "#fromMillis"
+}
+-- formatDateTime_68.JSONATA --
+$fromMillis(1419940800000, '[YN]-[M')
+-- isoWeekDate_0.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Sat 1 Jan 2005",
+  "exprFile": "isoWeekDate_0.JSONATA"
+}
+-- isoWeekDate_0.JSONATA --
+($ts := $toMillis('2005-01-01', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_0_expected.json --
+"2004-W53-6"
+-- isoWeekDate_1.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Sun 2 Jan 2005",
+  "exprFile": "isoWeekDate_1.JSONATA"
+}
+-- isoWeekDate_1.JSONATA --
+($ts := $toMillis('2005-01-02', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_1_expected.json --
+"2004-W53-7"
+-- isoWeekDate_2.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Sat 31 Dec 2005",
+  "exprFile": "isoWeekDate_2.JSONATA"
+}
+-- isoWeekDate_2.JSONATA --
+($ts := $toMillis('2005-12-31', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_2_expected.json --
+"2005-W52-6"
+-- isoWeekDate_3.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Sun 1 Jan 2006",
+  "exprFile": "isoWeekDate_3.JSONATA"
+}
+-- isoWeekDate_3.JSONATA --
+($ts := $toMillis('2006-01-01', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_3_expected.json --
+"2005-W52-7"
+-- isoWeekDate_4.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Mon 2 Jan 2006",
+  "exprFile": "isoWeekDate_4.JSONATA"
+}
+-- isoWeekDate_4.JSONATA --
+($ts := $toMillis('2006-01-02', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_4_expected.json --
+"2006-W01-1"
+-- isoWeekDate_5.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Sun 31 Dec 2006",
+  "exprFile": "isoWeekDate_5.JSONATA"
+}
+-- isoWeekDate_5.JSONATA --
+($ts := $toMillis('2006-12-31', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_5_expected.json --
+"2006-W52-7"
+-- isoWeekDate_6.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Mon 1 Jan 2007",
+  "exprFile": "isoWeekDate_6.JSONATA"
+}
+-- isoWeekDate_6.JSONATA --
+($ts := $toMillis('2007-01-01', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_6_expected.json --
+"2007-W01-1"
+-- isoWeekDate_7.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Sun 30 Dec 2007",
+  "exprFile": "isoWeekDate_7.JSONATA"
+}
+-- isoWeekDate_7.JSONATA --
+($ts := $toMillis('2007-12-30', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_7_expected.json --
+"2007-W52-7"
+-- isoWeekDate_8.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Mon 31 Dec 2007",
+  "exprFile": "isoWeekDate_8.JSONATA"
+}
+-- isoWeekDate_8.JSONATA --
+($ts := $toMillis('2007-12-31', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_8_expected.json --
+"2008-W01-1"
+-- isoWeekDate_9.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Tue 1 Jan 2008",
+  "exprFile": "isoWeekDate_9.JSONATA"
+}
+-- isoWeekDate_9.JSONATA --
+($ts := $toMillis('2008-01-01', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_9_expected.json --
+"2008-W01-2"
+-- isoWeekDate_10.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Sun 28 Dec 2008",
+  "exprFile": "isoWeekDate_10.JSONATA"
+}
+-- isoWeekDate_10.JSONATA --
+($ts := $toMillis('2008-12-28', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_10_expected.json --
+"2008-W52-7"
+-- isoWeekDate_11.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Mon 29 Dec 2008",
+  "exprFile": "isoWeekDate_11.JSONATA"
+}
+-- isoWeekDate_11.JSONATA --
+($ts := $toMillis('2008-12-29', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_11_expected.json --
+"2009-W01-1"
+-- isoWeekDate_12.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Tue 30 Dec 2008",
+  "exprFile": "isoWeekDate_12.JSONATA"
+}
+-- isoWeekDate_12.JSONATA --
+($ts := $toMillis('2008-12-30', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_12_expected.json --
+"2009-W01-2"
+-- isoWeekDate_13.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Wed 31 Dec 2008",
+  "exprFile": "isoWeekDate_13.JSONATA"
+}
+-- isoWeekDate_13.JSONATA --
+($ts := $toMillis('2008-12-31', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_13_expected.json --
+"2009-W01-3"
+-- isoWeekDate_14.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Thu 1 Jan 2009",
+  "exprFile": "isoWeekDate_14.JSONATA"
+}
+-- isoWeekDate_14.JSONATA --
+($ts := $toMillis('2009-01-01', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_14_expected.json --
+"2009-W01-4"
+-- isoWeekDate_15.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Thu 31 Dec 2009",
+  "exprFile": "isoWeekDate_15.JSONATA"
+}
+-- isoWeekDate_15.JSONATA --
+($ts := $toMillis('2009-12-31', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_15_expected.json --
+"2009-W53-4"
+-- isoWeekDate_16.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Fri 1 Jan 2010",
+  "exprFile": "isoWeekDate_16.JSONATA"
+}
+-- isoWeekDate_16.JSONATA --
+($ts := $toMillis('2010-01-01', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_16_expected.json --
+"2009-W53-5"
+-- isoWeekDate_17.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Sat 2 Jan 2010",
+  "exprFile": "isoWeekDate_17.JSONATA"
+}
+-- isoWeekDate_17.JSONATA --
+($ts := $toMillis('2010-01-02', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_17_expected.json --
+"2009-W53-6"
+-- isoWeekDate_18.json --
+{
+  "category": "ISO week date format",
+  "data": {},
+  "description": "Sun 3 Jan 2010",
+  "exprFile": "isoWeekDate_18.JSONATA"
+}
+-- isoWeekDate_18.JSONATA --
+($ts := $toMillis('2010-01-03', '[Y]-[M]-[D]'); $fromMillis($ts, '[X0001]-W[W01]-[F1]') )
+-- isoWeekDate_18_expected.json --
+"2009-W53-7"

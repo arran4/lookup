@@ -1,113 +1,57 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
 $zip([1,2,3],[4,5,6])
 -- case000_expected.json --
-[
-  [
-    1,
-    4
-  ],
-  [
-    2,
-    5
-  ],
-  [
-    3,
-    6
-  ]
-]
+[[1,4],[2,5],[3,6]]
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
 $zip([1,2,3],[4,5,6],[7,8,9])
 -- case001_expected.json --
-[
-  [
-    1,
-    4,
-    7
-  ],
-  [
-    2,
-    5,
-    8
-  ],
-  [
-    3,
-    6,
-    9
-  ]
-]
+[[1,4,7],[2,5,8],[3,6,9]]
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
 $zip([1,2,3],[4,5],[7,8,9])
 -- case002_expected.json --
-[
-  [
-    1,
-    4,
-    7
-  ],
-  [
-    2,
-    5,
-    8
-  ]
-]
+[[1,4,7],[2,5,8]]
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
 $zip([1,2,3])
 -- case003_expected.json --
-[
-  [
-    1
-  ],
-  [
-    2
-  ],
-  [
-    3
-  ]
-]
+[[1],[2],[3]]
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
 $zip(1,2,3)
 -- case004_expected.json --
-[
-  [
-    1,
-    2,
-    3
-  ]
-]
+[[1,2,3]]
 -- case005.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --

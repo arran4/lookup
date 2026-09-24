@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@ foo.bar + bar
 140
 -- case001.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,8 +20,8 @@ bar + foo.bar
 140
 -- case002.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -30,8 +30,8 @@ foo.bar - bar
 -56
 -- case003.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -40,8 +40,8 @@ bar - foo.bar
 56
 -- case004.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -50,8 +50,8 @@ foo.bar * bar
 4116
 -- case005.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -60,8 +60,8 @@ bar * foo.bar
 4116
 -- case006.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -70,8 +70,8 @@ foo.bar / bar
 0.42857142857142855
 -- case007.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
@@ -80,8 +80,8 @@ bar / foo.bar
 2.3333333333333335
 -- case008.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
@@ -90,8 +90,8 @@ foo.bar % bar
 42
 -- case009.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
@@ -100,8 +100,8 @@ bar % foo.bar
 14
 -- case010.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
@@ -110,8 +110,8 @@ bar + foo.bar * bar
 4214
 -- case011.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
@@ -120,74 +120,62 @@ foo.bar * bar + bar
 4214
 -- case012.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case012.JSONATA",
   "undefinedResult": true
 }
 -- case012.JSONATA --
 24 * notexist
--- case012_expected.json --
-null
 -- case013.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case013.JSONATA",
   "undefinedResult": true
 }
 -- case013.JSONATA --
 notexist + 1
--- case013_expected.json --
-null
 -- case014.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "D1001",
+  "dataset": null,
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
-1/(10e300 * 10e100)
--- case014_expected.json --
-null
+1/(10e300 * 10e100) 
 -- case015.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T2001",
+  "dataset": null,
   "exprFile": "case015.JSONATA"
 }
 -- case015.JSONATA --
 "5" + "5"
--- case015_expected.json --
-null
 -- case016.json --
 {
-  "dataset": "dataset0__INPUT",
   "bindings": {},
+  "dataset": "dataset0",
   "exprFile": "case016.JSONATA",
   "undefinedResult": true
 }
 -- case016.JSONATA --
 - notexist
--- case016_expected.json --
-null
 -- case017.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "code": "T2001",
+  "data": {},
   "exprFile": "case017.JSONATA"
 }
 -- case017.JSONATA --
 false + 1
--- case017_expected.json --
-null
 -- case018.json --
 {
-  "dataset": "",
-  "bindings": null,
+  "code": "T2001",
+  "data": {},
   "exprFile": "case018.JSONATA"
 }
 -- case018.JSONATA --
 false + $x
--- case018_expected.json --
-null

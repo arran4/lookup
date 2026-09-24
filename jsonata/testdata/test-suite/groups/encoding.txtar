@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,19 +10,17 @@ $base64encode("hello:world")
 "aGVsbG86d29ybGQ="
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case001.JSONATA",
   "undefinedResult": true
 }
 -- case001.JSONATA --
 $base64encode()
--- case001_expected.json --
-null
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
@@ -31,12 +29,10 @@ $base64decode("aGVsbG86d29ybGQ=")
 "hello:world"
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case003.JSONATA",
   "undefinedResult": true
 }
 -- case003.JSONATA --
 $base64decode()
--- case003_expected.json --
-null

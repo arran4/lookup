@@ -251,7 +251,7 @@ func TestJSONNumberSanity(t *testing.T) {
 }
 
 func TestHarnessInputDistinctions(t *testing.T) {
-	dataset, err := loadDataset("dataset0__INPUT")
+	dataset, err := loadDataset("dataset0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -263,7 +263,7 @@ func TestHarnessInputDistinctions(t *testing.T) {
 		{"explicit null", `{"data":null}`, "data", nil, false},
 		{"data takes precedence", `{"data":null,"dataset":"nonexistent"}`, "data", nil, false},
 		{"undefined", `{"dataset":null}`, "undefined", Undefined{}, false},
-		{"named dataset", `{"dataset":"dataset0__INPUT"}`, "dataset", dataset, false},
+		{"named dataset", `{"dataset":"dataset0"}`, "dataset", dataset, false},
 		{"absent metadata", `{}`, "absent", Undefined{}, true},
 		{"legacy empty dataset", `{"dataset":""}`, "dataset", Undefined{}, true},
 	} {

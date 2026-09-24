@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -10,8 +10,8 @@ $length("")
 0
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -20,19 +20,17 @@ $length("hello")
 5
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case002.JSONATA",
   "undefinedResult": true
 }
 -- case002.JSONATA --
 $length(missing)
--- case002_expected.json --
-null
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
@@ -41,8 +39,8 @@ $length("\u03BB-calculus")
 10
 -- case004.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case004.JSONATA"
 }
 -- case004.JSONATA --
@@ -51,8 +49,8 @@ $length("\uD834\uDD1E")
 1
 -- case005.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case005.JSONATA"
 }
 -- case005.JSONATA --
@@ -61,8 +59,8 @@ $length("𝄞")
 1
 -- case006.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case006.JSONATA"
 }
 -- case006.JSONATA --
@@ -71,8 +69,8 @@ $length("超明體繁")
 4
 -- case007.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case007.JSONATA"
 }
 -- case007.JSONATA --
@@ -81,8 +79,8 @@ $length("\t")
 1
 -- case008.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case008.JSONATA"
 }
 -- case008.JSONATA --
@@ -91,78 +89,71 @@ $length("\n")
 1
 -- case009.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case009.JSONATA"
 }
 -- case009.JSONATA --
 $length(1234)
--- case009_expected.json --
-null
 -- case010.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case010.JSONATA"
 }
 -- case010.JSONATA --
 $length(null)
--- case010_expected.json --
-null
 -- case011.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case011.JSONATA"
 }
 -- case011.JSONATA --
 $length(true)
--- case011_expected.json --
-null
 -- case012.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case012.JSONATA"
 }
 -- case012.JSONATA --
 $length(["str"])
--- case012_expected.json --
-null
 -- case013.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0411",
+  "data": 23,
   "exprFile": "case013.JSONATA"
 }
 -- case013.JSONATA --
 $length()
--- case013_expected.json --
-null
 -- case014.json --
 {
-  "dataset": "dataset5__INPUT",
   "bindings": {},
+  "code": "T0411",
+  "dataset": "dataset5",
   "exprFile": "case014.JSONATA"
 }
 -- case014.JSONATA --
 $length()
--- case014_expected.json --
-null
 -- case015.json --
 {
-  "dataset": "",
   "bindings": {},
+  "code": "T0410",
+  "dataset": null,
   "exprFile": "case015.JSONATA"
 }
 -- case015.JSONATA --
 $length("Hello", "World")
--- case015_expected.json --
-null
 -- case016.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case016.JSONATA"
 }
 -- case016.JSONATA --

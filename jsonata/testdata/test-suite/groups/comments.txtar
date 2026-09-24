@@ -1,7 +1,7 @@
 -- case000.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case000.JSONATA"
 }
 -- case000.JSONATA --
@@ -11,8 +11,8 @@
 2
 -- case001.json --
 {
-  "dataset": "",
   "bindings": {},
+  "dataset": null,
   "exprFile": "case001.JSONATA"
 }
 -- case001.JSONATA --
@@ -21,20 +21,18 @@ $substring('Hello, world', 0 /* start at index 0 */, 5/*length*/)
 "Hello"
 -- case002.json --
 {
-  "dataset": "",
   "bindings": {},
-  "exprFile": "case002.JSONATA",
-  "code": "S0106"
+  "code": "S0106",
+  "dataset": null,
+  "exprFile": "case002.JSONATA"
 }
 -- case002.JSONATA --
 $substring('Hello, world', 0 /* start at index 0 */, 5/*length*/)
 /* trailing comment - no closing tag should trigger an error
--- case002_expected.json --
-null
 -- case003.json --
 {
-  "dataset": "",
   "bindings": {},
+  "data": 256,
   "exprFile": "case003.JSONATA"
 }
 -- case003.JSONATA --
