@@ -455,7 +455,7 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 
 | Feature Group | Passed | Failed | Unsupported |
 |---|---|---|---|
-| array-constructor | 6 | 20 | 0 |
+| array-constructor | 7 | 19 | 0 |
 | blocks | 0 | 7 | 0 |
 | boolean-expresssions | 25 | 6 | 0 |
 | closures | 0 | 2 | 0 |
@@ -544,7 +544,7 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 | performance | 0 | 2 | 0 |
 | predicates | 3 | 1 | 0 |
 | quoted-selectors | 0 | 8 | 0 |
-| range-operator | 0 | 25 | 0 |
+| range-operator | 5 | 20 | 0 |
 | regex | 0 | 39 | 0 |
 | simple-array-selectors | 8 | 15 | 0 |
 | sorting | 0 | 21 | 0 |

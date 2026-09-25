@@ -51,3 +51,9 @@ type Predicate struct {
 	Operator string // "=", ">", "<", etc.
 	Value    string
 }
+
+type ArrayNode struct {
+	Elements []Node
+}
+
+func (n *ArrayNode) isNode() {}

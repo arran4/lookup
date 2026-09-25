@@ -233,3 +233,44 @@ func pathResultValue(raw interface{}) interface{} {
 	}
 	return raw
 }
+
+type jsonataArrayRunner struct {
+	elements []lookup.Runner
+}
+
+func (r *jsonataArrayRunner) Run(scope *lookup.Scope) lookup.Pathor {
+	var result []interface{}
+	for _, el := range r.elements {
+		res := el.Run(scope)
+
+		if isNilOrNilPointer(res) {
+			result = append(result, nil) // explicit null
+			continue
+		}
+		if inv, ok := res.(*lookup.Invalidor); ok {
+			if IsUndefinedError(inv) {
+				continue // missing field is treated as undefined (omitted)
+			}
+			if isJSONataFieldNoMatch(inv) {
+				continue // similar to missing field
+			}
+			return inv // real error, stop map evaluation
+		}
+
+		raw := res.Raw()
+		if _, ok := raw.(Undefined); ok {
+			continue // undefined is omitted
+		}
+
+		// Sequence Flattening: Nested sequences are flattened into the parent sequence.
+		// Wait, for arrays, do we flatten sequences directly into the array elements?
+		// Yes, array construction flattens sequences of values (but preserves nested arrays).
+		if seq, ok := raw.(*Sequence); ok {
+			result = append(result, FlattenSequence(seq.Values...).Values...)
+		} else {
+			result = append(result, raw)
+		}
+	}
+
+	return lookup.Reflect(&Array{Elements: result})
+}

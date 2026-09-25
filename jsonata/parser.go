@@ -323,41 +323,36 @@ func (p *parser) parseTerm() (Node, error) {
 	// Array Constructor `[...]`
 	if p.peek() == '[' {
 		p.i++ // consume [
-		// Try to parse as list of expressions (literals for now as per previous attempt)
-		var litItems []interface{}
+		var elements []Node
 
 		for {
 			if err := p.consumeWhitespace(); err != nil {
 				return nil, err
 			}
 			if p.peek() == ']' {
-				p.i++
+				p.i++ // consume ]
 				break
 			}
 
-			// Recursive parse
+			// Parse element expression
 			item, err := p.parseExpression()
 			if err != nil {
 				return nil, err
 			}
-
-			if lit, ok := item.(*LiteralNode); ok {
-				litItems = append(litItems, lit.Value)
-			} else {
-				return nil, fmt.Errorf("complex array constructors not supported yet")
-			}
+			elements = append(elements, item)
 
 			if err := p.consumeWhitespace(); err != nil {
 				return nil, err
 			}
+
 			if p.peek() == ',' {
-				p.i++
+				p.i++ // consume ,
 			} else if p.peek() != ']' {
-				return nil, fmt.Errorf("expected , or ]")
+				return nil, fmt.Errorf("expected , or ] in array constructor")
 			}
 		}
 
-		return &LiteralNode{Value: &Array{Elements: litItems}}, nil
+		return &ArrayNode{Elements: elements}, nil
 	}
 
 	// Path
