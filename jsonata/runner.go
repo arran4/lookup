@@ -244,8 +244,7 @@ func (r *jsonataArrayRunner) Run(scope *lookup.Scope) lookup.Pathor {
 		res := el.Run(scope)
 
 		if isNilOrNilPointer(res) {
-			result = append(result, nil) // explicit null
-			continue
+			continue // a nil Pathor implies an absent/undefined result
 		}
 		if inv, ok := res.(*lookup.Invalidor); ok {
 			if IsUndefinedError(inv) {

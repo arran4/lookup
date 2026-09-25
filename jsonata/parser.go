@@ -347,6 +347,13 @@ func (p *parser) parseTerm() (Node, error) {
 
 			if p.peek() == ',' {
 				p.i++ // consume ,
+				// Check for trailing comma
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
+				if p.peek() == ']' {
+					return nil, fmt.Errorf("trailing comma in array constructor")
+				}
 			} else if p.peek() != ']' {
 				return nil, fmt.Errorf("expected , or ] in array constructor")
 			}

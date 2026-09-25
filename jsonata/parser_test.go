@@ -20,6 +20,7 @@ func TestArrayConstructor(t *testing.T) {
 		{"nested expression", `[[foo], bar]`, false},
 		{"malformed comma", `[1,,2]`, true},
 		{"malformed brackets", `[1,2`, true},
+		{"trailing comma", `[1,]`, true},
 	}
 
 	for _, tt := range tests {

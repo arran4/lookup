@@ -73,6 +73,11 @@ func TestArrayConstructorEvaluation(t *testing.T) {
 		{"missing field vs explicit null", `[foo, bar]`, map[string]interface{}{"foo": nil}, []interface{}{nil}, false}, // bar is undefined/missing and therefore omitted
 		{"context is not mutated regression", `[foo, foo]`, map[string]interface{}{"foo": 1}, []interface{}{1.0, 1.0}, false},
 		{"failing element expression", `[1/0]`, nil, nil, true}, // division by zero
+
+		// PR Review Requirements
+		{"absent result omission (nil Pathor)", `[nonexistent]`, nil, []interface{}{}, false},                     // missing from un-keyed input -> nil Pathor -> omitted
+		{"explicit null preservation", `[null]`, nil, []interface{}{nil}, false},                                  // JSON null literal -> literal node -> evaluated to explicit null
+		{"missing field omission (Invalidor)", `[foo]`, map[string]interface{}{"bar": 1}, []interface{}{}, false}, // specific map missing field Invalidor -> omitted
 	}
 
 	for _, tt := range tests {
