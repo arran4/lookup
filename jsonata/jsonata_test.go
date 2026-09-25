@@ -2,11 +2,11 @@ package jsonata
 
 import (
 	"encoding/json"
-	"fmt"
 	"testing"
 
 	"github.com/arran4/lookup"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type TestNode struct {
@@ -68,10 +68,10 @@ func TestArrayConstructorEvaluation(t *testing.T) {
 		{"literal array", `[1, 2]`, nil, []interface{}{1.0, 2.0}, false},
 		{"nested literal array", `[[1, 2], 3]`, nil, []interface{}{[]interface{}{1.0, 2.0}, 3.0}, false},
 		{"arithmetic expression", `[1 + 2, 4 * 2]`, nil, []interface{}{3.0, 8.0}, false},
-		{"field paths evaluated against input", `[foo, bar]`, map[string]interface{}{"foo": 1, "bar": 2}, []interface{}{1.0, 2.0}, false},
-		{"nested expression valued arrays", `[[foo], bar]`, map[string]interface{}{"foo": 1, "bar": 2}, []interface{}{[]interface{}{1.0}, 2.0}, false},
+		{"field paths evaluated against input", `[foo, bar]`, map[string]interface{}{"foo": 1, "bar": 2}, []interface{}{1, 2}, false},
+		{"nested expression valued arrays", `[[foo], bar]`, map[string]interface{}{"foo": 1, "bar": 2}, []interface{}{[]interface{}{1}, 2}, false},
 		{"missing field vs explicit null", `[foo, bar]`, map[string]interface{}{"foo": nil}, []interface{}{nil}, false}, // bar is undefined/missing and therefore omitted
-		{"context is not mutated regression", `[foo, foo]`, map[string]interface{}{"foo": 1}, []interface{}{1.0, 1.0}, false},
+		{"context is not mutated regression", `[foo, foo]`, map[string]interface{}{"foo": 1}, []interface{}{1, 1}, false},
 		{"failing element expression", `[1/0]`, nil, nil, true}, // division by zero
 
 		// PR Review Requirements
@@ -104,9 +104,36 @@ func TestArrayConstructorEvaluation(t *testing.T) {
 
 			raw := Materialize(res.Raw())
 
-			if fmt.Sprintf("%v", tt.want) != fmt.Sprintf("%v", raw) {
-				t.Errorf("Expected %#v, got %#v", tt.want, raw)
-			}
+			require.Equal(t, tt.want, raw)
+		})
+	}
+}
+
+// jsonataArrayRunner unit tests directly testing inner pathor resolution behaviour
+func TestJSONataArrayRunner_Unit(t *testing.T) {
+	// 1. Omit nil / typed nil pathor
+	// 2. Preserve explicit null
+	// 3. Omit Invalidor
+
+	tests := []struct {
+		name string
+		mock lookup.Runner
+		want interface{}
+	}{
+		{"omit nil Pathor", &resultRunner{result: nil}, []interface{}{}},
+		{"omit typed-nil Pathor", &resultRunner{result: (*lookup.Reflector)(nil)}, []interface{}{}},
+		{"preserve explicit null", lookup.Constant(nil), []interface{}{nil}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			runner := &jsonataArrayRunner{elements: []lookup.Runner{tt.mock}}
+			scope := lookup.NewScopeWithContext(lookup.Reflect(nil), lookup.Reflect(nil), nil)
+			res := runner.Run(scope)
+
+			require.NotNil(t, res)
+			raw := Materialize(res.Raw())
+			require.Equal(t, tt.want, raw)
 		})
 	}
 }
