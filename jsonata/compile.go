@@ -21,8 +21,18 @@ func compileNode(node Node) lookup.Runner {
 		return lookup.Constant(n.Value)
 	case *FunctionCallNode:
 		return compileFunctionCall(n)
+	case *ArrayNode:
+		return compileArray(n)
 	}
 	return lookup.Error(nil) // Should not happen
+}
+
+func compileArray(n *ArrayNode) lookup.Runner {
+	var elements []lookup.Runner
+	for _, el := range n.Elements {
+		elements = append(elements, compileNode(el))
+	}
+	return &jsonataArrayRunner{elements: elements}
 }
 
 func compileFunctionCall(n *FunctionCallNode) lookup.Runner {
