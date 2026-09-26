@@ -273,3 +273,42 @@ func (r *jsonataArrayRunner) Run(scope *lookup.Scope) lookup.Pathor {
 
 	return lookup.Reflect(&Array{Elements: result})
 }
+
+type objectPropertyRunner struct {
+	Key    string
+	Runner lookup.Runner
+}
+
+type jsonataObjectRunner struct {
+	properties []objectPropertyRunner
+}
+
+func (r *jsonataObjectRunner) Run(scope *lookup.Scope) lookup.Pathor {
+	result := make(map[string]interface{})
+	for _, prop := range r.properties {
+		res := prop.Runner.Run(scope)
+
+		if isNilOrNilPointer(res) {
+			continue // a nil Pathor implies an absent/undefined result
+		}
+		if inv, ok := res.(*lookup.Invalidor); ok {
+			if IsUndefinedError(inv) {
+				continue // missing field is treated as undefined (omitted)
+			}
+			if isJSONataFieldNoMatch(inv) {
+				continue // similar to missing field
+			}
+			return inv // real error, stop object evaluation
+		}
+
+		raw := res.Raw()
+		if _, ok := raw.(Undefined); ok {
+			continue // undefined is omitted
+		}
+
+		// JSONata explicitly materializes sequence values during object property assignment.
+		result[prop.Key] = Materialize(raw)
+	}
+
+	return lookup.Reflect(result)
+}

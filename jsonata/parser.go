@@ -320,6 +320,72 @@ func (p *parser) parseTerm() (Node, error) {
 		}
 	}
 
+	// Object Constructor `{...}`
+	if p.peek() == '{' {
+		p.i++ // consume {
+		var properties []ObjectProperty
+
+		for {
+			if err := p.consumeWhitespace(); err != nil {
+				return nil, err
+			}
+			if p.peek() == '}' {
+				p.i++ // consume }
+				break
+			}
+
+			// Parse key
+			var key string
+			var err error
+			if p.peek() == '"' || p.peek() == '\'' {
+				key, err = p.parseValue()
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				key, err = p.parseIdent()
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			if err := p.consumeWhitespace(); err != nil {
+				return nil, err
+			}
+
+			if p.peek() != ':' {
+				return nil, fmt.Errorf("expected : in object constructor")
+			}
+			p.i++ // consume :
+
+			// Parse value expression
+			val, err := p.parseExpression()
+			if err != nil {
+				return nil, err
+			}
+			properties = append(properties, ObjectProperty{Key: key, Value: val})
+
+			if err := p.consumeWhitespace(); err != nil {
+				return nil, err
+			}
+
+			if p.peek() == ',' {
+				p.i++ // consume ,
+				// Check for trailing comma
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, err
+				}
+				if p.peek() == '}' {
+					return nil, fmt.Errorf("trailing comma in object constructor")
+				}
+			} else if p.peek() != '}' {
+				return nil, fmt.Errorf("expected , or } in object constructor")
+			}
+		}
+
+		return &ObjectNode{Properties: properties}, nil
+	}
+
 	// Array Constructor `[...]`
 	if p.peek() == '[' {
 		p.i++ // consume [

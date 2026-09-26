@@ -23,8 +23,21 @@ func compileNode(node Node) lookup.Runner {
 		return compileFunctionCall(n)
 	case *ArrayNode:
 		return compileArray(n)
+	case *ObjectNode:
+		return compileObject(n)
 	}
 	return lookup.Error(nil) // Should not happen
+}
+
+func compileObject(n *ObjectNode) lookup.Runner {
+	var props []objectPropertyRunner
+	for _, prop := range n.Properties {
+		props = append(props, objectPropertyRunner{
+			Key:    prop.Key,
+			Runner: compileNode(prop.Value),
+		})
+	}
+	return &jsonataObjectRunner{properties: props}
 }
 
 func compileArray(n *ArrayNode) lookup.Runner {
