@@ -335,15 +335,17 @@ func (p *parser) parseTerm() (Node, error) {
 			}
 
 			// Parse key
-			var key string
+			var key Node
 			var err error
+
 			if p.peek() == '"' || p.peek() == '\'' {
-				key, err = p.parseValue()
+				val, err := p.parseValue()
 				if err != nil {
 					return nil, err
 				}
+				key = &LiteralNode{Value: val}
 			} else {
-				key, err = p.parseIdent()
+				key, err = p.parseExpression()
 				if err != nil {
 					return nil, err
 				}

@@ -59,7 +59,7 @@ type ArrayNode struct {
 func (n *ArrayNode) isNode() {}
 
 type ObjectProperty struct {
-	Key   string
+	Key   Node
 	Value Node
 }
 

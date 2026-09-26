@@ -269,4 +269,18 @@ func TestSemanticObjectConstructor(t *testing.T) {
 		assert.Equal(t, map[string]interface{}{"new": 42}, res)
 		assert.Equal(t, map[string]interface{}{"foo": 42}, input)
 	})
+
+	t.Run("evaluated dynamic key", func(t *testing.T) {
+		input := map[string]interface{}{"type": "home", "number": "0203"}
+		res, err := runExpr(`{type: number}`, input)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{"home": "0203"}, res)
+	})
+
+	t.Run("non string key error", func(t *testing.T) {
+		input := map[string]interface{}{"type": 1, "number": "0203"}
+		_, err := runExpr(`{type: number}`, input)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "must evaluate to a string")
+	})
 }

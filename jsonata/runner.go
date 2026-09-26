@@ -275,8 +275,8 @@ func (r *jsonataArrayRunner) Run(scope *lookup.Scope) lookup.Pathor {
 }
 
 type objectPropertyRunner struct {
-	Key    string
-	Runner lookup.Runner
+	KeyRunner   lookup.Runner
+	ValueRunner lookup.Runner
 }
 
 type jsonataObjectRunner struct {
@@ -286,12 +286,35 @@ type jsonataObjectRunner struct {
 func (r *jsonataObjectRunner) Run(scope *lookup.Scope) lookup.Pathor {
 	result := make(map[string]interface{})
 	for _, prop := range r.properties {
-		res := prop.Runner.Run(scope)
+		// Evaluate key
+		resKey := prop.KeyRunner.Run(scope)
+		if isNilOrNilPointer(resKey) {
+			return lookup.NewInvalidor("", fmt.Errorf("object constructor key evaluated to nil/undefined"))
+		}
+		if inv, ok := resKey.(*lookup.Invalidor); ok {
+			if IsUndefinedError(inv) || isJSONataFieldNoMatch(inv) {
+				return lookup.NewInvalidor("", fmt.Errorf("object constructor key cannot be undefined"))
+			}
+			return inv
+		}
 
-		if isNilOrNilPointer(res) {
+		rawKey := Materialize(resKey.Raw())
+		if _, ok := rawKey.(Undefined); ok {
+			return lookup.NewInvalidor("", fmt.Errorf("object constructor key cannot be undefined"))
+		}
+
+		keyStr, ok := rawKey.(string)
+		if !ok {
+			return lookup.NewInvalidor("", fmt.Errorf("object constructor key must evaluate to a string, got %T", rawKey))
+		}
+
+		// Evaluate value
+		resVal := prop.ValueRunner.Run(scope)
+
+		if isNilOrNilPointer(resVal) {
 			continue // a nil Pathor implies an absent/undefined result
 		}
-		if inv, ok := res.(*lookup.Invalidor); ok {
+		if inv, ok := resVal.(*lookup.Invalidor); ok {
 			if IsUndefinedError(inv) {
 				continue // missing field is treated as undefined (omitted)
 			}
@@ -301,13 +324,13 @@ func (r *jsonataObjectRunner) Run(scope *lookup.Scope) lookup.Pathor {
 			return inv // real error, stop object evaluation
 		}
 
-		raw := res.Raw()
-		if _, ok := raw.(Undefined); ok {
+		rawVal := resVal.Raw()
+		if _, ok := rawVal.(Undefined); ok {
 			continue // undefined is omitted
 		}
 
 		// JSONata explicitly materializes sequence values during object property assignment.
-		result[prop.Key] = Materialize(raw)
+		result[keyStr] = Materialize(rawVal)
 	}
 
 	return lookup.Reflect(result)

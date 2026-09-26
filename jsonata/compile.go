@@ -33,8 +33,8 @@ func compileObject(n *ObjectNode) lookup.Runner {
 	var props []objectPropertyRunner
 	for _, prop := range n.Properties {
 		props = append(props, objectPropertyRunner{
-			Key:    prop.Key,
-			Runner: compileNode(prop.Value),
+			KeyRunner:   compileNode(prop.Key),
+			ValueRunner: compileNode(prop.Value),
 		})
 	}
 	return &jsonataObjectRunner{properties: props}
