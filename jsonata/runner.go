@@ -273,3 +273,65 @@ func (r *jsonataArrayRunner) Run(scope *lookup.Scope) lookup.Pathor {
 
 	return lookup.Reflect(&Array{Elements: result})
 }
+
+type objectPropertyRunner struct {
+	KeyRunner   lookup.Runner
+	ValueRunner lookup.Runner
+}
+
+type jsonataObjectRunner struct {
+	properties []objectPropertyRunner
+}
+
+func (r *jsonataObjectRunner) Run(scope *lookup.Scope) lookup.Pathor {
+	result := make(map[string]interface{})
+	for _, prop := range r.properties {
+		// Evaluate key
+		resKey := prop.KeyRunner.Run(scope)
+		if isNilOrNilPointer(resKey) {
+			return lookup.NewInvalidor("", fmt.Errorf("object constructor key evaluated to nil/undefined"))
+		}
+		if inv, ok := resKey.(*lookup.Invalidor); ok {
+			if IsUndefinedError(inv) || isJSONataFieldNoMatch(inv) {
+				return lookup.NewInvalidor("", fmt.Errorf("object constructor key cannot be undefined"))
+			}
+			return inv
+		}
+
+		rawKey := Materialize(resKey.Raw())
+		if _, ok := rawKey.(Undefined); ok {
+			return lookup.NewInvalidor("", fmt.Errorf("object constructor key cannot be undefined"))
+		}
+
+		keyStr, ok := rawKey.(string)
+		if !ok {
+			return lookup.NewInvalidor("", fmt.Errorf("object constructor key must evaluate to a string, got %T", rawKey))
+		}
+
+		// Evaluate value
+		resVal := prop.ValueRunner.Run(scope)
+
+		if isNilOrNilPointer(resVal) {
+			continue // a nil Pathor implies an absent/undefined result
+		}
+		if inv, ok := resVal.(*lookup.Invalidor); ok {
+			if IsUndefinedError(inv) {
+				continue // missing field is treated as undefined (omitted)
+			}
+			if isJSONataFieldNoMatch(inv) {
+				continue // similar to missing field
+			}
+			return inv // real error, stop object evaluation
+		}
+
+		rawVal := resVal.Raw()
+		if _, ok := rawVal.(Undefined); ok {
+			continue // undefined is omitted
+		}
+
+		// JSONata explicitly materializes sequence values during object property assignment.
+		result[keyStr] = Materialize(rawVal)
+	}
+
+	return lookup.Reflect(result)
+}

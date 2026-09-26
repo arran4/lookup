@@ -189,3 +189,98 @@ func TestHarnessUndefinedDistinction(t *testing.T) {
 		t.Fatalf("materializeHarnessValue(nil) = %v, %v, expected nil, false", v, undef)
 	}
 }
+
+func TestSemanticObjectConstructor(t *testing.T) {
+	// A helper to compile and run an expression and return its Raw result.
+	runExpr := func(expr string, input interface{}) (interface{}, error) {
+		ast, err := Parse(expr)
+		if err != nil {
+			return nil, err
+		}
+		runner := Compile(ast)
+		scope := lookup.NewScope(nil, nil).Nest(lookup.Reflect(input))
+		res := runner.Run(scope)
+		if inv, ok := res.(*lookup.Invalidor); ok {
+			return nil, inv
+		}
+		return res.Raw(), nil
+	}
+
+	t.Run("empty object", func(t *testing.T) {
+		res, err := runExpr(`{}`, nil)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{}, res)
+	})
+
+	t.Run("single property", func(t *testing.T) {
+		res, err := runExpr(`{"key": "value"}`, nil)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{"key": "value"}, res)
+	})
+
+	t.Run("multiple properties", func(t *testing.T) {
+		res, err := runExpr(`{"one": 1, "two": 2}`, nil)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{"one": float64(1), "two": float64(2)}, res)
+	})
+
+	t.Run("nested object", func(t *testing.T) {
+		res, err := runExpr(`{"one": 1, "two": {"three": 3, "four": "4"}}`, nil)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{
+			"one": float64(1),
+			"two": map[string]interface{}{
+				"three": float64(3),
+				"four":  "4",
+			},
+		}, res)
+	})
+
+	t.Run("array in object", func(t *testing.T) {
+		res, err := runExpr(`{"one": 1, "two": [3, "four"]}`, nil)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{
+			"one": float64(1),
+			"two": []interface{}{float64(3), "four"},
+		}, res)
+	})
+
+	t.Run("explicit null preservation", func(t *testing.T) {
+		res, err := runExpr(`{"a": null}`, nil)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{"a": nil}, res)
+	})
+
+	t.Run("missing/undefined property omission", func(t *testing.T) {
+		res, err := runExpr(`{"a": 1, "b": doesnotexist}`, map[string]interface{}{"a": 1})
+		require.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{"a": float64(1)}, res)
+	})
+
+	t.Run("propagation of genuine evaluation error", func(t *testing.T) {
+		_, err := runExpr(`{"a": 1, "b": 1 + "foo"}`, nil)
+		require.Error(t, err)
+	})
+
+	t.Run("no mutation of caller/current evaluation context", func(t *testing.T) {
+		input := map[string]interface{}{"foo": 42}
+		res, err := runExpr(`{"new": foo}`, input)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{"new": 42}, res)
+		assert.Equal(t, map[string]interface{}{"foo": 42}, input)
+	})
+
+	t.Run("evaluated dynamic key", func(t *testing.T) {
+		input := map[string]interface{}{"type": "home", "number": "0203"}
+		res, err := runExpr(`{type: number}`, input)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{"home": "0203"}, res)
+	})
+
+	t.Run("non string key error", func(t *testing.T) {
+		input := map[string]interface{}{"type": 1, "number": "0203"}
+		_, err := runExpr(`{type: number}`, input)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "must evaluate to a string")
+	})
+}
