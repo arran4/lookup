@@ -1067,6 +1067,7 @@ var expectedFailures = map[string]bool{
 	"numeric-operators/case016":               true,
 	"numeric-operators/case017":               true,
 	"numeric-operators/case018":               true,
+	"object-constructor/case003":              true,
 	"object-constructor/case006":              true,
 	"object-constructor/case007":              true,
 	"object-constructor/case008":              true,

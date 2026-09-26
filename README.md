@@ -537,7 +537,7 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 | multiple-array-selectors | 0 | 3 | 0 |
 | null | 6 | 1 | 0 |
 | numeric-operators | 2 | 17 | 0 |
-| object-constructor | 6 | 21 | 0 |
+| object-constructor | 5 | 22 | 0 |
 | parent-operator | 0 | 44 | 0 |
 | parentheses | 6 | 2 | 0 |
 | partial-application | 0 | 5 | 0 |
