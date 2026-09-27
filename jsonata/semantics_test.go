@@ -283,4 +283,11 @@ func TestSemanticObjectConstructor(t *testing.T) {
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "must evaluate to a string")
 	})
+
+	t.Run("missing/undefined dynamic key omitted", func(t *testing.T) {
+		input := map[string]interface{}{}
+		res, err := runExpr(`{missing: "value"}`, input)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{}, res)
+	})
 }

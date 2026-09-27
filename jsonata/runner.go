@@ -289,18 +289,18 @@ func (r *jsonataObjectRunner) Run(scope *lookup.Scope) lookup.Pathor {
 		// Evaluate key
 		resKey := prop.KeyRunner.Run(scope)
 		if isNilOrNilPointer(resKey) {
-			return lookup.NewInvalidor("", fmt.Errorf("object constructor key evaluated to nil/undefined"))
+			continue // undefined key omits property
 		}
 		if inv, ok := resKey.(*lookup.Invalidor); ok {
 			if IsUndefinedError(inv) || isJSONataFieldNoMatch(inv) {
-				return lookup.NewInvalidor("", fmt.Errorf("object constructor key cannot be undefined"))
+				continue // missing field as key omits property
 			}
 			return inv
 		}
 
 		rawKey := Materialize(resKey.Raw())
 		if _, ok := rawKey.(Undefined); ok {
-			return lookup.NewInvalidor("", fmt.Errorf("object constructor key cannot be undefined"))
+			continue // undefined key omits property
 		}
 
 		keyStr, ok := rawKey.(string)
