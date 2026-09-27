@@ -57,3 +57,14 @@ type ArrayNode struct {
 }
 
 func (n *ArrayNode) isNode() {}
+
+type ObjectProperty struct {
+	Key   Node
+	Value Node
+}
+
+type ObjectNode struct {
+	Properties []ObjectProperty
+}
+
+func (n *ObjectNode) isNode() {}
