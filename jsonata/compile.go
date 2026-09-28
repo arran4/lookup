@@ -146,6 +146,21 @@ func compilePath(n *PathNode) lookup.Runner {
 				r = &jsonataChain{first: r, second: mapRunner}
 			}
 
+		} else if step.Variable != "" {
+			varRunner := &jsonataVariableRunner{name: step.Variable}
+			stepRunner := applyOpts(varRunner)
+
+			mapRunner := &jsonataMapRunner{
+				stepRunner: stepRunner,
+				name:       "",
+			}
+
+			if r == nil {
+				r = mapRunner
+			} else {
+				r = &jsonataChain{first: r, second: mapRunner}
+			}
+
 		} else if step.Name == "$" {
 			chainStep := &jsonataChain{
 				first:  &rootRunner{},

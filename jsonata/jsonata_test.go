@@ -2,6 +2,7 @@ package jsonata
 
 import (
 	"encoding/json"
+	"github.com/arran4/go-evaluator"
 	"testing"
 
 	"github.com/arran4/lookup"
@@ -134,6 +135,74 @@ func TestJSONataArrayRunner_Unit(t *testing.T) {
 			require.NotNil(t, res)
 			raw := Materialize(res.Raw())
 			require.Equal(t, tt.want, raw)
+		})
+	}
+}
+
+func TestVariablesEvaluation(t *testing.T) {
+	data := map[string]interface{}{
+		"foo": "bar",
+	}
+
+	tests := []struct {
+		name      string
+		expr      string
+		variables map[string]interface{}
+		want      interface{}
+	}{
+		{
+			name:      "simple variable resolution",
+			expr:      `$var`,
+			variables: map[string]interface{}{"var": "hello"},
+			want:      "hello",
+		},
+		{
+			name:      "missing variable resolution",
+			expr:      `$missing`,
+			variables: map[string]interface{}{"var": "hello"},
+			want:      Undefined{},
+		},
+		{
+			name:      "variable object navigation",
+			expr:      `$price.foo.bar`,
+			variables: map[string]interface{}{"price": map[string]interface{}{"foo": map[string]interface{}{"bar": 45}}},
+			want:      45,
+		},
+		{
+			name:      "variable array index",
+			expr:      `$var[1]`,
+			variables: map[string]interface{}{"var": []interface{}{1, 2, 3}},
+			want:      2,
+		},
+		{
+			name:      "ensure $ is not affected",
+			expr:      `$.foo`,
+			variables: map[string]interface{}{"var": "hello"},
+			want:      "bar",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ast, err := Parse(tt.expr)
+			require.NoError(t, err)
+
+			q := Compile(ast)
+
+			ctx := &evaluator.Context{
+				Functions: GetStandardFunctions(),
+				Variables: tt.variables,
+			}
+
+			root := lookup.Reflect(data)
+			res := q.Run(lookup.NewScopeWithContext(nil, root, ctx))
+
+			actual := res.Raw()
+			if _, isUndef := actual.(Undefined); isUndef {
+				require.Equal(t, tt.want, Undefined{})
+			} else {
+				require.Equal(t, tt.want, actual)
+			}
 		})
 	}
 }
