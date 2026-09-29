@@ -150,14 +150,13 @@ func compilePath(n *PathNode) lookup.Runner {
 			varRunner := &jsonataVariableRunner{name: step.Variable}
 			stepRunner := applyOpts(varRunner)
 
-			mapRunner := &jsonataMapRunner{
-				stepRunner: stepRunner,
-				name:       "",
-			}
-
 			if r == nil {
-				r = mapRunner
+				r = stepRunner
 			} else {
+				mapRunner := &jsonataMapRunner{
+					stepRunner: stepRunner,
+					name:       "",
+				}
 				r = &jsonataChain{first: r, second: mapRunner}
 			}
 
