@@ -271,8 +271,6 @@ func TestVariableRunnerIndependentOfInput(t *testing.T) {
 
 func flattenSequence(seq Sequence) []interface{} {
 	var out []interface{}
-	for _, item := range seq.Values {
-		out = append(out, item)
-	}
+	out = append(out, seq.Values...)
 	return out
 }
