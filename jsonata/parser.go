@@ -477,6 +477,8 @@ func (p *parser) parsePath() (Node, error) {
 				}
 				p.i++ // consume ')'
 				step = Step{FunctionCall: &FunctionCallNode{Name: ident, Args: args}}
+			} else if len(ident) > 1 && ident[0] == '$' {
+				step = Step{Variable: ident[1:]}
 			} else {
 				step = Step{Name: ident}
 			}

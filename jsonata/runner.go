@@ -335,3 +335,20 @@ func (r *jsonataObjectRunner) Run(scope *lookup.Scope) lookup.Pathor {
 
 	return lookup.Reflect(result)
 }
+
+type jsonataVariableRunner struct {
+	name string
+}
+
+func (r *jsonataVariableRunner) Run(scope *lookup.Scope) lookup.Pathor {
+	if scope == nil || scope.Context == nil || scope.Context.Variables == nil {
+		return lookup.Reflect(Undefined{})
+	}
+
+	val, ok := scope.Context.Variables[r.name]
+	if !ok {
+		return lookup.Reflect(Undefined{})
+	}
+
+	return lookup.Reflect(val)
+}

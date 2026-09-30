@@ -46,9 +46,10 @@ func parseJSON(data string) (interface{}, error) {
 
 // harnessInput retains metadata presence independently of its decoded value.
 type harnessInput struct {
-	kind    string
-	value   interface{}
-	dataset string
+	kind     string
+	value    interface{}
+	dataset  string
+	bindings map[string]interface{}
 }
 
 func decodeHarnessInput(metadata string) (harnessInput, error) {
@@ -56,21 +57,30 @@ func decodeHarnessInput(metadata string) (harnessInput, error) {
 	if err := json.Unmarshal([]byte(metadata), &fields); err != nil {
 		return harnessInput{}, err
 	}
+
+	bindings := make(map[string]interface{})
+	if b, ok := fields["bindings"]; ok {
+		var tmp map[string]interface{}
+		if err := json.Unmarshal(b, &tmp); err == nil {
+			bindings = tmp
+		}
+	}
+
 	if data, ok := fields["data"]; ok {
 		value, err := parseJSON(string(data))
-		return harnessInput{kind: "data", value: value}, err
+		return harnessInput{kind: "data", value: value, bindings: bindings}, err
 	}
 	if dataset, ok := fields["dataset"]; ok {
 		if strings.TrimSpace(string(dataset)) == "null" {
-			return harnessInput{kind: "undefined"}, nil
+			return harnessInput{kind: "undefined", bindings: bindings}, nil
 		}
 		var name string
 		if err := json.Unmarshal(dataset, &name); err != nil {
 			return harnessInput{}, err
 		}
-		return harnessInput{kind: "dataset", dataset: name}, nil
+		return harnessInput{kind: "dataset", dataset: name, bindings: bindings}, nil
 	}
-	return harnessInput{kind: "absent"}, nil
+	return harnessInput{kind: "absent", bindings: bindings}, nil
 }
 
 func (input harnessInput) resolve() (interface{}, error) {
@@ -90,7 +100,7 @@ func (input harnessInput) resolve() (interface{}, error) {
 // boundary maps omitted metadata and empty dataset names to undefined.
 func legacyTxtarInput(input harnessInput) harnessInput {
 	if input.kind == "absent" || (input.kind == "dataset" && input.dataset == "") {
-		return harnessInput{kind: "undefined"}
+		return harnessInput{kind: "undefined", bindings: input.bindings}
 	}
 	return input
 }
@@ -106,7 +116,10 @@ func runCase(input harnessInput, expr string) (interface{}, error) {
 	}
 	q := Compile(ast)
 	root := lookup.Reflect(data)
-	ctx := &evaluator.Context{Functions: GetStandardFunctions()}
+	ctx := &evaluator.Context{
+		Functions: GetStandardFunctions(),
+		Variables: input.bindings,
+	}
 	res := q.Run(lookup.NewScopeWithContext(nil, root, ctx))
 	if res == nil {
 		return nil, nil

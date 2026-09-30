@@ -65,3 +65,29 @@ func TestParseObjectConstructor(t *testing.T) {
 		})
 	}
 }
+
+func TestVariables(t *testing.T) {
+	tests := []struct {
+		name    string
+		expr    string
+		wantErr bool
+	}{
+		{"simple variable", `$var`, false},
+		{"variable with field", `$var.foo`, false},
+		{"variable with index", `$var[1]`, false},
+		{"just dollar sign", `$`, false},
+		{"function call with dollar", `$func(1)`, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ast, err := Parse(tt.expr)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, ast)
+			}
+		})
+	}
+}

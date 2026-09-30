@@ -39,6 +39,7 @@ func (n *FunctionCallNode) isNode() {}
 // Step describes a navigation step in the query.
 type Step struct {
 	Name         string            // field name
+	Variable     string            // variable name (without $)
 	Index        *int              // optional index
 	Filter       *Predicate        // optional filter
 	SubExpr      Node              // Parenthesized sub-expression in path
