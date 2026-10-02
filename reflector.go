@@ -138,7 +138,7 @@ func (r *Reflector) subPath(path string, v reflect.Value, p string, pv *reflect.
 	default:
 		p += path
 		result = &Invalidor{
-			err:  fmt.Errorf("invalid element at simple path %s element was %s expected array,slice,map,struct,func", p, v.Kind()),
+			err:  fmt.Errorf("%w: invalid element at simple path %s element was %s expected array,slice,map,struct,func", ErrNotNavigable, p, v.Kind()),
 			path: p,
 		}
 	}

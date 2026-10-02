@@ -126,7 +126,7 @@ func TestHarnessSemantics(t *testing.T) {
 		{
 			name:        "Missing-paths with undefined evaluation legacy fallback",
 			testID:      "missing-paths/case001",
-			execErr:     lookup.NewInvalidor("path", fmt.Errorf("element not found at simple path path element was map expected string")),
+			execErr:     lookup.NewInvalidor("path", fmt.Errorf("%w: element not found at simple path path element was map expected string", lookup.ErrNoSuchPath)),
 			expectPass:  true,
 			isUndefined: true,
 			want:        harnessOutcome{},
