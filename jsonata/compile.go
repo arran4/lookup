@@ -166,11 +166,7 @@ func compileSteps(r lookup.Runner, steps []Step, isComposition bool) lookup.Runn
 				if isComposition {
 					r = &jsonataCompositionChain{first: r, second: mapRunner}
 				} else {
-					if isComposition {
-						r = &jsonataCompositionChain{first: r, second: mapRunner}
-					} else {
-						r = &jsonataChain{first: r, second: mapRunner}
-					}
+					r = &jsonataChain{first: r, second: mapRunner}
 				}
 			}
 

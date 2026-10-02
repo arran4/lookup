@@ -352,6 +352,62 @@ func TestPostfixOperations(t *testing.T) {
 	}
 }
 
+func TestCompileCompositionNode(t *testing.T) {
+	// Tests direct compilation of CompositionNode bypasses parser issues
+	node := &CompositionNode{
+		Base: &LiteralNode{Value: []interface{}{1, 2, 3}},
+		Steps: []Step{
+			{
+				Index: func(i int) *int { return &i }(1),
+			},
+		},
+	}
+
+	ast := &AST{Node: node}
+	runner := Compile(ast)
+
+	scope := lookup.NewScope(lookup.Reflect(nil), lookup.Reflect(nil))
+	res := runner.Run(scope)
+
+	if invalid, ok := res.(*lookup.Invalidor); ok {
+		t.Fatalf("Runtime error: %v", invalid)
+	}
+
+	val := Materialize(res.Raw())
+	expected := 2
+
+	if !reflect.DeepEqual(val, expected) && !testJSONCompare(val, expected) {
+		t.Errorf("Expected %v, got %v", expected, val)
+	}
+}
+
+func TestCompositionChainRunner(t *testing.T) {
+	// Tests specifically the composition chain runner boundary logic for re-wrapping boxed slices.
+	// Manually construct jsonataCompositionChain
+	baseRunner := lookup.Constant([]interface{}{1, 2, []interface{}{3, 4}})
+
+	// First postfix step: [-1] (gets []interface{}{3,4})
+	step1 := &jsonataCompositionChain{
+		first:  baseRunner,
+		second: lookup.Find("", &jsonataSingletonRunner{inner: lookup.Index(-1)}),
+	}
+
+	// Second postfix step: [-1] (gets 4)
+	step2 := &jsonataCompositionChain{
+		first:  step1,
+		second: lookup.Find("", &jsonataSingletonRunner{inner: lookup.Index(-1)}),
+	}
+
+	scope := lookup.NewScope(lookup.Reflect(nil), lookup.Reflect(nil))
+	res := step2.Run(scope)
+
+	val := Materialize(res.Raw())
+	expected := 4
+	if !reflect.DeepEqual(val, expected) && !testJSONCompare(val, expected) {
+		t.Errorf("Expected %v, got %v", expected, val)
+	}
+}
+
 // Helper for type-lenient comparison in the postfix tests
 func testJSONCompare(a, b interface{}) bool {
 	aj, _ := json.Marshal(a)
