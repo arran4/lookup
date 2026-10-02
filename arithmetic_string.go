@@ -11,16 +11,9 @@ type stringConcatFunc struct {
 }
 
 func (sf *stringConcatFunc) Run(scope *Scope) Pathor {
-	// JSONata spec: "If an operand is not a string, it is converted to a string"
-	// "If an operand is null (or missing), it is not converted to a string "null", but treated as an empty string"
-
-	// Wait, JSONata spec says for string(arg):
-	// "If arg is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of arg."
-	// "If arg is specified, then..."
-	// "If arg is null, then the empty string is returned."
-
-	// For operator &:
-	// "The arguments are converted to strings and concatenated."
+	// If an operand is not a string, it is converted to a string.
+	// If an operand is null (or missing), it is treated as an empty string.
+	// For operator &: The arguments are converted to strings and concatenated.
 
 	leftRes := sf.left.Run(scope)
 	rightRes := sf.right.Run(scope)
@@ -52,8 +45,7 @@ func convertToString(p Pathor) string {
 		return ""
 	}
 
-	// JSON stringify
-	// Note: JSONata uses JSON string representation for arrays/objects.
+	// Arrays/objects are JSON stringified.
 	// But numbers should be simple format.
 	// AsString already handles String.
 

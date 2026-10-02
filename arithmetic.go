@@ -184,8 +184,7 @@ func (ef *moduloFunc) Run(scope *Scope) Pathor {
 		return NewConstantor(scope.Path(), i1%i2)
 	}
 
-	// Fallback to float mod if needed, but JSONata usually treats mod as integer operation or math.mod?
-	// The specification says JSONata `%` operator.
+	// Fallback to float mod if needed.
 	// Let's implement generic float mod if ToInt fails but float conversion works?
 	// Go's % is only for integers.
 	// We can use math.Mod for floats if we really want to support it, but keeping it int-only for now is safer/easier.
