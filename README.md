@@ -455,7 +455,7 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 
 | Feature Group | Passed | Failed | Unsupported |
 |---|---|---|---|
-| array-constructor | 8 | 18 | 0 |
+| array-constructor | 11 | 15 | 0 |
 | blocks | 0 | 7 | 0 |
 | boolean-expresssions | 25 | 6 | 0 |
 | closures | 0 | 2 | 0 |
@@ -467,7 +467,7 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 | encoding | 0 | 4 | 0 |
 | errors | 0 | 27 | 0 |
 | fields | 8 | 0 | 0 |
-| flattening | 9 | 52 | 0 |
+| flattening | 13 | 48 | 0 |
 | function-abs | 0 | 4 | 0 |
 | function-append | 0 | 6 | 0 |
 | function-applications | 0 | 22 | 0 |
@@ -537,21 +537,21 @@ UPDATE_MATRIX=1 go test ./jsonata -run TestUpdateCompatibilityMatrix
 | multiple-array-selectors | 0 | 3 | 0 |
 | null | 6 | 1 | 0 |
 | numeric-operators | 2 | 17 | 0 |
-| object-constructor | 5 | 22 | 0 |
+| object-constructor | 6 | 21 | 0 |
 | parent-operator | 0 | 44 | 0 |
-| parentheses | 6 | 2 | 0 |
+| parentheses | 8 | 0 | 0 |
 | partial-application | 0 | 5 | 0 |
 | performance | 0 | 2 | 0 |
 | predicates | 3 | 1 | 0 |
 | quoted-selectors | 0 | 8 | 0 |
 | range-operator | 5 | 20 | 0 |
 | regex | 0 | 39 | 0 |
-| simple-array-selectors | 8 | 15 | 0 |
+| simple-array-selectors | 14 | 9 | 0 |
 | sorting | 0 | 21 | 0 |
 | string-concat | 12 | 0 | 0 |
 | tail-recursion | 0 | 10 | 0 |
 | token-conversion | 0 | 4 | 0 |
 | transform | 35 | 69 | 0 |
 | transforms | 0 | 15 | 0 |
-| variables | 4 | 9 | 0 |
+| variables | 5 | 8 | 0 |
 | wildcards | 0 | 10 | 0 |

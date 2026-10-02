@@ -154,6 +154,30 @@ func (c *jsonataChain) Run(scope *lookup.Scope) lookup.Pathor {
 	return c.second.Run(scope.Nest(res))
 }
 
+// jsonataCompositionChain materializes raw results explicitly before next lookup steps.
+type jsonataCompositionChain struct {
+	first  lookup.Runner
+	second lookup.Runner
+}
+
+func (c *jsonataCompositionChain) Run(scope *lookup.Scope) lookup.Pathor {
+	res := c.first.Run(scope)
+	if isNilOrNilPointer(res) {
+		return lookup.Reflect(Undefined{})
+	}
+	if inv, ok := res.(*lookup.Invalidor); ok {
+		if IsUndefinedError(inv) || isJSONataFieldNoMatch(inv) {
+			return lookup.Reflect(Undefined{})
+		}
+		return inv
+	}
+	if _, ok := res.Raw().(Undefined); ok {
+		return lookup.Reflect(Undefined{})
+	}
+	materialized := Materialize(res.Raw())
+	return c.second.Run(scope.Nest(lookup.Reflect(materialized)))
+}
+
 // jsonataSingletonRunner wraps a runner (like Index or Filter) and ensures that if the input context
 // is not a sequence (array/slice), it is treated as a singleton array.
 type jsonataSingletonRunner struct {

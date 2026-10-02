@@ -3,6 +3,7 @@ package jsonata
 import (
 	"encoding/json"
 	"github.com/arran4/go-evaluator"
+	"reflect"
 	"testing"
 
 	"github.com/arran4/lookup"
@@ -273,4 +274,87 @@ func flattenSequence(seq Sequence) []interface{} {
 	var out []interface{}
 	out = append(out, seq.Values...)
 	return out
+}
+
+func TestPostfixOperations(t *testing.T) {
+	tests := []struct {
+		name     string
+		expr     string
+		input    interface{}
+		expected interface{}
+	}{
+		{
+			name:     "array constructor immediately followed by index",
+			expr:     `[1, 2, 3][0]`,
+			input:    map[string]interface{}{},
+			expected: 1, // Actually returns 1, not []interface{}{1} because sequence flattens
+		},
+		{
+			name:     "negative indexing after a constructed array",
+			expr:     `[1, 2, [3, 4]][-1]`,
+			input:    map[string]interface{}{},
+			expected: []interface{}{3, 4},
+		},
+		{
+			name:     "repeated postfix indexing",
+			expr:     `[1, 2, [3, 4]][-1][-1]`,
+			input:    map[string]interface{}{},
+			expected: 4,
+		},
+		{
+			name:     "object constructor immediately followed by field navigation",
+			expr:     `{"one": 1, "two": 2}.two`,
+			input:    map[string]interface{}{},
+			expected: 2,
+		},
+		{
+			name:     "preservation of existing ordinary path behaviour",
+			expr:     `a.b.c`,
+			input:    map[string]interface{}{"a": map[string]interface{}{"b": map[string]interface{}{"c": 42}}},
+			expected: 42,
+		},
+		{
+			name:     "chain on parens",
+			expr:     `(1 + 2 * 3)`,
+			input:    map[string]interface{}{},
+			expected: 7,
+		},
+		{
+			name:     "chain on parens with postfix",
+			expr:     `([1, 2, 3])[1]`,
+			input:    map[string]interface{}{},
+			expected: 2,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			node, err := Parse(tt.expr)
+			if err != nil {
+				t.Fatalf("Parse error: %v", err)
+			}
+			runner := Compile(node)
+			scope := lookup.NewScope(lookup.Reflect(tt.input), lookup.Reflect(tt.input))
+			res := runner.Run(scope)
+
+			if invalid, ok := res.(*lookup.Invalidor); ok {
+				t.Fatalf("Runtime error: %v", invalid)
+			}
+
+			val := Materialize(res.Raw())
+			if !reflect.DeepEqual(val, tt.expected) {
+				// Try JSON-safe comparison for int/float64 mismatch
+				if !testJSONCompare(val, tt.expected) {
+					t.Errorf("Expected %v, got %v", tt.expected, val)
+				}
+			}
+		})
+	}
+}
+
+// Helper for type-lenient comparison in the postfix tests
+func testJSONCompare(a, b interface{}) bool {
+	aj, _ := json.Marshal(a)
+	bj, _ := json.Marshal(b)
+	return string(aj) == string(bj)
 }
