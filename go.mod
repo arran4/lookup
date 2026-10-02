@@ -3,7 +3,7 @@ module github.com/arran4/lookup
 go 1.24.3
 
 require (
-	github.com/arran4/go-evaluator v0.0.6
+	github.com/arran4/go-evaluator v0.0.2
 	github.com/google/go-cmp v0.7.0
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/tools v0.40.0
