@@ -2,6 +2,7 @@ package jsonata
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/arran4/go-evaluator"
 	"reflect"
 	"testing"
@@ -352,6 +353,63 @@ func TestPostfixOperations(t *testing.T) {
 	}
 }
 
+func TestParseCompositionNode(t *testing.T) {
+	// Prove [1,2,[3,4]][-1][-1] has two separate index steps
+	ast, err := Parse(`[1, 2, [3, 4]][-1][-1]`)
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+	comp, ok := ast.Node.(*CompositionNode)
+	if !ok {
+		t.Fatalf("Expected CompositionNode, got %T", ast.Node)
+	}
+	if _, ok := comp.Base.(*ArrayNode); !ok {
+		t.Errorf("Expected Base to be ArrayNode, got %T", comp.Base)
+	}
+	if len(comp.Steps) != 2 {
+		t.Fatalf("Expected 2 steps, got %d", len(comp.Steps))
+	}
+	if comp.Steps[0].Index == nil || *comp.Steps[0].Index != -1 {
+		t.Errorf("Expected first step index -1")
+	}
+	if comp.Steps[1].Index == nil || *comp.Steps[1].Index != -1 {
+		t.Errorf("Expected second step index -1")
+	}
+
+	// Prove {"one":1,"two":2}.two has ObjectNode and one field step
+	ast, err = Parse(`{"one":1,"two":2}.two`)
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+	comp, ok = ast.Node.(*CompositionNode)
+	if !ok {
+		t.Fatalf("Expected CompositionNode, got %T", ast.Node)
+	}
+	if _, ok := comp.Base.(*ObjectNode); !ok {
+		t.Errorf("Expected Base to be ObjectNode, got %T", comp.Base)
+	}
+	if len(comp.Steps) != 1 || comp.Steps[0].Name != "two" {
+		t.Errorf("Expected 1 step with name 'two'")
+	}
+
+	// Prove parenthesized regression
+	ast, err = Parse(`([1, 2, 3])[1]`)
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+	comp, ok = ast.Node.(*CompositionNode)
+	if !ok {
+		t.Fatalf("Expected CompositionNode, got %T", ast.Node)
+	}
+	// Note: parens return the wrapped expression node directly, so base is ArrayNode
+	if _, ok := comp.Base.(*ArrayNode); !ok {
+		t.Errorf("Expected Base to be ArrayNode from Parens, got %T", comp.Base)
+	}
+	if len(comp.Steps) != 1 || comp.Steps[0].Index == nil || *comp.Steps[0].Index != 1 {
+		t.Errorf("Expected 1 step with index 1")
+	}
+}
+
 func TestCompileCompositionNode(t *testing.T) {
 	// Tests direct compilation of CompositionNode bypasses parser issues
 	node := &CompositionNode{
@@ -405,6 +463,26 @@ func TestCompositionChainRunner(t *testing.T) {
 	expected := 4
 	if !reflect.DeepEqual(val, expected) && !testJSONCompare(val, expected) {
 		t.Errorf("Expected %v, got %v", expected, val)
+	}
+
+	// Prove propagation of Undefined
+	stepUndef := &jsonataCompositionChain{
+		first:  lookup.Constant(Undefined{}),
+		second: lookup.Find("", &jsonataSingletonRunner{inner: lookup.Index(-1)}),
+	}
+	resUndef := stepUndef.Run(scope)
+	if _, ok := resUndef.Raw().(Undefined); !ok {
+		t.Errorf("Expected Undefined, got %v", resUndef.Raw())
+	}
+
+	// Prove propagation of genuine Invalidor errors
+	stepErr := &jsonataCompositionChain{
+		first:  lookup.Error(fmt.Errorf("test explicit invalidor propagated")),
+		second: lookup.Find("", &jsonataSingletonRunner{inner: lookup.Index(-1)}),
+	}
+	resErr := stepErr.Run(scope)
+	if _, ok := resErr.(*lookup.Invalidor); !ok {
+		t.Errorf("Expected Invalidor error, got %T", resErr)
 	}
 }
 
