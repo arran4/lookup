@@ -15,6 +15,13 @@ type PathNode struct {
 
 func (n *PathNode) isNode() {}
 
+type CompositionNode struct {
+	Base  Node
+	Steps []Step
+}
+
+func (n *CompositionNode) isNode() {}
+
 type BinaryNode struct {
 	Operator string
 	Left     Node

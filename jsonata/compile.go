@@ -25,6 +25,8 @@ func compileNode(node Node) lookup.Runner {
 		return compileArray(n)
 	case *ObjectNode:
 		return compileObject(n)
+	case *CompositionNode:
+		return compileComposition(n)
 	}
 	return lookup.Error(nil) // Should not happen
 }
@@ -80,9 +82,17 @@ func compileBinary(n *BinaryNode) lookup.Runner {
 	return lookup.Error(fmt.Errorf("unsupported binary operator: %s", n.Operator))
 }
 
+func compileComposition(n *CompositionNode) lookup.Runner {
+	baseRunner := compileNode(n.Base)
+	return compileSteps(baseRunner, n.Steps, true)
+}
+
 func compilePath(n *PathNode) lookup.Runner {
-	var r lookup.Runner = nil
-	for _, step := range n.Steps {
+	return compileSteps(nil, n.Steps, false)
+}
+
+func compileSteps(r lookup.Runner, steps []Step, isComposition bool) lookup.Runner {
+	for _, step := range steps {
 		// Prepare opts (Filters and Indices)
 		opts := []lookup.Runner{}
 		if step.Index != nil {
@@ -108,6 +118,12 @@ func compilePath(n *PathNode) lookup.Runner {
 			// But here we return a Runner.
 
 			// We can chain base + Find("", opts...).
+			if isComposition {
+				return &jsonataCompositionChain{
+					first:  base,
+					second: lookup.Find("", opts...),
+				}
+			}
 			return &jsonataChain{
 				first:  base,
 				second: lookup.Find("", opts...),
@@ -122,7 +138,11 @@ func compilePath(n *PathNode) lookup.Runner {
 			if r == nil {
 				r = stepRunner
 			} else {
-				r = &jsonataChain{first: r, second: stepRunner}
+				if isComposition {
+					r = &jsonataCompositionChain{first: r, second: stepRunner}
+				} else {
+					r = &jsonataChain{first: r, second: stepRunner}
+				}
 			}
 
 		} else if step.SubExpr != nil {
@@ -143,7 +163,11 @@ func compilePath(n *PathNode) lookup.Runner {
 			if r == nil {
 				r = mapRunner
 			} else {
-				r = &jsonataChain{first: r, second: mapRunner}
+				if isComposition {
+					r = &jsonataCompositionChain{first: r, second: mapRunner}
+				} else {
+					r = &jsonataChain{first: r, second: mapRunner}
+				}
 			}
 
 		} else if step.Variable != "" {
@@ -157,13 +181,25 @@ func compilePath(n *PathNode) lookup.Runner {
 					stepRunner: stepRunner,
 					name:       "",
 				}
-				r = &jsonataChain{first: r, second: mapRunner}
+				if isComposition {
+					r = &jsonataCompositionChain{first: r, second: mapRunner}
+				} else {
+					r = &jsonataChain{first: r, second: mapRunner}
+				}
 			}
 
 		} else if step.Name == "$" {
-			chainStep := &jsonataChain{
-				first:  &rootRunner{},
-				second: lookup.Find("", opts...),
+			var chainStep lookup.Runner
+			if isComposition {
+				chainStep = &jsonataCompositionChain{
+					first:  &rootRunner{},
+					second: lookup.Find("", opts...),
+				}
+			} else {
+				chainStep = &jsonataChain{
+					first:  &rootRunner{},
+					second: lookup.Find("", opts...),
+				}
 			}
 			mapRunner := &jsonataMapRunner{
 				stepRunner: chainStep,
@@ -173,7 +209,11 @@ func compilePath(n *PathNode) lookup.Runner {
 			if r == nil {
 				r = mapRunner
 			} else {
-				r = &jsonataChain{first: r, second: mapRunner}
+				if isComposition {
+					r = &jsonataCompositionChain{first: r, second: mapRunner}
+				} else {
+					r = &jsonataChain{first: r, second: mapRunner}
+				}
 			}
 
 		} else {
@@ -181,7 +221,11 @@ func compilePath(n *PathNode) lookup.Runner {
 				if r == nil {
 					r = lookup.Find("", opts...)
 				} else {
-					r = &jsonataChain{first: r, second: lookup.Find("", opts...)}
+					if isComposition {
+						r = &jsonataCompositionChain{first: r, second: lookup.Find("", opts...)}
+					} else {
+						r = &jsonataChain{first: r, second: lookup.Find("", opts...)}
+					}
 				}
 			} else {
 				stepRunner := lookup.This(step.Name).Find("", opts...)
@@ -193,7 +237,11 @@ func compilePath(n *PathNode) lookup.Runner {
 				if r == nil {
 					r = mapRunner
 				} else {
-					r = &jsonataChain{first: r, second: mapRunner}
+					if isComposition {
+						r = &jsonataCompositionChain{first: r, second: mapRunner}
+					} else {
+						r = &jsonataChain{first: r, second: mapRunner}
+					}
 				}
 			}
 		}

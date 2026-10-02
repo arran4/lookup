@@ -2,7 +2,9 @@ package jsonata
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/arran4/go-evaluator"
+	"reflect"
 	"testing"
 
 	"github.com/arran4/lookup"
@@ -273,4 +275,220 @@ func flattenSequence(seq Sequence) []interface{} {
 	var out []interface{}
 	out = append(out, seq.Values...)
 	return out
+}
+
+func TestPostfixOperations(t *testing.T) {
+	tests := []struct {
+		name     string
+		expr     string
+		input    interface{}
+		expected interface{}
+	}{
+		{
+			name:     "array constructor immediately followed by index",
+			expr:     `[1, 2, 3][0]`,
+			input:    map[string]interface{}{},
+			expected: 1, // Actually returns 1, not []interface{}{1} because sequence flattens
+		},
+		{
+			name:     "negative indexing after a constructed array",
+			expr:     `[1, 2, [3, 4]][-1]`,
+			input:    map[string]interface{}{},
+			expected: []interface{}{3, 4},
+		},
+		{
+			name:     "repeated postfix indexing",
+			expr:     `[1, 2, [3, 4]][-1][-1]`,
+			input:    map[string]interface{}{},
+			expected: 4,
+		},
+		{
+			name:     "object constructor immediately followed by field navigation",
+			expr:     `{"one": 1, "two": 2}.two`,
+			input:    map[string]interface{}{},
+			expected: 2,
+		},
+		{
+			name:     "preservation of existing ordinary path behaviour",
+			expr:     `a.b.c`,
+			input:    map[string]interface{}{"a": map[string]interface{}{"b": map[string]interface{}{"c": 42}}},
+			expected: 42,
+		},
+		{
+			name:     "chain on parens",
+			expr:     `(1 + 2 * 3)`,
+			input:    map[string]interface{}{},
+			expected: 7,
+		},
+		{
+			name:     "chain on parens with postfix",
+			expr:     `([1, 2, 3])[1]`,
+			input:    map[string]interface{}{},
+			expected: 2,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			node, err := Parse(tt.expr)
+			if err != nil {
+				t.Fatalf("Parse error: %v", err)
+			}
+			runner := Compile(node)
+			scope := lookup.NewScope(lookup.Reflect(tt.input), lookup.Reflect(tt.input))
+			res := runner.Run(scope)
+
+			if invalid, ok := res.(*lookup.Invalidor); ok {
+				t.Fatalf("Runtime error: %v", invalid)
+			}
+
+			val := Materialize(res.Raw())
+			if !reflect.DeepEqual(val, tt.expected) {
+				// Try JSON-safe comparison for int/float64 mismatch
+				if !testJSONCompare(val, tt.expected) {
+					t.Errorf("Expected %v, got %v", tt.expected, val)
+				}
+			}
+		})
+	}
+}
+
+func TestParseCompositionNode(t *testing.T) {
+	// Prove [1,2,[3,4]][-1][-1] has two separate index steps
+	ast, err := Parse(`[1, 2, [3, 4]][-1][-1]`)
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+	comp, ok := ast.Node.(*CompositionNode)
+	if !ok {
+		t.Fatalf("Expected CompositionNode, got %T", ast.Node)
+	}
+	if _, ok := comp.Base.(*ArrayNode); !ok {
+		t.Errorf("Expected Base to be ArrayNode, got %T", comp.Base)
+	}
+	if len(comp.Steps) != 2 {
+		t.Fatalf("Expected 2 steps, got %d", len(comp.Steps))
+	}
+	if comp.Steps[0].Index == nil || *comp.Steps[0].Index != -1 {
+		t.Errorf("Expected first step index -1")
+	}
+	if comp.Steps[1].Index == nil || *comp.Steps[1].Index != -1 {
+		t.Errorf("Expected second step index -1")
+	}
+
+	// Prove {"one":1,"two":2}.two has ObjectNode and one field step
+	ast, err = Parse(`{"one":1,"two":2}.two`)
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+	comp, ok = ast.Node.(*CompositionNode)
+	if !ok {
+		t.Fatalf("Expected CompositionNode, got %T", ast.Node)
+	}
+	if _, ok := comp.Base.(*ObjectNode); !ok {
+		t.Errorf("Expected Base to be ObjectNode, got %T", comp.Base)
+	}
+	if len(comp.Steps) != 1 || comp.Steps[0].Name != "two" {
+		t.Errorf("Expected 1 step with name 'two'")
+	}
+
+	// Prove parenthesized regression
+	ast, err = Parse(`([1, 2, 3])[1]`)
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+	comp, ok = ast.Node.(*CompositionNode)
+	if !ok {
+		t.Fatalf("Expected CompositionNode, got %T", ast.Node)
+	}
+	// Note: parens return the wrapped expression node directly, so base is ArrayNode
+	if _, ok := comp.Base.(*ArrayNode); !ok {
+		t.Errorf("Expected Base to be ArrayNode from Parens, got %T", comp.Base)
+	}
+	if len(comp.Steps) != 1 || comp.Steps[0].Index == nil || *comp.Steps[0].Index != 1 {
+		t.Errorf("Expected 1 step with index 1")
+	}
+}
+
+func TestCompileCompositionNode(t *testing.T) {
+	// Tests direct compilation of CompositionNode bypasses parser issues
+	node := &CompositionNode{
+		Base: &LiteralNode{Value: []interface{}{1, 2, 3}},
+		Steps: []Step{
+			{
+				Index: func(i int) *int { return &i }(1),
+			},
+		},
+	}
+
+	ast := &AST{Node: node}
+	runner := Compile(ast)
+
+	scope := lookup.NewScope(lookup.Reflect(nil), lookup.Reflect(nil))
+	res := runner.Run(scope)
+
+	if invalid, ok := res.(*lookup.Invalidor); ok {
+		t.Fatalf("Runtime error: %v", invalid)
+	}
+
+	val := Materialize(res.Raw())
+	expected := 2
+
+	if !reflect.DeepEqual(val, expected) && !testJSONCompare(val, expected) {
+		t.Errorf("Expected %v, got %v", expected, val)
+	}
+}
+
+func TestCompositionChainRunner(t *testing.T) {
+	// Tests specifically the composition chain runner boundary logic for re-wrapping boxed slices.
+	// Manually construct jsonataCompositionChain
+	baseRunner := lookup.Constant([]interface{}{1, 2, []interface{}{3, 4}})
+
+	// First postfix step: [-1] (gets []interface{}{3,4})
+	step1 := &jsonataCompositionChain{
+		first:  baseRunner,
+		second: lookup.Find("", &jsonataSingletonRunner{inner: lookup.Index(-1)}),
+	}
+
+	// Second postfix step: [-1] (gets 4)
+	step2 := &jsonataCompositionChain{
+		first:  step1,
+		second: lookup.Find("", &jsonataSingletonRunner{inner: lookup.Index(-1)}),
+	}
+
+	scope := lookup.NewScope(lookup.Reflect(nil), lookup.Reflect(nil))
+	res := step2.Run(scope)
+
+	val := Materialize(res.Raw())
+	expected := 4
+	if !reflect.DeepEqual(val, expected) && !testJSONCompare(val, expected) {
+		t.Errorf("Expected %v, got %v", expected, val)
+	}
+
+	// Prove propagation of Undefined
+	stepUndef := &jsonataCompositionChain{
+		first:  lookup.Constant(Undefined{}),
+		second: lookup.Find("", &jsonataSingletonRunner{inner: lookup.Index(-1)}),
+	}
+	resUndef := stepUndef.Run(scope)
+	if _, ok := resUndef.Raw().(Undefined); !ok {
+		t.Errorf("Expected Undefined, got %v", resUndef.Raw())
+	}
+
+	// Prove propagation of genuine Invalidor errors
+	stepErr := &jsonataCompositionChain{
+		first:  lookup.Error(fmt.Errorf("test explicit invalidor propagated")),
+		second: lookup.Find("", &jsonataSingletonRunner{inner: lookup.Index(-1)}),
+	}
+	resErr := stepErr.Run(scope)
+	if _, ok := resErr.(*lookup.Invalidor); !ok {
+		t.Errorf("Expected Invalidor error, got %T", resErr)
+	}
+}
+
+// Helper for type-lenient comparison in the postfix tests
+func testJSONCompare(a, b interface{}) bool {
+	aj, _ := json.Marshal(a)
+	bj, _ := json.Marshal(b)
+	return string(aj) == string(bj)
 }
