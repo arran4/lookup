@@ -347,6 +347,18 @@ During the query `Index(Constant("-1"))` sees:
 
 With other modifiers `Scope.Current` may differ from `Scope.Position`.
 
+## Building Query Frontends
+
+Lookup is designed to be the generic execution substrate for higher-level query languages and DSLs. It separates language-specific parsing and semantics from universal data navigation.
+
+*   **Frontend responsibilities:** A frontend is responsible for defining its syntax, parsing rules, AST generation, and language-specific semantics (like JSONata's specialized `Undefined` or truthiness logic).
+*   **Lookup responsibilities:** Lookup provides the generic execution primitives (`Runner`, `Pathor`, `Scope`), standard data structures, evaluator context plumbing, and navigation helpers.
+*   **Integration:** A frontend integrates by translating its AST into a chained sequence of `lookup.Runner` implementations. When composing stages:
+    *   `lookup.Chain` is used for sequential composition where the second runner evaluates against the first runner's result acting as `Position` (via `Next`), while preserving the original `Current` context.
+    *   `lookup.NestChain` should be used when the next stage requires the result of the previous stage to act as *both* `Current` and `Position` via `Nest` (for hierarchical depth traversal).
+
+For a concrete, working example of an independent frontend DSL targeting Lookup's generic runners without importing JSONata, see [`examples/frontend_proof`](examples/frontend_proof).
+
 ## Command Line Tools
 
 Two helper binaries make navigating YAML and JSON from the shell easy. Both use
