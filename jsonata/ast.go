@@ -76,3 +76,9 @@ type ObjectNode struct {
 }
 
 func (n *ObjectNode) isNode() {}
+
+type BlockNode struct {
+	Expressions []Node
+}
+
+func (n *BlockNode) isNode() {}
