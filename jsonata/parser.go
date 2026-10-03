@@ -278,21 +278,64 @@ func (p *parser) parsePrimary() (Node, bool, error) {
 		return &LiteralNode{Value: nil}, true, nil
 	}
 
-	// Parentheses
+	// Parentheses or Blocks
 	if p.peek() == '(' {
 		p.i++ // consume '('
+
+		if err := p.consumeWhitespace(); err != nil {
+			return nil, false, err
+		}
+
+		if p.peek() == ')' {
+			p.i++ // consume ')'
+			return &BlockNode{Expressions: []Node{}}, true, nil
+		}
+
 		expr, err := p.parseExpression()
 		if err != nil {
 			return nil, false, err
 		}
+
 		if err := p.consumeWhitespace(); err != nil {
 			return nil, false, err
 		}
+
+		if p.peek() == ';' {
+			var exprs []Node
+			exprs = append(exprs, expr)
+
+			for p.peek() == ';' {
+				p.i++ // consume ';'
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, false, err
+				}
+				if p.peek() == ')' {
+					break
+				}
+				nextExpr, err := p.parseExpression()
+				if err != nil {
+					return nil, false, err
+				}
+				exprs = append(exprs, nextExpr)
+				if err := p.consumeWhitespace(); err != nil {
+					return nil, false, err
+				}
+			}
+
+			if p.peek() != ')' {
+				return nil, false, fmt.Errorf("expected )")
+			}
+			p.i++ // consume ')'
+
+			return &BlockNode{Expressions: exprs}, true, nil
+		}
+
 		if p.peek() != ')' {
 			return nil, false, fmt.Errorf("expected )")
 		}
 		p.i++ // consume ')'
 
+		// Single expression in parentheses remains grouping
 		return expr, true, nil
 	}
 
