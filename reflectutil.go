@@ -388,7 +388,7 @@ func extractKey(path string, v reflect.Value, p string) (reflect.Value, Pathor) 
 	//case reflect.UnsafePointer:
 	default:
 		return reflect.Value{}, &Invalidor{
-			err:  fmt.Errorf("%w: invalid element at simple path %s element was %s expected %s", ErrNoSuchPath, p, v.Kind(), v.Type().Key().Kind()),
+			err:  fmt.Errorf("invalid element at simple path %s element was %s expected %s", p, v.Kind(), v.Type().Key().Kind()),
 			path: p,
 		}
 
