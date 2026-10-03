@@ -14,6 +14,7 @@ var (
 	ErrValueNotIn                = errors.New("value not in set")
 	ErrNoMatchesForQuery         = errors.New("nothing matched query")
 	ErrFalse                     = errors.New("evaluated to false")
+	ErrNotNavigable              = errors.New("value is not navigable")
 
 	// Type errors
 	ErrNotString    = errors.New("value is not a string")

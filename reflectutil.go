@@ -226,7 +226,7 @@ func mapPath(prefix string, path string, v reflect.Value) Pathor {
 	}
 	if !ve.IsValid() {
 		return &Invalidor{
-			err:  fmt.Errorf("element not found at simple path %s element was %s expected %s", p, v.Kind(), v.Type().Key().Kind()),
+			err:  fmt.Errorf("%w: element not found at simple path %s element was %s expected %s", ErrNoSuchPath, p, v.Kind(), v.Type().Key().Kind()),
 			path: p,
 		}
 	}
@@ -402,7 +402,7 @@ func structPath(prefix string, path string, v reflect.Value, pv *reflect.Value) 
 	p := prefix + "." + path
 	if unicode.IsLower([]rune(path)[0]) {
 		return &Invalidor{
-			err:  fmt.Errorf("invalid element at simple path %s element was not found - not exported", p),
+			err:  fmt.Errorf("%w: invalid element at simple path %s element was not found - not exported", ErrNoSuchPath, p),
 			path: p,
 		}
 	}
@@ -427,7 +427,7 @@ func structPath(prefix string, path string, v reflect.Value, pv *reflect.Value) 
 		return pather
 	}
 	return &Invalidor{
-		err:  fmt.Errorf("invalid element at simple path %s field or method was not found", p),
+		err:  fmt.Errorf("%w: invalid element at simple path %s field or method was not found", ErrNoSuchPath, p),
 		path: p,
 	}
 }
