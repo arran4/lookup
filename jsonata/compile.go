@@ -27,6 +27,8 @@ func compileNode(node Node) lookup.Runner {
 		return compileObject(n)
 	case *CompositionNode:
 		return compileComposition(n)
+	case *BlockNode:
+		return compileBlock(n)
 	}
 	return lookup.Error(nil) // Should not happen
 }
@@ -247,4 +249,12 @@ func compileSteps(r lookup.Runner, steps []Step, isComposition bool) lookup.Runn
 		}
 	}
 	return r
+}
+
+func compileBlock(n *BlockNode) lookup.Runner {
+	var exprs []lookup.Runner
+	for _, expr := range n.Expressions {
+		exprs = append(exprs, compileNode(expr))
+	}
+	return &jsonataBlockRunner{exprs: exprs}
 }

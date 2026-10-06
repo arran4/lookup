@@ -376,3 +376,33 @@ func (r *jsonataVariableRunner) Run(scope *lookup.Scope) lookup.Pathor {
 
 	return lookup.Reflect(val)
 }
+
+type jsonataBlockRunner struct {
+	exprs []lookup.Runner
+}
+
+func (r *jsonataBlockRunner) Run(scope *lookup.Scope) lookup.Pathor {
+	if len(r.exprs) == 0 {
+		return lookup.Reflect(Undefined{})
+	}
+
+	var lastRes lookup.Pathor
+	for _, expr := range r.exprs {
+		res := expr.Run(scope)
+
+		// Genuine errors must propagate, but Undefined does not halt
+		if inv, ok := res.(*lookup.Invalidor); ok {
+			if !IsUndefinedError(inv) && !isJSONataFieldNoMatch(inv) {
+				return inv
+			}
+		}
+
+		lastRes = res
+	}
+
+	if lastRes == nil {
+		return lookup.Reflect(Undefined{})
+	}
+
+	return lastRes
+}
