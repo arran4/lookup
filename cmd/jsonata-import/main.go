@@ -77,7 +77,11 @@ func run(verifyOnly bool) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("close upstream response: %v", err)
+		}
+	}()
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("upstream %s: %s", url, resp.Status)
 	}
@@ -92,7 +96,11 @@ func importArchive(source io.Reader, outDir string, verifyOnly bool) error {
 	if err != nil {
 		return fmt.Errorf("open upstream archive: %w", err)
 	}
-	defer gz.Close()
+	defer func() {
+		if err := gz.Close(); err != nil {
+			log.Printf("close upstream gzip reader: %v", err)
+		}
+	}()
 	tr := tar.NewReader(gz)
 	groupJSON := make(map[string]map[string][]byte)
 	groupExpr := make(map[string]map[string][]byte)
@@ -147,12 +155,13 @@ func importArchive(source io.Reader, outDir string, verifyOnly bool) error {
 			groupResult[group][caseName] = data
 			continue
 		}
-		if ext == ".json" {
+		switch ext {
+		case ".json":
 			if groupJSON[group] == nil {
 				groupJSON[group] = make(map[string][]byte)
 			}
 			groupJSON[group][base] = data
-		} else if ext == ".jsonata" {
+		case ".jsonata":
 			if groupExpr[group] == nil {
 				groupExpr[group] = make(map[string][]byte)
 			}
