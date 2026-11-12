@@ -365,13 +365,6 @@ jobs:
           cache: true
       - name: Test
         run: go test -coverprofile coverage.txt ./...
-      - name: Archive code coverage results
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage
-          path: coverage.txt
-          retention-days: 1
       - name: Display coverage
         if: matrix.os == 'ubuntu-latest'
         run: go tool cover -func=coverage.txt
